@@ -1,0 +1,10 @@
+.vs/
+tmp/
+bin/
+*.pdb
+*.pch
+*.idb
+*.log
+*.tlog
+*.obj
+*.lastbuildstate
