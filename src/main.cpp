@@ -9,6 +9,7 @@
 #include "Signal.h"
 #include "SignalRenderer.h"
 #include "Components/SinusComponent.h"
+#include "Components/SquareComponent.h"
 
 #define SAMPLERATE 48000
 
@@ -135,6 +136,15 @@ int main()
 
 	sinusGenerator.getInput("Amplitude")->setComponent(&sinusAttenuation);
 
+
+	SquareComponent squareGenerator;
+	squareGenerator.getInput("Frequency")->setDefaultValue(10);
+	squareGenerator.getInput("Amplitude")->setDefaultValue(0.5f);
+	squareGenerator.getInput("Offset")->setDefaultValue(0.5f);
+
+	sinusGenerator.getInput("Amplitude")->setComponent(&squareGenerator);
+
+
 	// ///////////////////////////// APPLICATION LOOP
 	while (Window::IsOpen())
 	{
@@ -182,7 +192,8 @@ int main()
 					}
 				}*/
 				//samples.push_back(0x8000 * 0.999f * attenuation * sinf(frequency * 2 * 3.1415926f * x));
-				samples.push_back(0x7FFF * sinusGenerator.getOutput(x));
+
+				samples.push_back(0x7FFF * clamp(sinusGenerator.getOutput(x), -1.0f, 1.0f));
 				//vertices.append(sf::Vertex(sf::Vector2f(i * step, 0.5f * Window::GetWidth() + mapValue(samples[i], -512, 512, -200, 200)), sf::Color::White));
 			}
 			//buffer.loadFromSamples(samples.data(), SAMPLERATE, 1, SAMPLERATE);

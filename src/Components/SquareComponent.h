@@ -25,7 +25,7 @@ public:
 	~SquareComponent();
 
 
-	virtual float getOutput(float _time) override { return 0.0f; };
+	virtual float getOutput(float _time) override;
 
 
 };

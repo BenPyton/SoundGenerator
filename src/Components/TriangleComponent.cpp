@@ -19,3 +19,8 @@ TriangleComponent::TriangleComponent()
 TriangleComponent::~TriangleComponent()
 {
 }
+
+float TriangleComponent::getOutput(float _time)
+{
+	return 0.0f;
+}
