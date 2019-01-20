@@ -23,6 +23,8 @@ class ComponentInput;
 
 class Component
 {
+	friend ComponentInput;
+
 protected:
 	vector<ComponentInput> m_inputs;
 
@@ -34,19 +36,25 @@ public:
 
 	ComponentInput* getInput(int _index);
 	ComponentInput* getInput(string _name);
+
+private:
+	bool _hasAlreadyInput(Component* _comp);
 };
 
 class ComponentInput
 {
+	friend Component;
+
 private:
+	Component* m_pParent = nullptr;
 	Component* m_pComponent = nullptr;
 	float m_defaultValue;
 	string m_name;
 
 public:
-	ComponentInput(string _name);
+	ComponentInput(string _name, Component* _parent = nullptr);
 
-	void setComponent(Component* _comp) { m_pComponent = _comp; }
+	void setComponent(Component* _comp);
 	void setDefaultValue(float _value) { m_defaultValue = _value; }
 	string getName() { return m_name; }
 	float getValue(float _time);

@@ -143,7 +143,7 @@ int main()
 	squareGenerator.getInput("Offset")->setDefaultValue(0.5f);
 
 	sinusGenerator.getInput("Amplitude")->setComponent(&squareGenerator);
-
+	squareGenerator.getInput("Amplitude")->setComponent(&sinusGenerator);
 
 	// ///////////////////////////// APPLICATION LOOP
 	while (Window::IsOpen())

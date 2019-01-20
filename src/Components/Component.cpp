@@ -43,9 +43,17 @@ ComponentInput * Component::getInput(string _name)
 	return input;
 }
 
-ComponentInput::ComponentInput(string _name)
-	: m_name(_name)
+ComponentInput::ComponentInput(string _name, Component* _parent)
+	: m_name(_name), m_pParent(_parent)
 {
+}
+
+void ComponentInput::setComponent(Component * _comp)
+{
+	if (_comp == nullptr || !_comp->_hasAlreadyInput(m_pParent))
+	{
+		m_pComponent = _comp;
+	}
 }
 
 float ComponentInput::getValue(float _time)
@@ -55,4 +63,17 @@ float ComponentInput::getValue(float _time)
 		return m_pComponent->getOutput(_time);
 	}
 	return m_defaultValue;
+}
+
+bool Component::_hasAlreadyInput(Component * _comp)
+{
+	bool hasComp = false;
+	if (_comp != nullptr)
+	{
+		for (vector<ComponentInput>::iterator it = m_inputs.begin(); it != m_inputs.end(); ++it)
+		{
+			hasComp |= (it->m_pComponent != nullptr) && ((it->m_pComponent == _comp) || it->m_pComponent->_hasAlreadyInput(_comp));
+		}
+	}
+	return hasComp;
 }

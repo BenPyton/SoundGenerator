@@ -17,9 +17,9 @@
 
 SinusComponent::SinusComponent()
 {
-	m_inputs.push_back(ComponentInput("Frequency"));
-	m_inputs.push_back(ComponentInput("Amplitude"));
-	m_inputs.push_back(ComponentInput("Offset"));
+	m_inputs.push_back(ComponentInput("Frequency", this));
+	m_inputs.push_back(ComponentInput("Amplitude", this));
+	m_inputs.push_back(ComponentInput("Offset", this));
 
 	m_inputs[0].setDefaultValue(400.0f);
 	m_inputs[1].setDefaultValue(1.0f);
