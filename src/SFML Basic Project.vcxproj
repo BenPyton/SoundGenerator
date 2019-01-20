@@ -170,7 +170,10 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Component.h" />
+    <ClInclude Include="Components\Component.h" />
+    <ClInclude Include="Components\SinusComponent.h" />
+    <ClInclude Include="Components\SquareComponent.h" />
+    <ClInclude Include="Components\TriangleComponent.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="Core\AbstractUI.h" />
     <ClInclude Include="Core\Animation.h" />
@@ -193,7 +196,10 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\Component.cpp" />
+    <ClCompile Include="Components\Component.cpp" />
+    <ClCompile Include="Components\SinusComponent.cpp" />
+    <ClCompile Include="Components\SquareComponent.cpp" />
+    <ClCompile Include="Components\TriangleComponent.cpp" />
     <ClCompile Include="Core\AbstractUI.cpp" />
     <ClCompile Include="Core\Animation.cpp" />
     <ClCompile Include="Core\Button.cpp" />

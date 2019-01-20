@@ -8,6 +8,7 @@
 #include "Core.h" // custom classes and functions (like Input, Button, etc.)
 #include "Signal.h"
 #include "SignalRenderer.h"
+#include "Components/SinusComponent.h"
 
 #define SAMPLERATE 48000
 
@@ -49,11 +50,11 @@ int main()
 
 
 	// InputField Example
-	InputField input(10, 10, 150, 30, style);
-	input.setFont(font);
-	input.setCharacterSize(16);
+	InputField input(10, 50, 150, 30, style);
+	//input.setFont(font);
+	//input.setCharacterSize(16);
 	input.setMaxLength(10);
-	input.setInt(20);
+	input.setFloat(1.0f);
 	input.setPlaceholder("Test");
 
 	// Draggable box example
@@ -117,12 +118,22 @@ int main()
 	signalRenderer.setMargins(200, 10, 10, 10);
 	rootLayout.add(signalRenderer);
 
-	float fadein_first = 0.2;
+	/*float fadein_first = 0.2;
 	float fadein_last = 0.6f;
 	float fadeout_first = 0.4f;
-	float fadeout_last = 0.8f;
+	float fadeout_last = 0.8f;*/
 
 	sf::Vector2f prevMousePos;
+
+	SinusComponent sinusGenerator;
+	sinusGenerator.getInput("Frequency")->setDefaultValue(20);
+
+	SinusComponent sinusAttenuation;
+	sinusAttenuation.getInput("Frequency")->setDefaultValue(1.5f);
+	sinusAttenuation.getInput("Offset")->setDefaultValue(0.5f);
+	sinusAttenuation.getInput("Amplitude")->setDefaultValue(0.5f);
+
+	sinusGenerator.getInput("Amplitude")->setComponent(&sinusAttenuation);
 
 	// ///////////////////////////// APPLICATION LOOP
 	while (Window::IsOpen())
@@ -142,16 +153,21 @@ int main()
 		{
 			samples.clear();
 			//vertices.clear();
-			float step = Window::GetWidth() / SAMPLERATE;
-			float frequency = input.getInt();
-			float attenuation = 0.5f;
 
-			for (int i = 0; i < SAMPLERATE; i++)
+			float duration = input.getFloat();
+
+			//float step = Window::GetWidth() / (duration * SAMPLERATE);
+			//float frequency = input.getInt();
+			//float attenuation = 0.5f;
+
+			sf::Uint64 totalSample = duration * SAMPLERATE;
+
+			for (int i = 0; i < totalSample; i++)
 			{
 				//samples.push_back(Random::Range(-128, 128));
 				float x = (float)i / SAMPLERATE;
-				attenuation = 1.0f;
-				if (x > fadeout_last || x < fadein_first)
+				//attenuation = 1.0f;
+				/*if (x > fadeout_last || x < fadein_first)
 				{
 					attenuation = 0;
 				}
@@ -164,8 +180,9 @@ int main()
 					{
 						attenuation *= mapValue(x, fadeout_first, fadeout_last, 1, 0);
 					}
-				}
-				samples.push_back(0x8000 * 0.999f * attenuation * sinf(frequency * 2 * 3.1415926f * x));
+				}*/
+				//samples.push_back(0x8000 * 0.999f * attenuation * sinf(frequency * 2 * 3.1415926f * x));
+				samples.push_back(0x7FFF * sinusGenerator.getOutput(x));
 				//vertices.append(sf::Vertex(sf::Vector2f(i * step, 0.5f * Window::GetWidth() + mapValue(samples[i], -512, 512, -200, 200)), sf::Color::White));
 			}
 			//buffer.loadFromSamples(samples.data(), SAMPLERATE, 1, SAMPLERATE);
@@ -199,7 +216,7 @@ int main()
 		Window::Draw(fpsText);
 		//Window::Draw(vertices);
 
-		Window::Draw(); // Draw active layout (with all it's children)
+		Window::Draw(); // Draw active layout (with all its children)
 
 		// ///////////////////////// END DRAW
 		Window::Display();
