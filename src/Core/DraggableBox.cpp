@@ -51,14 +51,15 @@ void DraggableBox::_updateState()
 				{
 					m_mouseOffset = m_position - m_viewParent->mapScreenPointToView((sf::Vector2f)Input::GetMousePosition());
 					m_dragged = true;
+					m_state = UIState::UI_HOVERED;
 				}
 			}
 			else
 			{
 				m_mouseOffset = m_position - (sf::Vector2f)Input::GetMousePosition();
 				m_dragged = true;
+				m_state = UIState::UI_HOVERED;
 			}
-			m_state = UIState::UI_HOVERED;
 		}
 	}
 }

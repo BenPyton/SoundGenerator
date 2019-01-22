@@ -47,7 +47,7 @@ void SignalRenderer::_updateTransform()
 	}*/
 	int nbVertex = min((int)m_signal->getSampleCount(), (int)m_rect->getSize().x);
 	m_vertices.resize(nbVertex);
-	cout << "Render vertex count: " << m_vertices.getVertexCount() << endl;
+	//cout << "Render vertex count: " << m_vertices.getVertexCount() << endl;
 	if (m_vertices.getVertexCount() > 0)
 	{
 		float sampleStep = m_signal->getSampleCount() / (float)m_vertices.getVertexCount();

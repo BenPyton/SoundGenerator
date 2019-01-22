@@ -19,7 +19,7 @@ using namespace std;
 
 class DraggableBox : public AbstractUI
 {
-private:
+protected:
 	bool m_dragged;
 	sf::Vector2f m_mouseOffset;
 public:
