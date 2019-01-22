@@ -102,6 +102,15 @@
     <ClInclude Include="Components\TriangleComponent.h">
       <Filter>Fichiers d%27en-tête\Components</Filter>
     </ClInclude>
+    <ClInclude Include="Components\RandomComponent.h">
+      <Filter>Fichiers d%27en-tête\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\ComponentRenderer.h">
+      <Filter>Fichiers d%27en-tête\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\SawToothComponent.h">
+      <Filter>Fichiers d%27en-tête\Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -171,6 +180,15 @@
       <Filter>Fichiers sources\Components</Filter>
     </ClCompile>
     <ClCompile Include="Components\TriangleComponent.cpp">
+      <Filter>Fichiers sources\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\ComponentRenderer.cpp">
+      <Filter>Fichiers sources\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\RandomComponent.cpp">
+      <Filter>Fichiers sources\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\SawToothComponent.cpp">
       <Filter>Fichiers sources\Components</Filter>
     </ClCompile>
   </ItemGroup>

@@ -27,15 +27,18 @@ class Component
 
 protected:
 	vector<ComponentInput> m_inputs;
+	string m_name;
 
 public:
 	Component();
-	~Component();
+	virtual ~Component();
 
 	virtual float getOutput(float _time) = 0;
 
 	ComponentInput* getInput(int _index);
 	ComponentInput* getInput(string _name);
+
+	string getName() { return m_name; }
 
 private:
 	bool _hasAlreadyInput(Component* _comp);

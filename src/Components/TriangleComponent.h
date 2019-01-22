@@ -22,7 +22,7 @@ class TriangleComponent : public Component
 private:
 public:
 	TriangleComponent();
-	~TriangleComponent();
+	virtual ~TriangleComponent();
 
 
 

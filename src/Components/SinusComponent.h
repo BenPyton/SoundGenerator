@@ -22,7 +22,7 @@ class SinusComponent : public Component
 private:
 public:
 	SinusComponent();
-	~SinusComponent();
+	virtual ~SinusComponent();
 
 
 	virtual float getOutput(float _time) override;

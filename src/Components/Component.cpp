@@ -14,6 +14,7 @@
 
 Component::Component()
 {
+	m_name = "Component";
 }
 
 Component::~Component()

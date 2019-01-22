@@ -22,7 +22,7 @@ class SquareComponent : public Component
 private:
 public:
 	SquareComponent();
-	~SquareComponent();
+	virtual ~SquareComponent();
 
 
 	virtual float getOutput(float _time) override;

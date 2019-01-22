@@ -14,6 +14,7 @@
 
 TriangleComponent::TriangleComponent()
 {
+	m_name = "Triangle";
 }
 
 TriangleComponent::~TriangleComponent()

@@ -14,6 +14,8 @@
 
 SquareComponent::SquareComponent()
 {
+	m_name = "Square";
+
 	m_inputs.push_back(ComponentInput("Frequency", this));
 	m_inputs.push_back(ComponentInput("Amplitude", this));
 	m_inputs.push_back(ComponentInput("Offset", this));

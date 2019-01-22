@@ -10,6 +10,7 @@
 #include "SignalRenderer.h"
 #include "Components/SinusComponent.h"
 #include "Components/SquareComponent.h"
+#include "Components/ComponentRenderer.h"
 
 #define SAMPLERATE 48000
 
@@ -59,7 +60,7 @@ int main()
 	input.setPlaceholder("Test");
 
 	// Draggable box example
-	DraggableBox box(100, 100, 200, 100, style);
+	ComponentRenderer box(100, 100, 200, 100, style);
 
 
 
@@ -144,6 +145,8 @@ int main()
 
 	sinusGenerator.getInput("Amplitude")->setComponent(&squareGenerator);
 	squareGenerator.getInput("Amplitude")->setComponent(&sinusGenerator);
+
+	box.setComponent(&sinusGenerator);
 
 	// ///////////////////////////// APPLICATION LOOP
 	while (Window::IsOpen())
