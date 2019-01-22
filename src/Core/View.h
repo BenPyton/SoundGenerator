@@ -25,6 +25,8 @@ private:
 	float m_zoom;
 	sf::Vector2f m_center;
 
+	sf::VertexArray m_gridLine;
+
 public:
 	View(int x, int y, int width, int height, UIStyle& style);
 	~View();

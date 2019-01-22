@@ -35,8 +35,8 @@ int main()
 
 	UIStyle style;
 	style.setFont(font, 16);
-	style.mapStyle(UI_NORMAL, lightGrey, sf::Color::Transparent, lightGrey, 1.0f);
-	style.mapStyle(UI_HOVERED, lightGrey, sf::Color(50, 50, 50), lightGrey, 1.0f);
+	style.mapStyle(UI_NORMAL, lightGrey, sf::Color::Black, lightGrey, 1.0f);
+	style.mapStyle(UI_HOVERED, lightGrey, sf::Color(50, 50, 50), lightGrey, 3.0f);
 	style.mapStyle(UI_CLICKED, sf::Color::Black, lightGrey, lightGrey, 1.0f);
 	style.mapStyle(UI_DISABLED, lightGrey, sf::Color::Red, lightGrey, 1.0f);
 	style.mapStyle(UI_FOCUSED, lightGrey, sf::Color::Blue, lightGrey, 1.0f);
@@ -143,7 +143,7 @@ int main()
 	squareGenerator.getInput("Amplitude")->setDefaultValue(0.5f);
 	squareGenerator.getInput("Offset")->setDefaultValue(0.5f);
 
-	sinusGenerator.getInput("Amplitude")->setComponent(&squareGenerator);
+	//sinusGenerator.getInput("Amplitude")->setComponent(&squareGenerator);
 	squareGenerator.getInput("Amplitude")->setComponent(&sinusGenerator);
 
 	box.setComponent(&sinusGenerator);
@@ -209,7 +209,7 @@ int main()
 			float delta = Input::GetMouseWheelScroll();
 			if (delta != 0)
 			{
-				view.setZoom(view.getZoom() + 0.05f * delta);
+				view.setZoom(view.getZoom() * (1.0f - 0.05f * delta));
 			}
 
 			if (Input::GetMouseButton(sf::Mouse::Middle))

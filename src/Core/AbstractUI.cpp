@@ -250,5 +250,15 @@ void AbstractUI::_updateStyle()
 {
 	m_rect->setFillColor((*m_style)[m_state].bgCol);
 	m_rect->setOutlineColor((*m_style)[m_state].outCol);
-	m_rect->setOutlineThickness((*m_style)[m_state].outThick);
+	//m_rect->setOutlineThickness((*m_style)[m_state].outThick);
+
+	if (m_viewParent != nullptr)
+	{
+		float t = m_viewParent->getView().getSize().x / m_viewParent->getRealSize().x;
+		m_rect->setOutlineThickness((*m_style)[m_state].outThick * t);
+	}
+	else
+	{
+		m_rect->setOutlineThickness((*m_style)[m_state].outThick);
+	}
 }
