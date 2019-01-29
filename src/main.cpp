@@ -10,6 +10,8 @@
 #include "SignalRenderer.h"
 #include "Components/SinusComponent.h"
 #include "Components/SquareComponent.h"
+#include "Components/SawToothComponent.h"
+#include "Components/TriangleComponent.h"
 #include "Components/ComponentRenderer.h"
 
 #define SAMPLERATE 48000
@@ -28,10 +30,6 @@ int main()
 	}
 
 	sf::Color lightGrey(200, 200, 200);
-
-	sf::Text fpsText("FPS: ??", font, 16);
-	fpsText.setPosition(10, 10);
-	fpsText.setFillColor(lightGrey);
 
 	UIStyle style;
 	style.setFont(font, 16);
@@ -148,6 +146,11 @@ int main()
 
 	box.setComponent(&sinusGenerator);
 
+	SawToothComponent sawToothGenerator;
+	sawToothGenerator.getInput("Frequency")->setDefaultValue(10);
+	//sawToothGenerator.getInput("Amplitude")->setDefaultValue(0.5f);
+	//SawToothsawToothGenerator.getInput("Offset")->setDefaultValue(0.5f);
+
 	// ///////////////////////////// APPLICATION LOOP
 	while (Window::IsOpen())
 	{
@@ -160,7 +163,7 @@ int main()
 			Window::Close();
 		}
 
-		fpsText.setString("FPS: " + floatToStr(Time::GetFps(), 0));
+		Window::GetWindow()->setTitle("Sound Generator | FPS: " + floatToStr(Time::GetFps(), 0));
 
 		if (button.click())
 		{
@@ -196,7 +199,7 @@ int main()
 				}*/
 				//samples.push_back(0x8000 * 0.999f * attenuation * sinf(frequency * 2 * 3.1415926f * x));
 
-				samples.push_back(0x7FFF * clamp(sinusGenerator.getOutput(x), -1.0f, 1.0f));
+				samples.push_back(0x7FFF * clamp(sawToothGenerator.getOutput(x), -1.0f, 1.0f));
 				//vertices.append(sf::Vertex(sf::Vector2f(i * step, 0.5f * Window::GetWidth() + mapValue(samples[i], -512, 512, -200, 200)), sf::Color::White));
 			}
 			//buffer.loadFromSamples(samples.data(), SAMPLERATE, 1, SAMPLERATE);
@@ -227,8 +230,6 @@ int main()
 		// ///////////////////////// START DRAW
 		Window::Clear();
 
-		Window::Draw(fpsText);
-		//Window::Draw(vertices);
 
 		Window::Draw(); // Draw active layout (with all its children)
 
