@@ -32,16 +32,16 @@ protected:
 
 public:
 	// Constructor
-	Label(int x, int y, int width, int height, UIStyle* style = &UIStyle::Default);
+	Label(int x, int y, int width, int height, UIStyle& style = UIStyle::Default);
 	virtual ~Label();
 
 	// Accessors
 	void setText(std::string text);
 	std::string getText();
-	void setCharacterSize(int size);
-	int getCharacterSize();
-	void setFont(sf::Font &font);
-	const sf::Font* getFont();
+	//void setCharacterSize(int size);
+	//int getCharacterSize();
+	//void setFont(sf::Font &font);
+	//const sf::Font* getFont();
 	void setAlignement(TextAlign align);
 
 protected:

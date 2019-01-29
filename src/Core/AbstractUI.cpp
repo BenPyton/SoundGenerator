@@ -13,6 +13,7 @@
 #include "AbstractUI.h"
 #include "Window.h"
 #include "View.h"
+#include "UIManager.h"
 #include <cassert>
 
 AbstractUI::AbstractUI(int x, int y, int width, int height, UIStyle& style)
@@ -27,6 +28,8 @@ AbstractUI::AbstractUI(int x, int y, int width, int height, UIStyle& style)
 	m_vertStretch = false;
 	m_anchorMin = sf::Vector2f(0, 0);
 	m_anchorMax = sf::Vector2f(0, 0);
+
+	UIManager::Add(*this);
 }
 
 AbstractUI::~AbstractUI()
@@ -35,6 +38,7 @@ AbstractUI::~AbstractUI()
 	{
 		delete m_rect;
 	}
+	UIManager::Remove(*this);
 }
 
 void AbstractUI::setAnchor(sf::Vector2f anchor)

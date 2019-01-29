@@ -11,6 +11,7 @@
 
 #include "stdafx.h"
 #include "RandomComponent.h"
+#include "../Core/Random.h"
 
 RandomComponent::RandomComponent()
 {
@@ -23,5 +24,5 @@ RandomComponent::~RandomComponent()
 
 float RandomComponent::getOutput(float _time)
 {
-	return 0.0f;
+	return 2 * (Random::Range(0, INT16_MAX) / (float)INT16_MAX) - 1;
 }

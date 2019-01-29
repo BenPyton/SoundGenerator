@@ -12,6 +12,7 @@
 #include "Components/SquareComponent.h"
 #include "Components/SawToothComponent.h"
 #include "Components/TriangleComponent.h"
+#include "Components/RandomComponent.h"
 #include "Components/ComponentRenderer.h"
 
 #define SAMPLERATE 48000
@@ -51,28 +52,30 @@ int main()
 
 	// InputField Example
 	InputField input(10, 50, 150, 30, style);
-	//input.setFont(font);
-	//input.setCharacterSize(16);
 	input.setMaxLength(10);
 	input.setFloat(1.0f);
 	input.setPlaceholder("Test");
 
 	// Draggable box example
 	ComponentRenderer box(100, 100, 200, 100, style);
+	ComponentRenderer box2(0, 0, 200, 100, style);
 
 
 
 	Button button1(-10, 10, 150, 30, style);
-	button1.setText("1");
+	button1.setText("Sinusoidal");
 
 	Button button2(10, 10, 150, 30, style);
-	button2.setText("2");
+	button2.setText("Square");
 
 	Button button3(-10, 10, 150, 30, style);
-	button3.setText("3");
+	button3.setText("Triangle");
 
 	Button button4(-10, 10, 150, 30, style);
-	button4.setText("4");
+	button4.setText("SawTooth");
+
+	Button button5(-10, 10, 150, 30, style);
+	button5.setText("Random");
 
 	VerticalLayout vLayout(0, 100, 200, 200);
 	vLayout.setAnchorMin(sf::Vector2f(0, 0));
@@ -84,6 +87,7 @@ int main()
 	vLayout.add(button2);
 	vLayout.add(button3);
 	vLayout.add(button4);
+	vLayout.add(button5);
 
 	// View
 	View view(0, 0, 0, 0, style);
@@ -91,6 +95,7 @@ int main()
 	view.setAnchorMax(sf::Vector2f(1, 1));
 	view.setMargins(200, 10, 100, 10);
 	view.add(box);
+	view.add(box2);
 
 	// Window layout
 	Layout rootLayout(0, 0, Window::GetWidth(), Window::GetHeight());
@@ -126,30 +131,37 @@ int main()
 	sf::Vector2f prevMousePos;
 
 	SinusComponent sinusGenerator;
-	sinusGenerator.getInput("Frequency")->setDefaultValue(20);
+	sinusGenerator.getInput("Frequency")->setDefaultValue(10);
 
 	SinusComponent sinusAttenuation;
 	sinusAttenuation.getInput("Frequency")->setDefaultValue(1.5f);
 	sinusAttenuation.getInput("Offset")->setDefaultValue(0.5f);
 	sinusAttenuation.getInput("Amplitude")->setDefaultValue(0.5f);
 
-	sinusGenerator.getInput("Amplitude")->setComponent(&sinusAttenuation);
+	//sinusGenerator.getInput("Amplitude")->setComponent(&sinusAttenuation);
 
 
 	SquareComponent squareGenerator;
 	squareGenerator.getInput("Frequency")->setDefaultValue(10);
-	squareGenerator.getInput("Amplitude")->setDefaultValue(0.5f);
-	squareGenerator.getInput("Offset")->setDefaultValue(0.5f);
+	//squareGenerator.getInput("Amplitude")->setDefaultValue(0.5f);
+	//squareGenerator.getInput("Offset")->setDefaultValue(0.5f);
 
 	//sinusGenerator.getInput("Amplitude")->setComponent(&squareGenerator);
-	squareGenerator.getInput("Amplitude")->setComponent(&sinusGenerator);
+	//squareGenerator.getInput("Amplitude")->setComponent(&sinusGenerator);
 
-	box.setComponent(&sinusGenerator);
+	TriangleComponent triangleGenerator;
+	triangleGenerator.getInput("Frequency")->setDefaultValue(10);
 
 	SawToothComponent sawToothGenerator;
 	sawToothGenerator.getInput("Frequency")->setDefaultValue(10);
 	//sawToothGenerator.getInput("Amplitude")->setDefaultValue(0.5f);
 	//SawToothsawToothGenerator.getInput("Offset")->setDefaultValue(0.5f);
+
+
+	RandomComponent randomGenerator;
+
+	box.setComponent(&sinusGenerator);
+	box2.setComponent(&squareGenerator);
 
 	// ///////////////////////////// APPLICATION LOOP
 	while (Window::IsOpen())
@@ -206,6 +218,72 @@ int main()
 			signal.setData(samples);
 			cout << "Signal sample count: " << signal.getSampleCount() << endl;
 		}
+
+		if (button1.click())
+		{
+			samples.clear();
+			float duration = input.getFloat();
+			sf::Uint64 totalSample = duration * SAMPLERATE;
+			for (int i = 0; i < totalSample; i++)
+			{
+				float x = (float)i / SAMPLERATE;
+				samples.push_back(0x7FFF * clamp(sinusGenerator.getOutput(x), -1.0f, 1.0f));
+			}
+			signal.setData(samples);
+		}
+
+		if (button2.click())
+		{
+			samples.clear();
+			float duration = input.getFloat();
+			sf::Uint64 totalSample = duration * SAMPLERATE;
+			for (int i = 0; i < totalSample; i++)
+			{
+				float x = (float)i / SAMPLERATE;
+				samples.push_back(0x7FFF * clamp(squareGenerator.getOutput(x), -1.0f, 1.0f));
+			}
+			signal.setData(samples);
+		}
+
+		if (button3.click())
+		{
+			samples.clear();
+			float duration = input.getFloat();
+			sf::Uint64 totalSample = duration * SAMPLERATE;
+			for (int i = 0; i < totalSample; i++)
+			{
+				float x = (float)i / SAMPLERATE;
+				samples.push_back(0x7FFF * clamp(triangleGenerator.getOutput(x), -1.0f, 1.0f));
+			}
+			signal.setData(samples);
+		}
+
+		if (button4.click())
+		{
+			samples.clear();
+			float duration = input.getFloat();
+			sf::Uint64 totalSample = duration * SAMPLERATE;
+			for (int i = 0; i < totalSample; i++)
+			{
+				float x = (float)i / SAMPLERATE;
+				samples.push_back(0x7FFF * clamp(sawToothGenerator.getOutput(x), -1.0f, 1.0f));
+			}
+			signal.setData(samples);
+		}
+
+		if (button5.click())
+		{
+			samples.clear();
+			float duration = input.getFloat();
+			sf::Uint64 totalSample = duration * SAMPLERATE;
+			for (int i = 0; i < totalSample; i++)
+			{
+				float x = (float)i / SAMPLERATE;
+				samples.push_back(0x7FFF * clamp(randomGenerator.getOutput(x), -1.0f, 1.0f));
+			}
+			signal.setData(samples);
+		}
+
 
 		if (view.hovered(Input::GetMousePosition()))
 		{

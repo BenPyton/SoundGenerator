@@ -13,7 +13,7 @@
 #include "Label.h"
 
 
-Label::Label(int x, int y, int width, int height, UIStyle* style)
+Label::Label(int x, int y, int width, int height, UIStyle& style)
 	: AbstractUI(x, y, width, height, style), m_text(nullptr)
 {
 	m_text = new sf::Text();
@@ -46,41 +46,41 @@ std::string Label::getText()
 	return str;
 }
 
-void Label::setCharacterSize(int size)
-{
-	if (nullptr != m_text)
-	{
-		m_text->setCharacterSize(size);
-	}
-}
-
-int Label::getCharacterSize()
-{
-	int size = 0;
-	if (nullptr != m_text)
-	{
-		size = m_text->getCharacterSize();
-	}
-	return size;
-}
-
-void Label::setFont(sf::Font & font)
-{
-	if (nullptr != m_text)
-	{
-		m_text->setFont(font);
-	}
-}
-
-const sf::Font* Label::getFont()
-{
-	const sf::Font* font = nullptr;
-	if (nullptr != m_text)
-	{
-		font = m_text->getFont();
-	}
-	return font;
-}
+//void Label::setCharacterSize(int size)
+//{
+//	if (nullptr != m_text)
+//	{
+//		m_text->setCharacterSize(size);
+//	}
+//}
+//
+//int Label::getCharacterSize()
+//{
+//	int size = 0;
+//	if (nullptr != m_text)
+//	{
+//		size = m_text->getCharacterSize();
+//	}
+//	return size;
+//}
+//
+//void Label::setFont(sf::Font & font)
+//{
+//	if (nullptr != m_text)
+//	{
+//		m_text->setFont(font);
+//	}
+//}
+//
+//const sf::Font* Label::getFont()
+//{
+//	const sf::Font* font = nullptr;
+//	if (nullptr != m_text)
+//	{
+//		font = m_text->getFont();
+//	}
+//	return font;
+//}
 
 void Label::setAlignement(TextAlign align)
 {

@@ -24,7 +24,7 @@ SignalRenderer::~SignalRenderer()
 
 void SignalRenderer::draw(sf::RenderTarget & target, sf::RenderStates states) const
 {
-	AbstractUI::draw(target, states);
+	//AbstractUI::draw(target, states);
 	target.draw(m_vertices, states);
 }
 

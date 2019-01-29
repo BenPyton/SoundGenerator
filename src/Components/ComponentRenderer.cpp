@@ -14,11 +14,12 @@
 #include <cassert>
 
 ComponentRenderer::ComponentRenderer(int x, int y, int width, int height, UIStyle& style)
-	: DraggableBox(x, y, width, height, style)
+	: DraggableBox(x, y, width, height, style), m_output(0, 0, 10, style)
 {
 	m_pText = new sf::Text();
 	assert(nullptr != m_pText);
 	m_pText->setString("No component");
+	m_output.setParent(this);
 }
 
 ComponentRenderer::~ComponentRenderer()
@@ -42,6 +43,21 @@ void ComponentRenderer::setComponent(Component * _comp)
 	}
 }
 
+void ComponentRenderer::update()
+{
+	AbstractUI::update();
+	m_output.setViewParent(m_viewParent);
+	m_output.update();
+}
+
+void ComponentRenderer::_updateState()
+{
+	if (!m_output.hovered(Input::GetMousePosition()))
+	{
+		DraggableBox::_updateState();
+	}
+}
+
 void ComponentRenderer::_updateStyle()
 {
 	DraggableBox::_updateStyle();
@@ -54,10 +70,12 @@ void ComponentRenderer::_updateTransform()
 {
 	DraggableBox::_updateTransform();
 	m_pText->setPosition(m_rect->getPosition() + sf::Vector2f(5, 5));
+	m_output.setPosition(m_rect->getSize() * 0.5f);
 }
 
 void ComponentRenderer::draw(sf::RenderTarget & target, sf::RenderStates states) const
 {
 	DraggableBox::draw(target, states);
 	target.draw(*m_pText, states);
+	target.draw(m_output, states);
 }
