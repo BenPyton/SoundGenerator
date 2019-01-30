@@ -51,7 +51,7 @@ int main()
 
 
 	// InputField Example
-	InputField input(10, 50, 150, 30, style);
+	InputField input(10, 90, 150, 30, style);
 	input.setMaxLength(10);
 	input.setFloat(1.0f);
 	input.setPlaceholder("Test");
@@ -59,6 +59,7 @@ int main()
 	// Draggable box example
 	ComponentRenderer box(100, 100, 200, 100, style);
 	ComponentRenderer box2(0, 0, 200, 100, style);
+
 
 
 
@@ -77,10 +78,47 @@ int main()
 	Button button5(-10, 10, 150, 30, style);
 	button5.setText("Random");
 
+
+	//Button btnPlay(10, 10, 70, 30, style);
+	//btnPlay.setText("Play");
+
+	IconButton btnLoad(10, 10, 30, 30, style);
+	btnLoad.setIconSize(32, 32);
+	btnLoad.setIcon("../../../data/Images/icon_open.png");
+
+	IconButton btnSave(10, 10, 30, 30, style);
+	btnSave.setIconSize(32, 32);
+	btnSave.setIcon("../../../data/Images/icon_save.png");
+
+	IconButton btnStart(10, 10, 30, 30, style);
+	btnStart.setIconSize(32, 32);
+	btnStart.setIcon("../../../data/Images/icon_start.png");
+
+	IconButton btnPlay(10, 10, 30, 30, style);
+	btnPlay.setIconSize(32, 32);
+	btnPlay.setIcon("../../../data/Images/icon_play.png");
+
+	IconButton btnPause(10, 10, 30, 30, style);
+	btnPause.setIconSize(32, 32);
+	btnPause.setIcon("../../../data/Images/icon_pause.png");
+
+	IconButton btnStop(10, 10, 30, 30, style);
+	btnStop.setIconSize(32, 32);
+	btnStop.setIcon("../../../data/Images/icon_stop.png");
+
+	IconButton btnEnd(10, 10, 30, 30, style);
+	btnEnd.setIconSize(32, 32);
+	btnEnd.setIcon("../../../data/Images/icon_end.png");
+
+	InputField inputVolume(90, 50, 70, 30, style);
+	inputVolume.setMaxLength(5);
+	inputVolume.setFloat(10.0f);
+	inputVolume.setPlaceholder("Volume");
+
 	VerticalLayout vLayout(0, 100, 200, 200);
 	vLayout.setAnchorMin(sf::Vector2f(0, 0));
-	vLayout.setAnchorMax(sf::Vector2f(0.0f, 1));
-	vLayout.setMargins(10, 10, 100, 10);
+	vLayout.setAnchorMax(sf::Vector2f(0, 1));
+	vLayout.setMargins(10, 10, 150, 10);
 	vLayout.setSpacing(10);
 	vLayout.setPaddings(10, 10, 10, 10);
 	vLayout.add(button1);
@@ -89,11 +127,24 @@ int main()
 	vLayout.add(button4);
 	vLayout.add(button5);
 
+	HorizontalLayout toolLayout(10, 10, 0, 30);
+	toolLayout.setAnchorMin(sf::Vector2f(0, 0));
+	toolLayout.setAnchorMax(sf::Vector2f(1, 0));
+	toolLayout.setMargins(10, 10, 10, 10);
+	toolLayout.setSpacing(10);
+	toolLayout.add(btnLoad);
+	toolLayout.add(btnSave);
+	toolLayout.add(btnStart);
+	toolLayout.add(btnPlay);
+	toolLayout.add(btnPause);
+	toolLayout.add(btnStop);
+	toolLayout.add(btnEnd);
+
 	// View
 	View view(0, 0, 0, 0, style);
 	view.setAnchorMin(sf::Vector2f(0, 0));
 	view.setAnchorMax(sf::Vector2f(1, 1));
-	view.setMargins(200, 10, 100, 10);
+	view.setMargins(200, 10, 150, 10);
 	view.add(box);
 	view.add(box2);
 
@@ -104,19 +155,19 @@ int main()
 	rootLayout.add(input);
 	rootLayout.add(vLayout);
 	rootLayout.add(view);
+	//rootLayout.add(btnPlay);
+	rootLayout.add(inputVolume);
+	rootLayout.add(toolLayout);
 
 
 
-
-	/*sf::SoundBuffer buffer;
-	sf::Sound sound(buffer);*/
 
 	vector<sf::Int16> samples;
 	/*sf::VertexArray vertices;
 	vertices.setPrimitiveType(sf::PrimitiveType::LineStrip);*/
 
 	Signal signal;
-	SignalRenderer signalRenderer(10, 10, 100, 80, style);
+	SignalRenderer signalRenderer(10, 50, 100, 80, style);
 	signalRenderer.setSignal(signal);
 	signalRenderer.setAnchorMin(sf::Vector2f(0, 0));
 	signalRenderer.setAnchorMax(sf::Vector2f(1, 0));
@@ -131,7 +182,7 @@ int main()
 	sf::Vector2f prevMousePos;
 
 	SinusComponent sinusGenerator;
-	sinusGenerator.getInput("Frequency")->setDefaultValue(10);
+	sinusGenerator.getInput("Frequency")->setDefaultValue(200);
 
 	SinusComponent sinusAttenuation;
 	sinusAttenuation.getInput("Frequency")->setDefaultValue(1.5f);
@@ -142,7 +193,7 @@ int main()
 
 
 	SquareComponent squareGenerator;
-	squareGenerator.getInput("Frequency")->setDefaultValue(10);
+	squareGenerator.getInput("Frequency")->setDefaultValue(200);
 	//squareGenerator.getInput("Amplitude")->setDefaultValue(0.5f);
 	//squareGenerator.getInput("Offset")->setDefaultValue(0.5f);
 
@@ -150,10 +201,10 @@ int main()
 	//squareGenerator.getInput("Amplitude")->setComponent(&sinusGenerator);
 
 	TriangleComponent triangleGenerator;
-	triangleGenerator.getInput("Frequency")->setDefaultValue(10);
+	triangleGenerator.getInput("Frequency")->setDefaultValue(200);
 
 	SawToothComponent sawToothGenerator;
-	sawToothGenerator.getInput("Frequency")->setDefaultValue(10);
+	sawToothGenerator.getInput("Frequency")->setDefaultValue(200);
 	//sawToothGenerator.getInput("Amplitude")->setDefaultValue(0.5f);
 	//SawToothsawToothGenerator.getInput("Offset")->setDefaultValue(0.5f);
 
@@ -162,6 +213,11 @@ int main()
 
 	box.setComponent(&sinusGenerator);
 	box2.setComponent(&squareGenerator);
+
+	bool playing = false;
+	bool paused = false;
+	float maxZoomIn = 0.1f;
+	float maxZoomOut = 10.0f;
 
 	// ///////////////////////////// APPLICATION LOOP
 	while (Window::IsOpen())
@@ -284,13 +340,32 @@ int main()
 			signal.setData(samples);
 		}
 
+		if (btnPlay.click() && (!playing || paused))
+		{
+			float volume = inputVolume.getFloat();
+			signal.getSound()->setVolume(volume);
+			signal.getSound()->play();
+			playing = true;
+			paused = false;
+		}
+		if(btnStop.click() && playing)
+		{
+			signal.getSound()->stop();
+			playing = false;
+		}
+		if (btnPause.click() && (playing && !paused))
+		{
+			signal.getSound()->pause();
+			paused = true;
+		}
+
 
 		if (view.hovered(Input::GetMousePosition()))
 		{
 			float delta = Input::GetMouseWheelScroll();
 			if (delta != 0)
 			{
-				view.setZoom(view.getZoom() * (1.0f - 0.05f * delta));
+				view.setZoom(clamp(view.getZoom() * (1.0f - 0.05f * delta), maxZoomIn, maxZoomOut));
 			}
 
 			if (Input::GetMouseButton(sf::Mouse::Middle))

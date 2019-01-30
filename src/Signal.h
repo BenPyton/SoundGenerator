@@ -13,6 +13,7 @@
 #define _SIGNAL_H
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <iostream>
 #include <vector>
 
@@ -21,8 +22,8 @@ using namespace std;
 class Signal
 {
 private:
-	/*sf::SoundBuffer buffer;
-	sf::Sound sound(buffer);*/
+	sf::SoundBuffer m_soundBuffer;
+	sf::Sound m_sound;
 
 	vector<sf::Int16> m_samples;
 
@@ -30,7 +31,10 @@ public:
 	Signal();
 	~Signal();
 
-	void setData(const vector<sf::Int16>& _data) { m_samples = _data; }
+
+	sf::Sound* getSound() { return &m_sound; }
+
+	void setData(const vector<sf::Int16>& _data);
 	vector<sf::Int16> getData() { return m_samples; }
 
 	sf::Int16 getValue(int _index) { return m_samples[_index]; }

@@ -14,6 +14,7 @@
 #include "Core/View.h"
 #include "Core/Label.h"
 #include "Core/Button.h"
+#include "Core/IconButton.h"
 #include "Core/InputField.h"
 #include "Core/Toggle.h"
 #include "Core/DraggableBox.h"

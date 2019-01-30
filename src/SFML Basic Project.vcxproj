@@ -183,6 +183,8 @@
     <ClInclude Include="Core\Animation.h" />
     <ClInclude Include="Core\Button.h" />
     <ClInclude Include="Core\DraggableBox.h" />
+    <ClInclude Include="Core\HorizontalLayout.h" />
+    <ClInclude Include="Core\IconButton.h" />
     <ClInclude Include="Core\Input.h" />
     <ClInclude Include="Core\InputField.h" />
     <ClInclude Include="Core\Label.h" />
@@ -214,6 +216,8 @@
     <ClCompile Include="Core\Animation.cpp" />
     <ClCompile Include="Core\Button.cpp" />
     <ClCompile Include="Core\DraggableBox.cpp" />
+    <ClCompile Include="Core\HorizontalLayout.cpp" />
+    <ClCompile Include="Core\IconButton.cpp" />
     <ClCompile Include="Core\Input.cpp" />
     <ClCompile Include="Core\InputField.cpp" />
     <ClCompile Include="Core\Label.cpp" />

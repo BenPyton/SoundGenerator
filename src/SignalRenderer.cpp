@@ -16,6 +16,8 @@ SignalRenderer::SignalRenderer(int x, int y, int width, int height, UIStyle& sty
 	: AbstractUI(x, y, width, height, style)
 {
 	m_vertices.setPrimitiveType(sf::PrimitiveType::LineStrip);
+	m_cursor.setPrimitiveType(sf::PrimitiveType::Lines);
+	m_cursor.resize(2);
 }
 
 SignalRenderer::~SignalRenderer()
@@ -26,6 +28,12 @@ void SignalRenderer::draw(sf::RenderTarget & target, sf::RenderStates states) co
 {
 	//AbstractUI::draw(target, states);
 	target.draw(m_vertices, states);
+	target.draw(m_cursor, states);
+}
+
+void SignalRenderer::_updateState()
+{
+	m_state = UI_NORMAL;
 }
 
 void SignalRenderer::_updateTransform()
@@ -60,6 +68,15 @@ void SignalRenderer::_updateTransform()
 			m_vertices[i].position.y = m_rect->getPosition().y + m_rect->getSize().y * (0.5f - m_signal->getValue(i * sampleStep) * stepY);
 		}
 	}
+
+	if (m_signal != nullptr)
+	{
+		float playbackOffset = m_signal->getSound()->getPlayingOffset().asSeconds();
+		float playbackCursor = 48000 * playbackOffset / m_signal->getSampleCount();
+		//cout << "PlaybackOffset: " << playbackOffset << endl;
+		m_cursor[0].position = m_rect->getPosition() + sf::Vector2f(playbackCursor * m_rect->getSize().x, 0);
+		m_cursor[1].position = m_rect->getPosition() + sf::Vector2f(playbackCursor * m_rect->getSize().x, m_rect->getSize().y);
+	}
 }
 
 void SignalRenderer::_updateStyle()
@@ -69,4 +86,6 @@ void SignalRenderer::_updateStyle()
 	{
 		m_vertices[i].color = (*m_style)[m_state].fgCol;
 	}
+	m_cursor[0].color = sf::Color::Yellow;//(*m_style)[m_state].fgCol;
+	m_cursor[1].color = sf::Color::Yellow;//(*m_style)[m_state].fgCol;
 }

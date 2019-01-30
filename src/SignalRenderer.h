@@ -24,6 +24,8 @@ private:
 	sf::VertexArray m_vertices;
 	Signal* m_signal;
 
+	sf::VertexArray m_cursor;
+
 public:
 	SignalRenderer(int x, int y, int width, int height, UIStyle& style = UIStyle::Default);
 	~SignalRenderer();
@@ -32,7 +34,7 @@ public:
 
 protected:
 	virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
-	//virtual void _updateState() override;
+	virtual void _updateState() override;
 	virtual void _updateTransform() override;
 	virtual void _updateStyle() override;
 };
