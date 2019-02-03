@@ -14,12 +14,12 @@
 #include <cassert>
 
 ComponentRenderer::ComponentRenderer(int x, int y, int width, int height, UIStyle& style)
-	: DraggableBox(x, y, width, height, style), m_output(0, 0, 10, style)
+	: DraggableBox(x, y, width, height, style), m_outputPin(0, 0, 10, style)
 {
 	m_pText = new sf::Text();
 	assert(nullptr != m_pText);
 	m_pText->setString("No component");
-	m_output.setParent(this);
+	m_outputPin.setParent(this);
 }
 
 ComponentRenderer::~ComponentRenderer()
@@ -33,26 +33,46 @@ ComponentRenderer::~ComponentRenderer()
 void ComponentRenderer::setComponent(Component * _comp)
 {
 	m_pComponent = _comp;
+	m_outputPin.setComponent(_comp);
+	m_inputPins.clear();
 	if (_comp != nullptr)
 	{
 		m_pText->setString(_comp->getName());
+		for (int i = 0; i < _comp->getInputCount(); i++)
+		{
+			m_inputPins.push_back(PinInput(0, 0, 10, *m_style));
+			m_inputPins.back().setParent(this);
+			m_inputPins.back().setInput(_comp->getInput(i));
+		}
 	}
 	else
 	{
 		m_pText->setString("NULL");
 	}
+	m_size.y = m_inputPins.size() * 30 + 30;
 }
 
 void ComponentRenderer::update()
 {
 	AbstractUI::update();
-	m_output.setViewParent(m_viewParent);
-	m_output.update();
+	m_outputPin.setViewParent(m_viewParent);
+	m_outputPin.update();
+
+	for (int i = 0; i < m_inputPins.size(); i++)
+	{
+		m_inputPins[i].setViewParent(m_viewParent);
+		m_inputPins[i].update();
+	}
 }
 
 void ComponentRenderer::_updateState()
 {
-	if (!m_output.hovered(Input::GetMousePosition()))
+	bool connectionHovered = false;
+	for (int i = 0; i < m_inputPins.size(); i++)
+	{
+		connectionHovered |= m_inputPins[i].hovered(Input::GetMousePosition());
+	}
+	if (!connectionHovered && !m_outputPin.hovered(Input::GetMousePosition()))
 	{
 		DraggableBox::_updateState();
 	}
@@ -70,12 +90,21 @@ void ComponentRenderer::_updateTransform()
 {
 	DraggableBox::_updateTransform();
 	m_pText->setPosition(m_rect->getPosition() + sf::Vector2f(5, 5));
-	m_output.setPosition(m_rect->getSize() * 0.5f);
+	m_outputPin.setPosition(sf::Vector2f(m_rect->getSize().x - 30, m_rect->getSize().y*0.5f - 10));
+	for (int i = 0; i < m_inputPins.size(); i++)
+	{
+		m_inputPins[i].setPosition(sf::Vector2f(10, 30 + 30 * i));
+	}
 }
 
 void ComponentRenderer::draw(sf::RenderTarget & target, sf::RenderStates states) const
 {
 	DraggableBox::draw(target, states);
 	target.draw(*m_pText, states);
-	target.draw(m_output, states);
+	target.draw(m_outputPin, states);
+
+	for (int i = 0; i < m_inputPins.size(); i++)
+	{
+		target.draw(m_inputPins[i], states);
+	}
 }

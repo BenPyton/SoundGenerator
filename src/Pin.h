@@ -1,7 +1,7 @@
 /*
 * @author PELLETIER Benoit
 *
-* @file ConnectionPoint.h
+* @file Pin.h
 *
 * @date 29/01/2019
 *
@@ -9,15 +9,16 @@
 *
 */
 
-#ifndef _CONNECTIONPOINT_H
-#define _CONNECTIONPOINT_H
+#ifndef _Pin_H
+#define _Pin_H
 
 #include <SFML/Graphics.hpp>
 #include "Core/AbstractUI.h"
+#include "Components\Component.h"
 
 using namespace std;
 
-class ConnectionPoint : public AbstractUI
+class Pin : public AbstractUI
 {
 private:
 	enum class ConnectionState {
@@ -26,22 +27,25 @@ private:
 		Connected
 	};
 
+protected:
 	sf::CircleShape* m_pCircleShape = nullptr;
 	ConnectionState m_connectionState;
 
 	sf::VertexArray m_line;
 
-	ConnectionPoint* m_pConnection = nullptr;
+	Pin* m_pConnection = nullptr;
 
 public:
-	ConnectionPoint(int x, int y, int radius, UIStyle& style = UIStyle::Default);
-	~ConnectionPoint();
+	Pin(int x, int y, int radius, UIStyle& style = UIStyle::Default);
+	Pin(const Pin& _cp);
+	~Pin();
 
 protected:
+	virtual bool _tryConnect(Pin* _other) { return false; }
 	virtual void _updateState() override;
 	virtual void _updateTransform() override;
 	virtual void _updateStyle() override;
 	virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 };
 
-#endif // _CONNECTIONPOINT_H
+#endif // _Pin_H

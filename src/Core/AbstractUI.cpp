@@ -17,7 +17,7 @@
 #include <cassert>
 
 AbstractUI::AbstractUI(int x, int y, int width, int height, UIStyle& style)
-	:m_parent(nullptr), m_viewParent(nullptr), m_enabled(true), m_state(UIState::UI_NORMAL), m_style(&style), m_marginLeft(0), m_marginRight(0), m_marginTop(0), m_marginBottom(0)
+	: m_parent(nullptr), m_viewParent(nullptr), m_enabled(true), m_state(UIState::UI_NORMAL), m_style(&style), m_marginLeft(0), m_marginRight(0), m_marginTop(0), m_marginBottom(0)
 {
 	m_rect = new sf::RectangleShape();
 	assert(nullptr != m_rect);
@@ -28,6 +28,31 @@ AbstractUI::AbstractUI(int x, int y, int width, int height, UIStyle& style)
 	m_vertStretch = false;
 	m_anchorMin = sf::Vector2f(0, 0);
 	m_anchorMax = sf::Vector2f(0, 0);
+
+	UIManager::Add(*this);
+}
+
+AbstractUI::AbstractUI(const AbstractUI & _aui) 
+{
+	m_parent = _aui.m_parent;
+	m_viewParent = _aui.m_viewParent;
+	m_enabled = _aui.m_enabled;
+	m_state = _aui.m_state;
+	m_style = _aui.m_style;
+	m_marginLeft = _aui.m_marginLeft;
+	m_marginRight = _aui.m_marginRight;
+	m_marginTop = _aui.m_marginTop;
+	m_marginBottom = _aui.m_marginBottom;
+
+	m_rect = new sf::RectangleShape(*_aui.m_rect);
+	assert(nullptr != m_rect);
+
+	m_size = _aui.m_size;
+	m_position = _aui.m_position;
+	m_horiStretch = _aui.m_horiStretch;
+	m_vertStretch = _aui.m_vertStretch;
+	m_anchorMin = _aui.m_anchorMin;
+	m_anchorMax = _aui.m_anchorMax;
 
 	UIManager::Add(*this);
 }

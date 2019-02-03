@@ -37,6 +37,7 @@ public:
 
 	ComponentInput* getInput(int _index);
 	ComponentInput* getInput(string _name);
+	size_t getInputCount() { return m_inputs.size(); }
 
 	string getName() { return m_name; }
 
@@ -57,7 +58,9 @@ private:
 public:
 	ComponentInput(string _name, Component* _parent = nullptr);
 
-	void setComponent(Component* _comp);
+	Component* getParent() { return m_pParent; }
+	bool setComponent(Component* _comp);
+	Component* getComponent() { return m_pComponent; }
 	void setDefaultValue(float _value) { m_defaultValue = _value; }
 	string getName() { return m_name; }
 	float getValue(float _time);

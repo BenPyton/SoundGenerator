@@ -49,12 +49,14 @@ ComponentInput::ComponentInput(string _name, Component* _parent)
 {
 }
 
-void ComponentInput::setComponent(Component * _comp)
+bool ComponentInput::setComponent(Component * _comp)
 {
 	if (_comp == nullptr || !_comp->_hasAlreadyInput(m_pParent))
 	{
 		m_pComponent = _comp;
+		return true;
 	}
+	return false;
 }
 
 float ComponentInput::getValue(float _time)

@@ -41,6 +41,7 @@ protected:
 
 public:
 	AbstractUI(int x, int y, int width, int height, UIStyle& style = UIStyle::Default);
+	AbstractUI(const AbstractUI& _aui);
 	virtual ~AbstractUI();
 
 	// Accessors

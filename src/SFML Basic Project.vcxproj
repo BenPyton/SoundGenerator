@@ -177,7 +177,7 @@
     <ClInclude Include="Components\SinusComponent.h" />
     <ClInclude Include="Components\SquareComponent.h" />
     <ClInclude Include="Components\TriangleComponent.h" />
-    <ClInclude Include="ConnectionPoint.h" />
+    <ClInclude Include="Pin.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="Core\AbstractUI.h" />
     <ClInclude Include="Core\Animation.h" />
@@ -198,6 +198,8 @@
     <ClInclude Include="Core\VerticalLayout.h" />
     <ClInclude Include="Core\View.h" />
     <ClInclude Include="Core\Window.h" />
+    <ClInclude Include="PinInput.h" />
+    <ClInclude Include="PinOutput.h" />
     <ClInclude Include="Signal.h" />
     <ClInclude Include="SignalRenderer.h" />
     <ClInclude Include="stdafx.h" />
@@ -211,7 +213,7 @@
     <ClCompile Include="Components\SinusComponent.cpp" />
     <ClCompile Include="Components\SquareComponent.cpp" />
     <ClCompile Include="Components\TriangleComponent.cpp" />
-    <ClCompile Include="ConnectionPoint.cpp" />
+    <ClCompile Include="Pin.cpp" />
     <ClCompile Include="Core\AbstractUI.cpp" />
     <ClCompile Include="Core\Animation.cpp" />
     <ClCompile Include="Core\Button.cpp" />
@@ -231,6 +233,8 @@
     <ClCompile Include="Core\VerticalLayout.cpp" />
     <ClCompile Include="Core\View.cpp" />
     <ClCompile Include="Core\Window.cpp" />
+    <ClCompile Include="PinInput.cpp" />
+    <ClCompile Include="PinOutput.cpp" />
     <ClCompile Include="Signal.cpp" />
     <ClCompile Include="SignalRenderer.cpp" />
     <ClCompile Include="stdafx.cpp">

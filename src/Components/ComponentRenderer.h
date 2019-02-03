@@ -13,8 +13,10 @@
 #define _COMPONENTRENDERER_H
 
 #include <iostream>
+#include <vector>
 #include "../Core/DraggableBox.h"
-#include "../ConnectionPoint.h"
+#include "../PinInput.h"
+#include "../PinOutput.h"
 #include "Component.h"
 
 using namespace std;
@@ -25,8 +27,8 @@ private:
 	Component* m_pComponent = nullptr;
 	sf::Text* m_pText = nullptr;
 
-
-	ConnectionPoint m_output;
+	vector<PinInput> m_inputPins;
+	PinOutput m_outputPin;
 
 public:
 	ComponentRenderer(int x, int y, int width, int height, UIStyle& style = UIStyle::Default);

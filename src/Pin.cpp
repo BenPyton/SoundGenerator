@@ -1,7 +1,7 @@
 /*
 * @author PELLETIER Benoit
 *
-* @file ConnectionPoint.cpp
+* @file Pin.cpp
 *
 * @date 29/01/2019
 *
@@ -10,13 +10,13 @@
 */
 
 #include "stdafx.h"
-#include "ConnectionPoint.h"
+#include "Pin.h"
 #include "Core/View.h"
 #include "Core/UIManager.h"
 #include <cassert> 
 
 
-ConnectionPoint::ConnectionPoint(int x, int y, int radius, UIStyle& style)
+Pin::Pin(int x, int y, int radius, UIStyle& style)
 	: AbstractUI(x, y, 2 * radius, 2 * radius, style), m_connectionState(ConnectionState::None)
 {
 	m_pCircleShape = new sf::CircleShape(radius, 24);
@@ -26,7 +26,18 @@ ConnectionPoint::ConnectionPoint(int x, int y, int radius, UIStyle& style)
 	m_line.setPrimitiveType(sf::PrimitiveType::LinesStrip);
 }
 
-ConnectionPoint::~ConnectionPoint()
+Pin::Pin(const Pin & _cp)
+	: AbstractUI(_cp)
+{
+	m_pCircleShape = new sf::CircleShape(*_cp.m_pCircleShape);
+	assert(nullptr != m_pCircleShape);
+	m_line.resize(2);
+	m_line.setPrimitiveType(sf::PrimitiveType::LinesStrip);
+
+	m_connectionState = _cp.m_connectionState;
+}
+
+Pin::~Pin()
 {
 	if (nullptr != m_pCircleShape)
 	{
@@ -34,7 +45,7 @@ ConnectionPoint::~ConnectionPoint()
 	}
 }
 
-void ConnectionPoint::_updateState()
+void Pin::_updateState()
 {
 	m_state = UI_NORMAL;
 	if (m_connectionState != ConnectionState::None)
@@ -59,17 +70,12 @@ void ConnectionPoint::_updateState()
 	{
 		if (m_connectionState == ConnectionState::Pending)
 		{
-			// check if there is any ConnectionPoint hovered by the mouse
-			AbstractUI* ui = UIManager::GetFirstHoveredUIOfType<ConnectionPoint>(Input::GetMousePosition());
-			ConnectionPoint* other = dynamic_cast<ConnectionPoint*>(ui);
-			if (nullptr != other)
+			// check if there is any Pin hovered by the mouse
+			Pin* ui = UIManager::GetFirstHoveredUIOfType<Pin>(Input::GetMousePosition());
+			if (_tryConnect(ui))
 			{
-				// then swith to connected if yes
 				m_connectionState = ConnectionState::Connected;
-				m_pConnection = other;
-
-				other->m_pConnection = this;
-				other->m_connectionState = ConnectionState::Connected;
+				ui->m_connectionState = ConnectionState::Connected;
 			}
 			else
 			{
@@ -79,7 +85,7 @@ void ConnectionPoint::_updateState()
 	}
 }
 
-void ConnectionPoint::_updateTransform()
+void Pin::_updateTransform()
 {
 	AbstractUI::_updateTransform();
 	m_pCircleShape->setPosition(m_rect->getPosition());
@@ -108,7 +114,7 @@ void ConnectionPoint::_updateTransform()
 
 }
 
-void ConnectionPoint::_updateStyle()
+void Pin::_updateStyle()
 {
 	AbstractUI::_updateStyle();
 	m_pCircleShape->setFillColor((*m_style)[m_state].bgCol);
@@ -121,7 +127,7 @@ void ConnectionPoint::_updateStyle()
 	}
 }
 
-void ConnectionPoint::draw(sf::RenderTarget & target, sf::RenderStates states) const
+void Pin::draw(sf::RenderTarget & target, sf::RenderStates states) const
 {
 	target.draw(*m_pCircleShape, states);
 	if (m_connectionState != ConnectionState::None)

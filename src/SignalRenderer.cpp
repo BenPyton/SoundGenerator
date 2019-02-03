@@ -18,6 +18,8 @@ SignalRenderer::SignalRenderer(int x, int y, int width, int height, UIStyle& sty
 	m_vertices.setPrimitiveType(sf::PrimitiveType::LineStrip);
 	m_cursor.setPrimitiveType(sf::PrimitiveType::Lines);
 	m_cursor.resize(2);
+
+
 }
 
 SignalRenderer::~SignalRenderer()
