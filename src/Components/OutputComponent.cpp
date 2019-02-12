@@ -16,9 +16,10 @@ OutputComponent::OutputComponent()
 {
 	m_name = "Output";
 
-	m_inputs.push_back(ComponentInput("Output", this));
+	m_inputs.push_back(ComponentInput("", this));
 
 	m_inputs[0].setDefaultValue(0.0f);
+	m_hasOutput = false;
 }
 
 OutputComponent::~OutputComponent()

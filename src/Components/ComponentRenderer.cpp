@@ -55,8 +55,12 @@ void ComponentRenderer::setComponent(Component * _comp)
 void ComponentRenderer::update()
 {
 	AbstractUI::update();
-	m_outputPin.setViewParent(m_viewParent);
-	m_outputPin.update();
+
+	if (m_pComponent->hasOutput())
+	{
+		m_outputPin.setViewParent(m_viewParent);
+		m_outputPin.update();
+	}
 
 	for (int i = 0; i < m_inputPins.size(); i++)
 	{
@@ -101,7 +105,10 @@ void ComponentRenderer::draw(sf::RenderTarget & target, sf::RenderStates states)
 {
 	DraggableBox::draw(target, states);
 	target.draw(*m_pText, states);
-	target.draw(m_outputPin, states);
+	if (m_pComponent->hasOutput())
+	{
+		target.draw(m_outputPin, states);
+	}
 
 	for (int i = 0; i < m_inputPins.size(); i++)
 	{

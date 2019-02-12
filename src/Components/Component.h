@@ -28,11 +28,13 @@ class Component
 protected:
 	vector<ComponentInput> m_inputs;
 	string m_name;
+	bool m_hasOutput = true;
 
 public:
 	Component();
 	virtual ~Component();
 
+	bool hasOutput() { return m_hasOutput; }
 	virtual float getOutput(float _time) = 0;
 
 	ComponentInput* getInput(int _index);
