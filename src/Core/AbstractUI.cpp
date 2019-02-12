@@ -181,6 +181,10 @@ bool AbstractUI::hovered(sf::Vector2f pos)
 			Window::SetView(tmp);*/
 			pos = m_viewParent->mapScreenPointToView(pos);
 		}
+		else
+		{
+			return false;
+		}
 	}
 	return (pos.x >= rp.x && pos.x <= rp.x + rs.x) && (pos.y >= rp.y && pos.y <= rp.y + rs.y);
 }

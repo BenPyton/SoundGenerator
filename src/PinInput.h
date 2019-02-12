@@ -34,6 +34,7 @@ public:
 
 protected:
 	virtual bool _tryConnect(Pin* _other) override;
+	virtual void _disconnect() override;
 	virtual void _updateStyle() override;
 	virtual void _updateTransform() override;
 	virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const override;

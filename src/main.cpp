@@ -14,6 +14,7 @@
 #include "Components/TriangleComponent.h"
 #include "Components/RandomComponent.h"
 #include "Components/ComponentRenderer.h"
+#include "Components/OutputComponent.h"
 
 #define SAMPLERATE 48000
 
@@ -50,17 +51,15 @@ int main()
 	button.setPivot(sf::Vector2f(0.0f, 1.0f));
 
 
+	Label labelDuration(0, 0, 100, 30, style);
+	labelDuration.setText("Duration");
+	labelDuration.setAlignement(TextAlign::ALIGN_RIGHT);
+
 	// InputField Example
 	InputField input(10, 90, 150, 30, style);
 	input.setMaxLength(10);
-	input.setFloat(1.0f);
+	input.setFloat(0.1f);
 	input.setPlaceholder("Test");
-
-	// Draggable box example
-	ComponentRenderer box(100, 100, 200, 100, style);
-	ComponentRenderer box2(0, 0, 200, 100, style);
-
-
 
 
 	Button button1(-10, 10, 150, 30, style);
@@ -77,6 +76,9 @@ int main()
 
 	Button button5(-10, 10, 150, 30, style);
 	button5.setText("Random");
+
+	Button button6(-10, 10, 150, 30, style);
+	button6.setText("Modulated Sinus");
 
 
 	//Button btnPlay(10, 10, 70, 30, style);
@@ -110,6 +112,11 @@ int main()
 	btnEnd.setIconSize(32, 32);
 	btnEnd.setIcon("../../../data/Images/icon_end.png");
 
+
+	Label labelVolume(0, 0, 100, 30, style);
+	labelVolume.setText("Volume");
+	labelVolume.setAlignement(TextAlign::ALIGN_RIGHT);
+
 	InputField inputVolume(90, 50, 70, 30, style);
 	inputVolume.setMaxLength(5);
 	inputVolume.setFloat(10.0f);
@@ -126,6 +133,7 @@ int main()
 	vLayout.add(button3);
 	vLayout.add(button4);
 	vLayout.add(button5);
+	vLayout.add(button6);
 
 	HorizontalLayout toolLayout(10, 10, 0, 30);
 	toolLayout.setAnchorMin(sf::Vector2f(0, 0));
@@ -139,24 +147,26 @@ int main()
 	toolLayout.add(btnPause);
 	toolLayout.add(btnStop);
 	toolLayout.add(btnEnd);
+	toolLayout.add(labelVolume);
+	toolLayout.add(inputVolume);
+	toolLayout.add(labelDuration);
+	toolLayout.add(input);
 
 	// View
 	View view(0, 0, 0, 0, style);
 	view.setAnchorMin(sf::Vector2f(0, 0));
 	view.setAnchorMax(sf::Vector2f(1, 1));
 	view.setMargins(200, 10, 150, 10);
-	view.add(box);
-	view.add(box2);
 
 	// Window layout
 	Layout rootLayout(0, 0, Window::GetWidth(), Window::GetHeight());
 	Window::SetLayout(rootLayout);
 	rootLayout.add(button);
-	rootLayout.add(input);
+	//rootLayout.add(input);
 	rootLayout.add(vLayout);
 	rootLayout.add(view);
 	//rootLayout.add(btnPlay);
-	rootLayout.add(inputVolume);
+	//rootLayout.add(inputVolume);
 	rootLayout.add(toolLayout);
 
 
@@ -184,12 +194,16 @@ int main()
 	SinusComponent sinusGenerator;
 	sinusGenerator.getInput("Frequency")->setDefaultValue(200);
 
+
+	SinusComponent sinusGenerator2;
+	sinusGenerator.getInput("Frequency")->setDefaultValue(200);
+
 	SinusComponent sinusAttenuation;
 	sinusAttenuation.getInput("Frequency")->setDefaultValue(1.5f);
 	sinusAttenuation.getInput("Offset")->setDefaultValue(0.5f);
 	sinusAttenuation.getInput("Amplitude")->setDefaultValue(0.5f);
 
-	//sinusGenerator.getInput("Amplitude")->setComponent(&sinusAttenuation);
+	sinusGenerator2.getInput("Amplitude")->setComponent(&sinusAttenuation);
 
 
 	SquareComponent squareGenerator;
@@ -211,8 +225,20 @@ int main()
 
 	RandomComponent randomGenerator;
 
-	box.setComponent(&sinusGenerator);
+
+	OutputComponent output;
+
+	// Component renderers
+	ComponentRenderer box(100, 100, 200, 100, style);
+	ComponentRenderer box2(0, 0, 200, 100, style);
+	ComponentRenderer outputRenderer(-100, -200, 200, 100, style);
+	view.add(box);
+	view.add(box2);
+	view.add(outputRenderer);
+
+	box.setComponent(&sinusAttenuation);
 	box2.setComponent(&squareGenerator);
+	outputRenderer.setComponent(&output);
 
 	bool playing = false;
 	bool paused = false;
@@ -267,7 +293,7 @@ int main()
 				}*/
 				//samples.push_back(0x8000 * 0.999f * attenuation * sinf(frequency * 2 * 3.1415926f * x));
 
-				samples.push_back(0x7FFF * clamp(sawToothGenerator.getOutput(x), -1.0f, 1.0f));
+				samples.push_back(0x7FFF * clamp(output.getOutput(x), -1.0f, 1.0f));
 				//vertices.append(sf::Vertex(sf::Vector2f(i * step, 0.5f * Window::GetWidth() + mapValue(samples[i], -512, 512, -200, 200)), sf::Color::White));
 			}
 			//buffer.loadFromSamples(samples.data(), SAMPLERATE, 1, SAMPLERATE);
@@ -277,6 +303,8 @@ int main()
 
 		if (button1.click())
 		{
+			signal.getSound()->stop();
+			playing = false;
 			samples.clear();
 			float duration = input.getFloat();
 			sf::Uint64 totalSample = duration * SAMPLERATE;
@@ -290,6 +318,8 @@ int main()
 
 		if (button2.click())
 		{
+			signal.getSound()->stop();
+			playing = false;
 			samples.clear();
 			float duration = input.getFloat();
 			sf::Uint64 totalSample = duration * SAMPLERATE;
@@ -303,6 +333,8 @@ int main()
 
 		if (button3.click())
 		{
+			signal.getSound()->stop();
+			playing = false;
 			samples.clear();
 			float duration = input.getFloat();
 			sf::Uint64 totalSample = duration * SAMPLERATE;
@@ -316,6 +348,8 @@ int main()
 
 		if (button4.click())
 		{
+			signal.getSound()->stop();
+			playing = false;
 			samples.clear();
 			float duration = input.getFloat();
 			sf::Uint64 totalSample = duration * SAMPLERATE;
@@ -329,6 +363,8 @@ int main()
 
 		if (button5.click())
 		{
+			signal.getSound()->stop();
+			playing = false;
 			samples.clear();
 			float duration = input.getFloat();
 			sf::Uint64 totalSample = duration * SAMPLERATE;
@@ -336,6 +372,21 @@ int main()
 			{
 				float x = (float)i / SAMPLERATE;
 				samples.push_back(0x7FFF * clamp(randomGenerator.getOutput(x), -1.0f, 1.0f));
+			}
+			signal.setData(samples);
+		}
+
+		if (button6.click())
+		{
+			signal.getSound()->stop();
+			playing = false;
+			samples.clear();
+			float duration = input.getFloat();
+			sf::Uint64 totalSample = duration * SAMPLERATE;
+			for (int i = 0; i < totalSample; i++)
+			{
+				float x = (float)i / SAMPLERATE;
+				samples.push_back(0x7FFF * clamp(sinusGenerator2.getOutput(x), -1.0f, 1.0f));
 			}
 			signal.setData(samples);
 		}
@@ -377,7 +428,7 @@ int main()
 		if (Input::GetMouseButtonDown(sf::Mouse::Left))
 		{
 			sf::Vector2f mousePos = Input::GetMousePosition();
-			cout << "Mouse position: (" << mousePos.x << "," << mousePos.y << ")" << endl;
+			//cout << "Mouse position: (" << mousePos.x << "," << mousePos.y << ")" << endl;
 		}
 
 		// ///////////////////////// START DRAW

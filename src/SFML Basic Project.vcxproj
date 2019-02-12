@@ -172,6 +172,7 @@
   <ItemGroup>
     <ClInclude Include="Components\Component.h" />
     <ClInclude Include="Components\ComponentRenderer.h" />
+    <ClInclude Include="Components\OutputComponent.h" />
     <ClInclude Include="Components\RandomComponent.h" />
     <ClInclude Include="Components\SawToothComponent.h" />
     <ClInclude Include="Components\SinusComponent.h" />
@@ -208,6 +209,7 @@
   <ItemGroup>
     <ClCompile Include="Components\Component.cpp" />
     <ClCompile Include="Components\ComponentRenderer.cpp" />
+    <ClCompile Include="Components\OutputComponent.cpp" />
     <ClCompile Include="Components\RandomComponent.cpp" />
     <ClCompile Include="Components\SawToothComponent.cpp" />
     <ClCompile Include="Components\SinusComponent.cpp" />

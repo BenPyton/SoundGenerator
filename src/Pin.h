@@ -20,7 +20,7 @@ using namespace std;
 
 class Pin : public AbstractUI
 {
-private:
+protected:
 	enum class ConnectionState {
 		None,
 		Pending,
@@ -32,8 +32,11 @@ protected:
 	ConnectionState m_connectionState;
 
 	sf::VertexArray m_line;
+	sf::VertexArray m_connectionLines;
 
-	Pin* m_pConnection = nullptr;
+	vector<Pin*> m_pConnections;
+
+	bool m_multiConnection = false;
 
 public:
 	Pin(int x, int y, int radius, UIStyle& style = UIStyle::Default);
@@ -42,10 +45,15 @@ public:
 
 protected:
 	virtual bool _tryConnect(Pin* _other) { return false; }
+	virtual void _disconnect() {}
 	virtual void _updateState() override;
 	virtual void _updateTransform() override;
 	virtual void _updateStyle() override;
 	virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
+
+private:
+	void _updateConnections();
+	bool _canConnect();
 };
 
 #endif // _Pin_H

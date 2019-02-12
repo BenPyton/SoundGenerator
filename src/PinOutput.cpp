@@ -16,6 +16,7 @@
 PinOutput::PinOutput(int x, int y, int radius, UIStyle & style)
 	: Pin(x, y, radius, style)
 {
+	m_multiConnection = true;
 }
 
 PinOutput::~PinOutput()
@@ -29,9 +30,9 @@ bool PinOutput::_tryConnect(Pin * _other)
 		&& m_pComponent != nullptr && input->getInput()->getParent() != m_pComponent 
 		&& input->getInput()->setComponent(m_pComponent))
 	{
-		input->m_pConnection = this;
 		return true;
 	}
 
 	return false;
 }
+

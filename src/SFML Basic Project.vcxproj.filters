@@ -132,6 +132,9 @@
     <ClInclude Include="PinOutput.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
+    <ClInclude Include="Components\OutputComponent.h">
+      <Filter>Fichiers d%27en-tête\Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -232,6 +235,9 @@
     </ClCompile>
     <ClCompile Include="PinInput.cpp">
       <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\OutputComponent.cpp">
+      <Filter>Fichiers sources\Components</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -58,11 +58,15 @@ bool PinInput::_tryConnect(Pin * _other)
 		&& output->getComponent() != nullptr && output->getComponent() != m_pInput->getParent()
 		&& m_pInput->setComponent(output->getComponent()))
 	{
-		m_pConnection = output;
 		return true;
 	}
 
 	return false;
+}
+
+void PinInput::_disconnect()
+{
+	m_pInput->setComponent(nullptr);
 }
 
 void PinInput::_updateStyle()

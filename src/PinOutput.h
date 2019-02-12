@@ -20,6 +20,7 @@ using namespace std;
 
 class PinOutput : public Pin
 {
+	friend class PinInput;
 private:
 	Component* m_pComponent = nullptr;
 public:
@@ -32,8 +33,6 @@ public:
 
 protected:
 	virtual bool _tryConnect(Pin* _other) override;
-
-
 };
 
 #endif // _PINOUTPUT_H

@@ -24,6 +24,8 @@ Pin::Pin(int x, int y, int radius, UIStyle& style)
 
 	m_line.resize(2);
 	m_line.setPrimitiveType(sf::PrimitiveType::LinesStrip);
+
+	m_connectionLines.setPrimitiveType(sf::PrimitiveType::Lines);
 }
 
 Pin::Pin(const Pin & _cp)
@@ -33,6 +35,8 @@ Pin::Pin(const Pin & _cp)
 	assert(nullptr != m_pCircleShape);
 	m_line.resize(2);
 	m_line.setPrimitiveType(sf::PrimitiveType::LinesStrip);
+
+	m_connectionLines.setPrimitiveType(sf::PrimitiveType::Lines);
 
 	m_connectionState = _cp.m_connectionState;
 }
@@ -47,22 +51,25 @@ Pin::~Pin()
 
 void Pin::_updateState()
 {
-	m_state = UI_NORMAL;
-	if (m_connectionState != ConnectionState::None)
+	if (hovered(Input::GetMousePosition()))
 	{
-		m_state = UI_CLICKED;
-	}
-
-	if (hovered(Input::GetMousePosition()) && m_connectionState == ConnectionState::None)
-	{
-		if (Input::GetMouseButtonDown(sf::Mouse::Left))
+		if (Input::GetMouseButtonDown(sf::Mouse::Left) && _canConnect())
 		{
 			m_connectionState = ConnectionState::Pending;
 		}
 
-		if (m_connectionState != ConnectionState::Pending)
+		if (Input::GetMouseButtonDown(sf::Mouse::Right))
 		{
-			m_state = UI_HOVERED;
+			_disconnect();
+			for (int i = 0; i < m_pConnections.size(); i++)
+			{
+				m_pConnections[i]->_disconnect();
+				vector<Pin*>::iterator it = find(m_pConnections[i]->m_pConnections.begin(), m_pConnections[i]->m_pConnections.end(), this);
+				m_pConnections[i]->m_pConnections.erase(it);
+				m_pConnections[i]->_updateConnections();
+			}
+			m_pConnections.clear();
+			_updateConnections();
 		}
 	}
 
@@ -72,15 +79,34 @@ void Pin::_updateState()
 		{
 			// check if there is any Pin hovered by the mouse
 			Pin* ui = UIManager::GetFirstHoveredUIOfType<Pin>(Input::GetMousePosition());
-			if (_tryConnect(ui))
+			if (ui != nullptr && ui->_canConnect())
 			{
-				m_connectionState = ConnectionState::Connected;
-				ui->m_connectionState = ConnectionState::Connected;
+				vector<Pin*>::iterator it = find(m_pConnections.begin(), m_pConnections.end(), ui);
+				if (it == m_pConnections.end() && _tryConnect(ui))
+				{
+					m_pConnections.push_back(ui);
+					ui->m_pConnections.push_back(this);
+					_updateConnections();
+					ui->_updateConnections();
+				}
 			}
-			else
-			{
-				m_connectionState = ConnectionState::None;
-			}
+			m_connectionState = ConnectionState::None;
+		}
+	}
+
+	if (m_connectionState != ConnectionState::Pending)
+	{
+		m_state = UI_NORMAL;
+		if (m_pConnections.size() > 0)
+		{
+			m_connectionState = ConnectionState::Connected;
+			m_state = UI_CLICKED;
+		}
+		else
+		{
+			m_connectionState = ConnectionState::None; 
+			if (hovered(Input::GetMousePosition()))
+				m_state = UI_HOVERED;
 		}
 	}
 }
@@ -90,16 +116,15 @@ void Pin::_updateTransform()
 	AbstractUI::_updateTransform();
 	m_pCircleShape->setPosition(m_rect->getPosition());
 
-	m_line[0].position = getRealPosition() + 0.5f * getRealSize();
-	switch (m_connectionState)
+	for (int i = 0; i < m_pConnections.size(); i++)
 	{
-	case ConnectionState::Connected:
-		if (nullptr != m_pConnection)
-		{
-			m_line[1].position = m_pConnection->getRealPosition() + 0.5f * m_pConnection->getRealSize();
-		}
-		break;
-	case ConnectionState::Pending:
+		m_connectionLines[2*i].position = getRealPosition() + 0.5f * getRealSize();
+		m_connectionLines[2*i+1].position = m_pConnections[i]->getRealPosition() + 0.5f * m_pConnections[i]->getRealSize();
+	}
+
+	if (m_connectionState == ConnectionState::Pending)
+	{
+		m_line[0].position = getRealPosition() + 0.5f * getRealSize();
 		if (m_viewParent != nullptr)
 		{
 			m_line[1].position = m_viewParent->mapScreenPointToView(Input::GetMousePosition());
@@ -108,10 +133,7 @@ void Pin::_updateTransform()
 		{
 			m_line[1].position = Input::GetMousePosition();
 		}
-		break;
-	default: break;
 	}
-
 }
 
 void Pin::_updateStyle()
@@ -125,13 +147,29 @@ void Pin::_updateStyle()
 	{
 		m_line[i].color = (*m_style)[UI_NORMAL].fgCol;
 	}
+
+	for (int i = 0; i < m_connectionLines.getVertexCount(); i++)
+	{
+		m_connectionLines[i].color = (*m_style)[UI_NORMAL].fgCol;
+	}
 }
 
 void Pin::draw(sf::RenderTarget & target, sf::RenderStates states) const
 {
 	target.draw(*m_pCircleShape, states);
-	if (m_connectionState != ConnectionState::None)
+	target.draw(m_connectionLines, states);
+	if (m_connectionState == ConnectionState::Pending)
 	{
 		target.draw(m_line, states);
 	}
+}
+
+void Pin::_updateConnections()
+{
+	m_connectionLines.resize(2 * m_pConnections.size());
+}
+
+bool Pin::_canConnect()
+{
+	return m_multiConnection == true || (m_multiConnection == false && m_pConnections.empty());
 }
