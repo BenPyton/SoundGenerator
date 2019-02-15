@@ -27,10 +27,13 @@ private:
 public:
 	PinInput(int x, int y, int radius, UIStyle& style = UIStyle::Default);
 	PinInput(const PinInput& _pi);
+	PinInput(PinInput&& _pi);
 	~PinInput();
 
 	void setInput(ComponentInput* _input);
 	ComponentInput* getInput() { return m_pInput; }
+
+	//PinInput& operator=(const PinInput&);
 
 protected:
 	virtual bool _tryConnect(Pin* _other) override;

@@ -41,6 +41,7 @@ protected:
 public:
 	Pin(int x, int y, int radius, UIStyle& style = UIStyle::Default);
 	Pin(const Pin& _cp);
+	Pin(Pin&& _p);
 	~Pin();
 
 protected:

@@ -30,6 +30,13 @@ PinInput::PinInput(const PinInput & _pi)
 	m_pInput = _pi.m_pInput;
 }
 
+PinInput::PinInput(PinInput && _pi)
+	: Pin(std::move(_pi)), m_pLabel(std::move(_pi.m_pLabel))
+{
+	m_pInput = _pi.m_pInput;
+	_pi.m_pLabel = nullptr;
+}
+
 PinInput::~PinInput()
 {
 	if (nullptr != m_pLabel)

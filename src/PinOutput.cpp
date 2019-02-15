@@ -19,6 +19,13 @@ PinOutput::PinOutput(int x, int y, int radius, UIStyle & style)
 	m_multiConnection = true;
 }
 
+PinOutput::PinOutput(PinOutput && _po)
+	: Pin(std::move(_po))
+{
+	m_pComponent = _po.m_pComponent;
+	_po.m_pComponent = nullptr;
+}
+
 PinOutput::~PinOutput()
 {
 }

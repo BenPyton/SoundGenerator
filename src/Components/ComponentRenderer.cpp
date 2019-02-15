@@ -22,6 +22,13 @@ ComponentRenderer::ComponentRenderer(int x, int y, int width, int height, UIStyl
 	m_outputPin.setParent(this);
 }
 
+ComponentRenderer::ComponentRenderer(ComponentRenderer && _cr)
+	: DraggableBox(std::move(_cr)), m_pText(std::move(_cr.m_pText)), m_outputPin(std::move(_cr.m_outputPin)), m_inputPins(std::move(_cr.m_inputPins))
+{
+	m_pComponent = _cr.m_pComponent;
+	_cr.m_pText = nullptr;
+}
+
 ComponentRenderer::~ComponentRenderer()
 {
 	if (nullptr != m_pText)
@@ -38,11 +45,14 @@ void ComponentRenderer::setComponent(Component * _comp)
 	if (_comp != nullptr)
 	{
 		m_pText->setString(_comp->getName());
-		for (int i = 0; i < _comp->getInputCount(); i++)
+		m_inputPins.resize(_comp->getInputCount(), PinInput(0, 0, 10, *m_style));
+		//for (int i = 0; i < _comp->getInputCount(); i++)
+		for (int i = 0; i < m_inputPins.size(); i++)
 		{
-			m_inputPins.push_back(PinInput(0, 0, 10, *m_style));
-			m_inputPins.back().setParent(this);
-			m_inputPins.back().setInput(_comp->getInput(i));
+			//PinInput pin(0, 0, 10, *m_style);
+			//m_inputPins.emplace_back(std::move(pin));
+			m_inputPins[i].setParent(this);
+			m_inputPins[i].setInput(_comp->getInput(i));
 		}
 	}
 	else

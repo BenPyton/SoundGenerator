@@ -17,6 +17,13 @@ Component::Component()
 	m_name = "Component";
 }
 
+Component::Component(Component && _c)
+{
+	m_inputs = _c.m_inputs;
+	m_name = _c.m_name;
+	m_hasOutput = _c.m_hasOutput;
+}
+
 Component::~Component()
 {
 }

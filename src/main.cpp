@@ -225,13 +225,15 @@ int main()
 
 	RandomComponent randomGenerator;
 
-
+	vector<Component*> components;
 	OutputComponent output;
+
+	vector<ComponentRenderer*> compRenderers;
 
 	// Component renderers
 	ComponentRenderer box(100, 100, 200, 100, style);
 	ComponentRenderer box2(0, 0, 200, 100, style);
-	ComponentRenderer outputRenderer(-100, -200, 200, 100, style);
+	ComponentRenderer outputRenderer(-100, -200, 100, 100, style);
 	view.add(box);
 	view.add(box2);
 	view.add(outputRenderer);
@@ -303,7 +305,7 @@ int main()
 
 		if (button1.click())
 		{
-			signal.getSound()->stop();
+			/*signal.getSound()->stop();
 			playing = false;
 			samples.clear();
 			float duration = input.getFloat();
@@ -313,12 +315,17 @@ int main()
 				float x = (float)i / SAMPLERATE;
 				samples.push_back(0x7FFF * clamp(sinusGenerator.getOutput(x), -1.0f, 1.0f));
 			}
-			signal.setData(samples);
+			signal.setData(samples);*/
+
+			components.push_back(new SinusComponent());
+			compRenderers.push_back(new ComponentRenderer(0, 0, 200, 0, style));
+			compRenderers.back()->setComponent(components.back());
+			view.add(*compRenderers.back());
 		}
 
 		if (button2.click())
 		{
-			signal.getSound()->stop();
+			/*signal.getSound()->stop();
 			playing = false;
 			samples.clear();
 			float duration = input.getFloat();
@@ -328,12 +335,17 @@ int main()
 				float x = (float)i / SAMPLERATE;
 				samples.push_back(0x7FFF * clamp(squareGenerator.getOutput(x), -1.0f, 1.0f));
 			}
-			signal.setData(samples);
+			signal.setData(samples);*/
+
+			components.push_back(new SquareComponent());
+			compRenderers.push_back(new ComponentRenderer(0, 0, 200, 0, style));
+			compRenderers.back()->setComponent(components.back());
+			view.add(*compRenderers.back());
 		}
 
 		if (button3.click())
 		{
-			signal.getSound()->stop();
+			/*signal.getSound()->stop();
 			playing = false;
 			samples.clear();
 			float duration = input.getFloat();
@@ -343,12 +355,17 @@ int main()
 				float x = (float)i / SAMPLERATE;
 				samples.push_back(0x7FFF * clamp(triangleGenerator.getOutput(x), -1.0f, 1.0f));
 			}
-			signal.setData(samples);
+			signal.setData(samples);*/
+
+			components.push_back(new TriangleComponent());
+			compRenderers.push_back(new ComponentRenderer(0, 0, 200, 0, style));
+			compRenderers.back()->setComponent(components.back());
+			view.add(*compRenderers.back());
 		}
 
 		if (button4.click())
 		{
-			signal.getSound()->stop();
+			/*signal.getSound()->stop();
 			playing = false;
 			samples.clear();
 			float duration = input.getFloat();
@@ -358,12 +375,17 @@ int main()
 				float x = (float)i / SAMPLERATE;
 				samples.push_back(0x7FFF * clamp(sawToothGenerator.getOutput(x), -1.0f, 1.0f));
 			}
-			signal.setData(samples);
+			signal.setData(samples);*/
+
+			components.push_back(new SawToothComponent());
+			compRenderers.push_back(new ComponentRenderer(0, 0, 200, 0, style));
+			compRenderers.back()->setComponent(components.back());
+			view.add(*compRenderers.back());
 		}
 
 		if (button5.click())
 		{
-			signal.getSound()->stop();
+			/*signal.getSound()->stop();
 			playing = false;
 			samples.clear();
 			float duration = input.getFloat();
@@ -373,7 +395,12 @@ int main()
 				float x = (float)i / SAMPLERATE;
 				samples.push_back(0x7FFF * clamp(randomGenerator.getOutput(x), -1.0f, 1.0f));
 			}
-			signal.setData(samples);
+			signal.setData(samples);*/
+
+			components.push_back(new RandomComponent());
+			compRenderers.push_back(new ComponentRenderer(0, 0, 200, 0, style));
+			compRenderers.back()->setComponent(components.back());
+			view.add(*compRenderers.back());
 		}
 
 		if (button6.click())
@@ -439,6 +466,16 @@ int main()
 
 		// ///////////////////////// END DRAW
 		Window::Display();
+	}
+
+	for (int i = 0; i < components.size(); i++)
+	{
+		delete components[i];
+	}
+
+	for (int i = 0; i < compRenderers.size(); i++)
+	{
+		delete compRenderers[i];
 	}
 
 	return 0;

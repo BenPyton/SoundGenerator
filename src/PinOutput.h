@@ -25,6 +25,7 @@ private:
 	Component* m_pComponent = nullptr;
 public:
 	PinOutput(int x, int y, int radius, UIStyle& style = UIStyle::Default);
+	PinOutput(PinOutput&& _po);
 	~PinOutput();
 
 

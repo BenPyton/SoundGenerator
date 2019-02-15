@@ -24,6 +24,7 @@ protected:
 	sf::Vector2f m_mouseOffset;
 public:
 	DraggableBox(int x, int y, int width, int height, UIStyle& style = UIStyle::Default);
+	DraggableBox(DraggableBox&& _db);
 	virtual ~DraggableBox();
 
 

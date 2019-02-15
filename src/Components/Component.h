@@ -32,6 +32,7 @@ protected:
 
 public:
 	Component();
+	Component(Component&& _c);
 	virtual ~Component();
 
 	bool hasOutput() { return m_hasOutput; }

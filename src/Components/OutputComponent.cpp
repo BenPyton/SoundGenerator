@@ -13,6 +13,7 @@
 #include "OutputComponent.h"
 
 OutputComponent::OutputComponent()
+	: Component()
 {
 	m_name = "Output";
 

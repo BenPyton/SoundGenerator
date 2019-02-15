@@ -57,6 +57,33 @@ AbstractUI::AbstractUI(const AbstractUI & _aui)
 	UIManager::Add(*this);
 }
 
+AbstractUI::AbstractUI(AbstractUI && _aui)
+	: m_rect(std::move(_aui.m_rect))
+{
+	m_parent = _aui.m_parent;
+	m_viewParent = _aui.m_viewParent;
+
+	m_enabled = _aui.m_enabled;
+
+	m_state = _aui.m_state;
+	m_style = _aui.m_style;
+
+	m_anchorMin = _aui.m_anchorMin;
+	m_anchorMax = _aui.m_anchorMax;
+	m_position = _aui.m_position;
+	m_size = _aui.m_size;
+	m_pivot = _aui.m_pivot;
+	m_marginTop = _aui.m_marginTop;
+	m_marginLeft = _aui.m_marginLeft;
+	m_marginBottom = _aui.m_marginBottom;
+	m_marginRight = _aui.m_marginRight;
+
+	m_horiStretch = _aui.m_horiStretch;
+	m_vertStretch = _aui.m_vertStretch;
+
+	_aui.m_rect = nullptr;
+}
+
 AbstractUI::~AbstractUI()
 {
 	if (nullptr != m_rect)

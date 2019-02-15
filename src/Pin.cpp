@@ -41,6 +41,19 @@ Pin::Pin(const Pin & _cp)
 	m_connectionState = _cp.m_connectionState;
 }
 
+Pin::Pin(Pin && _p)
+	: AbstractUI(std::move(_p)), m_pCircleShape(std::move(_p.m_pCircleShape))
+{
+
+	m_connectionState = _p.m_connectionState;
+	m_line = _p.m_line;
+	m_connectionLines = _p.m_connectionLines;
+	m_pConnections = _p.m_pConnections;
+	m_multiConnection = _p.m_multiConnection;
+
+	_p.m_pCircleShape = nullptr;
+}
+
 Pin::~Pin()
 {
 	if (nullptr != m_pCircleShape)

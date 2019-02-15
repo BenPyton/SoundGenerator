@@ -32,6 +32,7 @@ private:
 
 public:
 	ComponentRenderer(int x, int y, int width, int height, UIStyle& style = UIStyle::Default);
+	ComponentRenderer(ComponentRenderer&& _cr);
 	~ComponentRenderer();
 
 	void setComponent(Component* _comp);

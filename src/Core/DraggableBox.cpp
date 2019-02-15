@@ -19,6 +19,13 @@ DraggableBox::DraggableBox(int x, int y, int width, int height, UIStyle& style)
 	m_dragged = false;
 }
 
+DraggableBox::DraggableBox(DraggableBox && _db)
+	: AbstractUI(std::move(_db))
+{
+	m_dragged = _db.m_dragged;
+	m_mouseOffset = _db.m_mouseOffset;
+}
+
 DraggableBox::~DraggableBox()
 {
 }
