@@ -58,30 +58,8 @@ AbstractUI::AbstractUI(const AbstractUI & _aui)
 }
 
 AbstractUI::AbstractUI(AbstractUI && _aui)
-	: m_rect(std::move(_aui.m_rect))
 {
-	m_parent = _aui.m_parent;
-	m_viewParent = _aui.m_viewParent;
-
-	m_enabled = _aui.m_enabled;
-
-	m_state = _aui.m_state;
-	m_style = _aui.m_style;
-
-	m_anchorMin = _aui.m_anchorMin;
-	m_anchorMax = _aui.m_anchorMax;
-	m_position = _aui.m_position;
-	m_size = _aui.m_size;
-	m_pivot = _aui.m_pivot;
-	m_marginTop = _aui.m_marginTop;
-	m_marginLeft = _aui.m_marginLeft;
-	m_marginBottom = _aui.m_marginBottom;
-	m_marginRight = _aui.m_marginRight;
-
-	m_horiStretch = _aui.m_horiStretch;
-	m_vertStretch = _aui.m_vertStretch;
-
-	_aui.m_rect = nullptr;
+	_aui.swap(*this);
 }
 
 AbstractUI::~AbstractUI()
@@ -91,6 +69,37 @@ AbstractUI::~AbstractUI()
 		delete m_rect;
 	}
 	UIManager::Remove(*this);
+}
+
+AbstractUI & AbstractUI::operator=(AbstractUI && _aui)
+{
+	_aui.swap(*this);
+	return *this;
+}
+
+void AbstractUI::swap(AbstractUI & _other)
+{
+	std::swap(m_rect, _other.m_rect);
+	std::swap(m_parent, _other.m_parent);
+	std::swap(m_viewParent, _other.m_viewParent);
+
+	std::swap(m_enabled, _other.m_enabled);
+
+	std::swap(m_state, _other.m_state);
+	std::swap(m_style, _other.m_style);
+
+	std::swap(m_anchorMin, _other.m_anchorMin);
+	std::swap(m_anchorMax, _other.m_anchorMax);
+	std::swap(m_position, _other.m_position);
+	std::swap(m_size, _other.m_size);
+	std::swap(m_pivot, _other.m_pivot);
+	std::swap(m_marginTop, _other.m_marginTop);
+	std::swap(m_marginLeft, _other.m_marginLeft);
+	std::swap(m_marginBottom, _other.m_marginBottom);
+	std::swap(m_marginRight, _other.m_marginRight);
+
+	std::swap(m_horiStretch, _other.m_horiStretch);
+	std::swap(m_vertStretch, _other.m_vertStretch);
 }
 
 void AbstractUI::setAnchor(sf::Vector2f anchor)

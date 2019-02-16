@@ -191,56 +191,16 @@ int main()
 
 	sf::Vector2f prevMousePos;
 
-	SinusComponent sinusGenerator;
-	sinusGenerator.getInput("Frequency")->setDefaultValue(200);
-
-
-	SinusComponent sinusGenerator2;
-	sinusGenerator.getInput("Frequency")->setDefaultValue(200);
-
-	SinusComponent sinusAttenuation;
-	sinusAttenuation.getInput("Frequency")->setDefaultValue(1.5f);
-	sinusAttenuation.getInput("Offset")->setDefaultValue(0.5f);
-	sinusAttenuation.getInput("Amplitude")->setDefaultValue(0.5f);
-
-	sinusGenerator2.getInput("Amplitude")->setComponent(&sinusAttenuation);
-
-
-	SquareComponent squareGenerator;
-	squareGenerator.getInput("Frequency")->setDefaultValue(200);
-	//squareGenerator.getInput("Amplitude")->setDefaultValue(0.5f);
-	//squareGenerator.getInput("Offset")->setDefaultValue(0.5f);
-
-	//sinusGenerator.getInput("Amplitude")->setComponent(&squareGenerator);
-	//squareGenerator.getInput("Amplitude")->setComponent(&sinusGenerator);
-
-	TriangleComponent triangleGenerator;
-	triangleGenerator.getInput("Frequency")->setDefaultValue(200);
-
-	SawToothComponent sawToothGenerator;
-	sawToothGenerator.getInput("Frequency")->setDefaultValue(200);
-	//sawToothGenerator.getInput("Amplitude")->setDefaultValue(0.5f);
-	//SawToothsawToothGenerator.getInput("Offset")->setDefaultValue(0.5f);
-
-
-	RandomComponent randomGenerator;
 
 	vector<Component*> components;
-	OutputComponent output;
-
 	vector<ComponentRenderer*> compRenderers;
 
 	// Component renderers
-	ComponentRenderer box(100, 100, 200, 100, style);
-	ComponentRenderer box2(0, 0, 200, 100, style);
+	OutputComponent output;
 	ComponentRenderer outputRenderer(-100, -200, 100, 100, style);
-	view.add(box);
-	view.add(box2);
+	outputRenderer.setComponent(&output);
 	view.add(outputRenderer);
 
-	box.setComponent(&sinusAttenuation);
-	box2.setComponent(&squareGenerator);
-	outputRenderer.setComponent(&output);
 
 	bool playing = false;
 	bool paused = false;
@@ -305,18 +265,6 @@ int main()
 
 		if (button1.click())
 		{
-			/*signal.getSound()->stop();
-			playing = false;
-			samples.clear();
-			float duration = input.getFloat();
-			sf::Uint64 totalSample = duration * SAMPLERATE;
-			for (int i = 0; i < totalSample; i++)
-			{
-				float x = (float)i / SAMPLERATE;
-				samples.push_back(0x7FFF * clamp(sinusGenerator.getOutput(x), -1.0f, 1.0f));
-			}
-			signal.setData(samples);*/
-
 			components.push_back(new SinusComponent());
 			compRenderers.push_back(new ComponentRenderer(0, 0, 200, 0, style));
 			compRenderers.back()->setComponent(components.back());
@@ -325,18 +273,6 @@ int main()
 
 		if (button2.click())
 		{
-			/*signal.getSound()->stop();
-			playing = false;
-			samples.clear();
-			float duration = input.getFloat();
-			sf::Uint64 totalSample = duration * SAMPLERATE;
-			for (int i = 0; i < totalSample; i++)
-			{
-				float x = (float)i / SAMPLERATE;
-				samples.push_back(0x7FFF * clamp(squareGenerator.getOutput(x), -1.0f, 1.0f));
-			}
-			signal.setData(samples);*/
-
 			components.push_back(new SquareComponent());
 			compRenderers.push_back(new ComponentRenderer(0, 0, 200, 0, style));
 			compRenderers.back()->setComponent(components.back());
@@ -345,18 +281,6 @@ int main()
 
 		if (button3.click())
 		{
-			/*signal.getSound()->stop();
-			playing = false;
-			samples.clear();
-			float duration = input.getFloat();
-			sf::Uint64 totalSample = duration * SAMPLERATE;
-			for (int i = 0; i < totalSample; i++)
-			{
-				float x = (float)i / SAMPLERATE;
-				samples.push_back(0x7FFF * clamp(triangleGenerator.getOutput(x), -1.0f, 1.0f));
-			}
-			signal.setData(samples);*/
-
 			components.push_back(new TriangleComponent());
 			compRenderers.push_back(new ComponentRenderer(0, 0, 200, 0, style));
 			compRenderers.back()->setComponent(components.back());
@@ -365,18 +289,6 @@ int main()
 
 		if (button4.click())
 		{
-			/*signal.getSound()->stop();
-			playing = false;
-			samples.clear();
-			float duration = input.getFloat();
-			sf::Uint64 totalSample = duration * SAMPLERATE;
-			for (int i = 0; i < totalSample; i++)
-			{
-				float x = (float)i / SAMPLERATE;
-				samples.push_back(0x7FFF * clamp(sawToothGenerator.getOutput(x), -1.0f, 1.0f));
-			}
-			signal.setData(samples);*/
-
 			components.push_back(new SawToothComponent());
 			compRenderers.push_back(new ComponentRenderer(0, 0, 200, 0, style));
 			compRenderers.back()->setComponent(components.back());
@@ -385,38 +297,12 @@ int main()
 
 		if (button5.click())
 		{
-			/*signal.getSound()->stop();
-			playing = false;
-			samples.clear();
-			float duration = input.getFloat();
-			sf::Uint64 totalSample = duration * SAMPLERATE;
-			for (int i = 0; i < totalSample; i++)
-			{
-				float x = (float)i / SAMPLERATE;
-				samples.push_back(0x7FFF * clamp(randomGenerator.getOutput(x), -1.0f, 1.0f));
-			}
-			signal.setData(samples);*/
-
 			components.push_back(new RandomComponent());
 			compRenderers.push_back(new ComponentRenderer(0, 0, 200, 0, style));
 			compRenderers.back()->setComponent(components.back());
 			view.add(*compRenderers.back());
 		}
 
-		if (button6.click())
-		{
-			signal.getSound()->stop();
-			playing = false;
-			samples.clear();
-			float duration = input.getFloat();
-			sf::Uint64 totalSample = duration * SAMPLERATE;
-			for (int i = 0; i < totalSample; i++)
-			{
-				float x = (float)i / SAMPLERATE;
-				samples.push_back(0x7FFF * clamp(sinusGenerator2.getOutput(x), -1.0f, 1.0f));
-			}
-			signal.setData(samples);
-		}
 
 		if (btnPlay.click() && (!playing || paused))
 		{

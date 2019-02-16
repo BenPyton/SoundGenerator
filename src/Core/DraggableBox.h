@@ -24,8 +24,12 @@ protected:
 	sf::Vector2f m_mouseOffset;
 public:
 	DraggableBox(int x, int y, int width, int height, UIStyle& style = UIStyle::Default);
+	DraggableBox(const DraggableBox& _db);
 	DraggableBox(DraggableBox&& _db);
 	virtual ~DraggableBox();
+	DraggableBox& operator=(const DraggableBox& _db) = delete;
+	DraggableBox& operator=(DraggableBox&& _db);
+	void swap(DraggableBox& _other);
 
 
 

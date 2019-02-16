@@ -44,6 +44,9 @@ public:
 	AbstractUI(const AbstractUI& _aui);
 	AbstractUI(AbstractUI&& _aui);
 	virtual ~AbstractUI();
+	AbstractUI& operator=(const AbstractUI& _aui) = delete;
+	AbstractUI& operator=(AbstractUI&& _aui);
+	void swap(AbstractUI& _other);
 
 	// Accessors
 	void setAnchor(sf::Vector2f anchor);
@@ -93,6 +96,7 @@ protected:
 	virtual void _updateState();
 	virtual void _updateTransform();
 	virtual void _updateStyle();
+
 };
 
 #endif // _ABSTRACTUI_H

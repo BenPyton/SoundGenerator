@@ -33,7 +33,10 @@ private:
 public:
 	ComponentRenderer(int x, int y, int width, int height, UIStyle& style = UIStyle::Default);
 	ComponentRenderer(ComponentRenderer&& _cr);
-	~ComponentRenderer();
+	virtual ~ComponentRenderer();
+	ComponentRenderer& operator=(const ComponentRenderer& _cr) = delete;
+	ComponentRenderer& operator=(ComponentRenderer&& _cr);
+	void swap(ComponentRenderer& _other);
 
 	void setComponent(Component* _comp);
 	Component* getComponent() { return m_pComponent; }

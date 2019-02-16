@@ -23,10 +23,9 @@ ComponentRenderer::ComponentRenderer(int x, int y, int width, int height, UIStyl
 }
 
 ComponentRenderer::ComponentRenderer(ComponentRenderer && _cr)
-	: DraggableBox(std::move(_cr)), m_pText(std::move(_cr.m_pText)), m_outputPin(std::move(_cr.m_outputPin)), m_inputPins(std::move(_cr.m_inputPins))
+	: DraggableBox(_cr), m_outputPin(_cr.m_outputPin)
 {
-	m_pComponent = _cr.m_pComponent;
-	_cr.m_pText = nullptr;
+	_cr.swap(*this);
 }
 
 ComponentRenderer::~ComponentRenderer()
@@ -35,6 +34,20 @@ ComponentRenderer::~ComponentRenderer()
 	{
 		delete m_pText;
 	}
+}
+
+ComponentRenderer & ComponentRenderer::operator=(ComponentRenderer && _cr)
+{
+	_cr.swap(*this);
+	return *this;
+}
+
+void ComponentRenderer::swap(ComponentRenderer & _other)
+{
+	DraggableBox::swap(_other);
+	std::swap(m_pText, _other.m_pText);
+	std::swap(m_outputPin, _other.m_outputPin);
+	std::swap(m_inputPins, _other.m_inputPins);
 }
 
 void ComponentRenderer::setComponent(Component * _comp)

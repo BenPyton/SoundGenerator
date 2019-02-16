@@ -21,12 +21,37 @@ Button::Button(int x, int y, int width, int height, UIStyle& style)
 	assert(nullptr != m_text);
 }
 
+Button::Button(const Button & _b)
+	: AbstractUI(_b)
+{
+	m_text = new sf::Text(*_b.m_text);
+	assert(nullptr != m_text);
+}
+
+Button::Button(Button && _b)
+	: AbstractUI(_b)
+{
+	_b.swap(*this);
+}
+
 Button::~Button()
 {
 	if (nullptr != m_text)
 	{
 		delete m_text;
 	}
+}
+
+Button & Button::operator=(Button && _b)
+{
+	_b.swap(*this);
+	return *this;
+}
+
+void Button::swap(Button & _other)
+{
+	AbstractUI::swap(_other);
+	std::swap(m_text, _other.m_text);
 }
 
 //void Button::SetNormalTexture(int x, int y, int w, int h)

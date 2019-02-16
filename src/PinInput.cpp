@@ -31,10 +31,9 @@ PinInput::PinInput(const PinInput & _pi)
 }
 
 PinInput::PinInput(PinInput && _pi)
-	: Pin(std::move(_pi)), m_pLabel(std::move(_pi.m_pLabel))
+	: Pin(_pi)
 {
-	m_pInput = _pi.m_pInput;
-	_pi.m_pLabel = nullptr;
+	_pi.swap(*this);
 }
 
 PinInput::~PinInput()
@@ -43,6 +42,19 @@ PinInput::~PinInput()
 	{
 		delete m_pLabel;
 	}
+}
+
+PinInput & PinInput::operator=(PinInput && _pi)
+{
+	_pi.swap(*this);
+	return *this;
+}
+
+void PinInput::swap(PinInput & _other)
+{
+	Pin::swap(_other);
+	std::swap(m_pLabel, _other.m_pLabel);
+	std::swap(m_pInput, _other.m_pInput);
 }
 
 void PinInput::setInput(ComponentInput * _input)

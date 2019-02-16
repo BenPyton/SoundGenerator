@@ -28,7 +28,10 @@ public:
 	PinInput(int x, int y, int radius, UIStyle& style = UIStyle::Default);
 	PinInput(const PinInput& _pi);
 	PinInput(PinInput&& _pi);
-	~PinInput();
+	virtual ~PinInput();
+	PinInput& operator=(const PinInput& _pi) = delete;
+	PinInput& operator=(PinInput&& _pi);
+	void swap(PinInput& _other);
 
 	void setInput(ComponentInput* _input);
 	ComponentInput* getInput() { return m_pInput; }

@@ -25,8 +25,12 @@ private:
 	Component* m_pComponent = nullptr;
 public:
 	PinOutput(int x, int y, int radius, UIStyle& style = UIStyle::Default);
+	PinOutput(const PinOutput& _po);
 	PinOutput(PinOutput&& _po);
-	~PinOutput();
+	virtual ~PinOutput();
+	PinOutput& operator=(const PinOutput& _po) = delete;
+	PinOutput& operator=(PinOutput&& _po);
+	void swap(PinOutput& _other);
 
 
 	void setComponent(Component* _comp) { m_pComponent = _comp; }

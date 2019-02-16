@@ -42,7 +42,10 @@ public:
 	Pin(int x, int y, int radius, UIStyle& style = UIStyle::Default);
 	Pin(const Pin& _cp);
 	Pin(Pin&& _p);
-	~Pin();
+	virtual ~Pin();
+	Pin& operator=(const Pin& _p) = delete;
+	Pin& operator=(Pin&& _p);
+	void swap(Pin& _other);
 
 protected:
 	virtual bool _tryConnect(Pin* _other) { return false; }

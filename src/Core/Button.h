@@ -24,7 +24,12 @@ protected:
 public:
 	// Constructor
 	Button(int x, int y, int width, int height, UIStyle& style = UIStyle::Default);
+	Button(const Button& _b);
+	Button(Button&& _b);
 	virtual ~Button();
+	Button& operator=(const Button&) = delete;
+	Button& operator=(Button&& _b);
+	void swap(Button& _other);
 
 	// Accessors
 	void setText(std::string text);

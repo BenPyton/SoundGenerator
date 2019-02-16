@@ -42,16 +42,9 @@ Pin::Pin(const Pin & _cp)
 }
 
 Pin::Pin(Pin && _p)
-	: AbstractUI(std::move(_p)), m_pCircleShape(std::move(_p.m_pCircleShape))
+	: AbstractUI(_p)
 {
-
-	m_connectionState = _p.m_connectionState;
-	m_line = _p.m_line;
-	m_connectionLines = _p.m_connectionLines;
-	m_pConnections = _p.m_pConnections;
-	m_multiConnection = _p.m_multiConnection;
-
-	_p.m_pCircleShape = nullptr;
+	_p.swap(*this);
 }
 
 Pin::~Pin()
@@ -60,6 +53,23 @@ Pin::~Pin()
 	{
 		delete m_pCircleShape;
 	}
+}
+
+Pin & Pin::operator=(Pin && _p)
+{
+	_p.swap(*this);
+	return *this;
+}
+
+void Pin::swap(Pin & _other)
+{
+	AbstractUI::swap(_other);
+	std::swap(m_pCircleShape, _other.m_pCircleShape);
+	std::swap(m_connectionState, _other.m_connectionState);
+	std::swap(m_line, _other.m_line);
+	std::swap(m_connectionLines, _other.m_connectionLines);
+	std::swap(m_pConnections, _other.m_pConnections);
+	std::swap(m_multiConnection, _other.m_multiConnection);
 }
 
 void Pin::_updateState()

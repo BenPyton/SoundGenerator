@@ -19,15 +19,34 @@ DraggableBox::DraggableBox(int x, int y, int width, int height, UIStyle& style)
 	m_dragged = false;
 }
 
-DraggableBox::DraggableBox(DraggableBox && _db)
-	: AbstractUI(std::move(_db))
+DraggableBox::DraggableBox(const DraggableBox & _db)
+	: AbstractUI(_db)
 {
 	m_dragged = _db.m_dragged;
 	m_mouseOffset = _db.m_mouseOffset;
 }
 
+DraggableBox::DraggableBox(DraggableBox && _db)
+	: AbstractUI(_db)
+{
+	_db.swap(*this);
+}
+
 DraggableBox::~DraggableBox()
 {
+}
+
+DraggableBox & DraggableBox::operator=(DraggableBox && _db)
+{
+	_db.swap(*this);
+	return *this;
+}
+
+void DraggableBox::swap(DraggableBox & _other)
+{
+	AbstractUI::swap(_other);
+	std::swap(m_dragged, _other.m_dragged);
+	std::swap(m_mouseOffset, _other.m_mouseOffset);
 }
 
 void DraggableBox::_updateState()
