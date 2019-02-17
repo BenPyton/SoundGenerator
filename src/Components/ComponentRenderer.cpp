@@ -55,6 +55,7 @@ void ComponentRenderer::setComponent(Component * _comp)
 	m_pComponent = _comp;
 	m_outputPin.setComponent(_comp);
 	m_inputPins.clear();
+	float heightSum = 30;
 	if (_comp != nullptr)
 	{
 		m_pText->setString(_comp->getName());
@@ -66,18 +67,19 @@ void ComponentRenderer::setComponent(Component * _comp)
 			//m_inputPins.emplace_back(std::move(pin));
 			m_inputPins[i].setParent(this);
 			m_inputPins[i].setInput(_comp->getInput(i));
+			heightSum += (_comp->getInput(i)->getName().empty() ? 30 : 60);
 		}
 	}
 	else
 	{
 		m_pText->setString("NULL");
 	}
-	m_size.y = m_inputPins.size() * 30 + 30;
+	m_size.y = heightSum;
 }
 
 void ComponentRenderer::update()
 {
-	AbstractUI::update();
+	DraggableBox::update();
 
 	if (m_pComponent->hasOutput())
 	{
@@ -120,7 +122,7 @@ void ComponentRenderer::_updateTransform()
 	m_outputPin.setPosition(sf::Vector2f(m_rect->getSize().x - 30, m_rect->getSize().y*0.5f - 10));
 	for (int i = 0; i < m_inputPins.size(); i++)
 	{
-		m_inputPins[i].setPosition(sf::Vector2f(10, 30 + 30 * i));
+		m_inputPins[i].setPosition(sf::Vector2f(10, 30 + 60 * i));
 	}
 }
 

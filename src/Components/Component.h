@@ -63,6 +63,7 @@ public:
 	bool setComponent(Component* _comp);
 	Component* getComponent() { return m_pComponent; }
 	void setDefaultValue(float _value) { m_defaultValue = _value; }
+	float getDefaultValue() { return m_defaultValue; }
 	string getName() { return m_name; }
 	float getValue(float _time);
 };

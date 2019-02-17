@@ -27,13 +27,14 @@ int main()
 	}
 
 	sf::Color lightGrey(200, 200, 200);
+	sf::Color darkGrey(80, 80, 80);
 
 	UIStyle style;
 	style.setFont(font, 16);
 	style.mapStyle(UI_NORMAL, lightGrey, sf::Color::Black, lightGrey, 1.0f);
 	style.mapStyle(UI_HOVERED, lightGrey, sf::Color(50, 50, 50), lightGrey, 3.0f);
 	style.mapStyle(UI_CLICKED, sf::Color::Black, lightGrey, lightGrey, 1.0f);
-	style.mapStyle(UI_DISABLED, lightGrey, sf::Color::Red, lightGrey, 1.0f);
+	style.mapStyle(UI_DISABLED, darkGrey, sf::Color::Black, darkGrey, 1.0f);
 	style.mapStyle(UI_FOCUSED, lightGrey, sf::Color::Blue, lightGrey, 1.0f);
 
 
@@ -185,7 +186,7 @@ int main()
 
 	// Component renderers
 	OutputComponent output;
-	ComponentRenderer outputRenderer(-100, -200, 100, 100, style);
+	ComponentRenderer outputRenderer(-100, -200, 150, 100, style);
 	outputRenderer.setComponent(&output);
 	view.add(outputRenderer);
 
@@ -301,7 +302,8 @@ int main()
 
 			if (Input::GetMouseButtonDown(sf::Mouse::Right))
 			{
-				ComponentRenderer* hoveredComp = UIManager::GetFirstHoveredUIOfType<ComponentRenderer>(Input::GetMousePosition());
+				AbstractUI* hoveredUI = UIManager::GetFirstHoveredUI(Input::GetMousePosition());
+				ComponentRenderer* hoveredComp = dynamic_cast<ComponentRenderer*>(hoveredUI);
 				if (hoveredComp != selectedComp)
 				{
 					if (selectedComp != nullptr)
