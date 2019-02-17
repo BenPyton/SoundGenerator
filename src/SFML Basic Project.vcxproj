@@ -170,7 +170,9 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Components.h" />
     <ClInclude Include="Components\Component.h" />
+    <ClInclude Include="Components\ComponentFactory.h" />
     <ClInclude Include="Components\ComponentRenderer.h" />
     <ClInclude Include="Components\OutputComponent.h" />
     <ClInclude Include="Components\RandomComponent.h" />
@@ -208,6 +210,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Components\Component.cpp" />
+    <ClCompile Include="Components\ComponentFactory.cpp" />
     <ClCompile Include="Components\ComponentRenderer.cpp" />
     <ClCompile Include="Components\OutputComponent.cpp" />
     <ClCompile Include="Components\RandomComponent.cpp" />

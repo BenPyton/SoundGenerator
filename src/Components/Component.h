@@ -12,9 +12,7 @@
 #ifndef _COMPONENT_H
 #define _COMPONENT_H
 
-#include <iostream>
 #include <vector>
-#include "SFML/System.hpp"
 
 using namespace std;
 

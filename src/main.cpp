@@ -8,13 +8,8 @@
 #include "Core.h" // custom classes and functions (like Input, Button, etc.)
 #include "Signal.h"
 #include "SignalRenderer.h"
-#include "Components/SinusComponent.h"
-#include "Components/SquareComponent.h"
-#include "Components/SawToothComponent.h"
-#include "Components/TriangleComponent.h"
-#include "Components/RandomComponent.h"
+#include "Components.h"
 #include "Components/ComponentRenderer.h"
-#include "Components/OutputComponent.h"
 
 #define SAMPLERATE 48000
 
@@ -62,24 +57,14 @@ int main()
 	input.setPlaceholder("Test");
 
 
-	Button button1(-10, 10, 150, 30, style);
-	button1.setText("Sinusoidal");
-
-	Button button2(10, 10, 150, 30, style);
-	button2.setText("Square");
-
-	Button button3(-10, 10, 150, 30, style);
-	button3.setText("Triangle");
-
-	Button button4(-10, 10, 150, 30, style);
-	button4.setText("SawTooth");
-
-	Button button5(-10, 10, 150, 30, style);
-	button5.setText("Random");
-
-	Button button6(-10, 10, 150, 30, style);
-	button6.setText("Modulated Sinus");
-
+	string compList[5] =
+	{
+		"Sinusoidal",
+		"Square",
+		"Triangle",
+		"Saw Tooth",
+		"Random"
+	};
 
 	//Button btnPlay(10, 10, 70, 30, style);
 	//btnPlay.setText("Play");
@@ -128,12 +113,15 @@ int main()
 	vLayout.setMargins(10, 10, 150, 10);
 	vLayout.setSpacing(10);
 	vLayout.setPaddings(10, 10, 10, 10);
-	vLayout.add(button1);
-	vLayout.add(button2);
-	vLayout.add(button3);
-	vLayout.add(button4);
-	vLayout.add(button5);
-	vLayout.add(button6);
+
+	vector<Button> compBtns;
+	compBtns.resize(5, Button(0, 0, 0, 30, style));
+	for (int i = 0; i < compBtns.size(); i++)
+	{
+		compBtns[i].setText(compList[i]);
+		vLayout.add(compBtns[i]);
+	}
+
 
 	HorizontalLayout toolLayout(10, 10, 0, 30);
 	toolLayout.setAnchorMin(sf::Vector2f(0, 0));
@@ -263,46 +251,17 @@ int main()
 			cout << "Signal sample count: " << signal.getSampleCount() << endl;
 		}
 
-		if (button1.click())
-		{
-			components.push_back(new SinusComponent());
-			compRenderers.push_back(new ComponentRenderer(0, 0, 200, 0, style));
-			compRenderers.back()->setComponent(components.back());
-			view.add(*compRenderers.back());
-		}
 
-		if (button2.click())
+		for (int i = 0; i < compBtns.size(); i++)
 		{
-			components.push_back(new SquareComponent());
-			compRenderers.push_back(new ComponentRenderer(0, 0, 200, 0, style));
-			compRenderers.back()->setComponent(components.back());
-			view.add(*compRenderers.back());
+			if (compBtns[i].click())
+			{
+				components.push_back(ComponentFactory::CreateComponent(compList[i]));
+				compRenderers.push_back(new ComponentRenderer(0, 0, 200, 0, style));
+				compRenderers.back()->setComponent(components.back());
+				view.add(*compRenderers.back());
+			}
 		}
-
-		if (button3.click())
-		{
-			components.push_back(new TriangleComponent());
-			compRenderers.push_back(new ComponentRenderer(0, 0, 200, 0, style));
-			compRenderers.back()->setComponent(components.back());
-			view.add(*compRenderers.back());
-		}
-
-		if (button4.click())
-		{
-			components.push_back(new SawToothComponent());
-			compRenderers.push_back(new ComponentRenderer(0, 0, 200, 0, style));
-			compRenderers.back()->setComponent(components.back());
-			view.add(*compRenderers.back());
-		}
-
-		if (button5.click())
-		{
-			components.push_back(new RandomComponent());
-			compRenderers.push_back(new ComponentRenderer(0, 0, 200, 0, style));
-			compRenderers.back()->setComponent(components.back());
-			view.add(*compRenderers.back());
-		}
-
 
 		if (btnPlay.click() && (!playing || paused))
 		{
