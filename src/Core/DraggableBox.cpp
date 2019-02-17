@@ -12,6 +12,7 @@
 #include "stdafx.h"
 #include "DraggableBox.h"
 #include "View.h"
+#include "UIManager.h"
 
 DraggableBox::DraggableBox(int x, int y, int width, int height, UIStyle& style)
 	: AbstractUI(x, y, width, height, style)
@@ -69,7 +70,7 @@ void DraggableBox::_updateState()
 	}
 	else
 	{
-		if (click())
+		if (click() && UIManager::GetFirstHoveredUI(Input::GetMousePosition()) == this)
 		{
 			if (nullptr != m_viewParent)
 			{
@@ -87,6 +88,11 @@ void DraggableBox::_updateState()
 				m_state = UIState::UI_HOVERED;
 			}
 		}
+	}
+
+	if (m_state != UIState::UI_HOVERED)
+	{
+		m_state = m_focused ? UIState::UI_FOCUSED : UIState::UI_NORMAL;
 	}
 }
 

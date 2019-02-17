@@ -12,6 +12,7 @@
 #include "stdafx.h"
 #include "InputField.h"
 #include "Time.h"
+#include "UIManager.h"
 #include <cassert>
 
 InputField::InputField(int x, int y, int width, int height, UIStyle& style)
@@ -188,7 +189,7 @@ void InputField::_updateState()
 	}
 	else
 	{
-		if (click())
+		if (click() && UIManager::GetFirstHoveredUI(Input::GetMousePosition()) == this)
 		{
 			m_state = UIState::UI_FOCUSED;
 		}

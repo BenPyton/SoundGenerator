@@ -195,6 +195,9 @@ int main()
 	float maxZoomIn = 0.1f;
 	float maxZoomOut = 10.0f;
 
+
+	ComponentRenderer* selectedComp = nullptr;
+
 	// ///////////////////////////// APPLICATION LOOP
 	while (Window::IsOpen())
 	{
@@ -294,6 +297,51 @@ int main()
 			if (Input::GetMouseButton(sf::Mouse::Middle))
 			{
 				view.setCenter(view.getCenter() - view.mapScreenVectorToView(prevMousePos, Input::GetMousePosition()));
+			}
+
+			if (Input::GetMouseButtonDown(sf::Mouse::Right))
+			{
+				ComponentRenderer* hoveredComp = UIManager::GetFirstHoveredUIOfType<ComponentRenderer>(Input::GetMousePosition());
+				if (hoveredComp != selectedComp)
+				{
+					if (selectedComp != nullptr)
+					{
+						selectedComp->setFocused(false);
+					}
+					selectedComp = hoveredComp;
+					if (selectedComp != nullptr)
+					{
+						selectedComp->setFocused(true);
+					}
+				}
+				else if (selectedComp != nullptr)
+				{
+					selectedComp->setFocused(false);
+					selectedComp = nullptr;
+				}
+			}
+		}
+
+		if (Input::GetKeyDown(sf::Keyboard::Delete))
+		{
+			if (selectedComp != nullptr)
+			{
+				vector<ComponentRenderer*>::iterator renderIt = find(compRenderers.begin(), compRenderers.end(), selectedComp);
+				if (renderIt != compRenderers.end())
+				{
+					vector<Component*>::iterator it = find(components.begin(), components.end(), selectedComp->getComponent());
+					if (it != components.end())
+					{
+						if (view.remove(**renderIt))
+						{
+							delete *renderIt;
+							delete *it;
+							compRenderers.erase(renderIt);
+							components.erase(it);
+							selectedComp = nullptr;
+						}
+					}
+				}
 			}
 		}
 

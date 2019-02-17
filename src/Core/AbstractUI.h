@@ -26,6 +26,7 @@ protected:
 	class View* m_viewParent;
 
 	bool m_enabled;
+	bool m_focused;
 	sf::RectangleShape* m_rect;
 
 	UIState m_state;
@@ -73,6 +74,9 @@ public:
 
 	void setEnabled(bool enabled);
 	bool getEnabled();
+
+	void setFocused(bool focused);
+	bool getFocused();
 
 	void setParent(AbstractUI* parent) { m_parent = parent; }
 	AbstractUI* getParent() { return m_parent; }

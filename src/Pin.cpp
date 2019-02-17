@@ -49,6 +49,15 @@ Pin::Pin(Pin && _p)
 
 Pin::~Pin()
 {
+	_disconnect();
+	for (int i = 0; i < m_pConnections.size(); i++)
+	{
+		m_pConnections[i]->_disconnect();
+		vector<Pin*>::iterator it = find(m_pConnections[i]->m_pConnections.begin(), m_pConnections[i]->m_pConnections.end(), this);
+		m_pConnections[i]->m_pConnections.erase(it);
+		m_pConnections[i]->_updateConnections();
+	}
+
 	if (nullptr != m_pCircleShape)
 	{
 		delete m_pCircleShape;
@@ -74,7 +83,7 @@ void Pin::swap(Pin & _other)
 
 void Pin::_updateState()
 {
-	if (hovered(Input::GetMousePosition()))
+	if (hovered(Input::GetMousePosition()) && UIManager::GetFirstHoveredUI(Input::GetMousePosition()) == this)
 	{
 		if (Input::GetMouseButtonDown(sf::Mouse::Left) && _canConnect())
 		{

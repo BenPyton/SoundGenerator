@@ -131,11 +131,6 @@ void AbstractUI::setSize(sf::Vector2f size)
 	m_size = size;
 }
 
-void AbstractUI::setEnabled(bool enabled)
-{
-	m_enabled = enabled;
-}
-
 sf::Vector2f AbstractUI::getAnchorMin()
 {
 	return m_anchorMin;
@@ -182,9 +177,24 @@ sf::Vector2f AbstractUI::getRealSize()
 	return m_rect->getSize();
 }
 
+void AbstractUI::setEnabled(bool enabled)
+{
+	m_enabled = enabled;
+}
+
 bool AbstractUI::getEnabled()
 {
 	return m_enabled;
+}
+
+void AbstractUI::setFocused(bool focused)
+{
+	m_focused = focused;
+}
+
+bool AbstractUI::getFocused()
+{
+	return m_focused;
 }
 
 void AbstractUI::setMargins(float left, float right, float top, float bottom)

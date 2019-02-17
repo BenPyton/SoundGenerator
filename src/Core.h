@@ -19,6 +19,7 @@
 #include "Core/Toggle.h"
 #include "Core/DraggableBox.h"
 #include "Core/Utils.h"
+#include "Core/UIManager.h"
 
 #endif // _CORE_H
 
