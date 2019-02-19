@@ -60,13 +60,14 @@ bool View::remove(AbstractUI & ui)
 {
 	bool success = false;
 
-	for (list<AbstractUI*>::iterator it = m_children.begin(); it != m_children.end() && !success; ++it)
+	for (list<AbstractUI*>::iterator it = m_children.begin(); !success && it != m_children.end(); ++it)
 	{
 		if ((*it) == &ui)
 		{
 			m_children.remove(&ui);
 			ui.setViewParent(nullptr);
 			success = true;
+			break;
 		}
 	}
 	return success;

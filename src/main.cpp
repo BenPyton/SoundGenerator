@@ -51,24 +51,56 @@ int main()
 	labelDuration.setText("Duration");
 	labelDuration.setAlignement(TextAlign::ALIGN_RIGHT);
 
-	// InputField Example
-	InputField input(10, 90, 150, 30, style);
-	input.setMaxLength(10);
-	input.setFloat(0.1f);
-	input.setPlaceholder("Test");
 
-
-	string compList[5] =
+	string compList[10] =
 	{
 		"Sinusoidal",
 		"Square",
 		"Triangle",
 		"Saw Tooth",
-		"Random"
+		"Random",
+		"Add",
+		"Multiply",
+		"Repeat",
+		"Delay",
+		"ADSR"
 	};
 
-	//Button btnPlay(10, 10, 70, 30, style);
-	//btnPlay.setText("Play");
+	VerticalLayout vLayout(0, 100, 200, 200);
+	vLayout.setAnchorMin(sf::Vector2f(0, 0));
+	vLayout.setAnchorMax(sf::Vector2f(0, 1));
+	vLayout.setMargins(10, 10, 150, 10);
+	vLayout.setSpacing(10);
+	vLayout.setPaddings(10, 10, 10, 10);
+
+	vector<Button> compBtns;
+	compBtns.resize(10, Button(0, 0, 0, 30, style));
+	for (int i = 0; i < compBtns.size(); i++)
+	{
+		compBtns[i].setText(compList[i]);
+		vLayout.add(compBtns[i]);
+	}
+
+	HorizontalLayout toolLayout(10, 10, 0, 30);
+	toolLayout.setAnchorMin(sf::Vector2f(0, 0));
+	toolLayout.setAnchorMax(sf::Vector2f(1, 0));
+	toolLayout.setMargins(10, 10, 10, 10);
+	toolLayout.setSpacing(10);
+
+	// View
+	View view(0, 0, 0, 0, style);
+	view.setAnchorMin(sf::Vector2f(0, 0));
+	view.setAnchorMax(sf::Vector2f(1, 1));
+	view.setMargins(200, 10, 150, 10);
+
+	// Window layout
+	Layout rootLayout(0, 0, Window::GetWidth(), Window::GetHeight());
+	Window::SetLayout(rootLayout);
+	rootLayout.add(button);
+	rootLayout.add(vLayout);
+	rootLayout.add(view);
+	rootLayout.add(toolLayout);
+
 
 	IconButton btnLoad(10, 10, 30, 30, style);
 	btnLoad.setIconSize(32, 32);
@@ -103,32 +135,18 @@ int main()
 	labelVolume.setText("Volume");
 	labelVolume.setAlignement(TextAlign::ALIGN_RIGHT);
 
+	// InputField Example
+	InputField inputDuration(10, 90, 150, 30, style);
+	inputDuration.setMaxLength(10);
+	inputDuration.setFloat(0.1f);
+	inputDuration.setPlaceholder("Test");
+
 	InputField inputVolume(90, 50, 70, 30, style);
 	inputVolume.setMaxLength(5);
 	inputVolume.setFloat(10.0f);
 	inputVolume.setPlaceholder("Volume");
 
-	VerticalLayout vLayout(0, 100, 200, 200);
-	vLayout.setAnchorMin(sf::Vector2f(0, 0));
-	vLayout.setAnchorMax(sf::Vector2f(0, 1));
-	vLayout.setMargins(10, 10, 150, 10);
-	vLayout.setSpacing(10);
-	vLayout.setPaddings(10, 10, 10, 10);
 
-	vector<Button> compBtns;
-	compBtns.resize(5, Button(0, 0, 0, 30, style));
-	for (int i = 0; i < compBtns.size(); i++)
-	{
-		compBtns[i].setText(compList[i]);
-		vLayout.add(compBtns[i]);
-	}
-
-
-	HorizontalLayout toolLayout(10, 10, 0, 30);
-	toolLayout.setAnchorMin(sf::Vector2f(0, 0));
-	toolLayout.setAnchorMax(sf::Vector2f(1, 0));
-	toolLayout.setMargins(10, 10, 10, 10);
-	toolLayout.setSpacing(10);
 	toolLayout.add(btnLoad);
 	toolLayout.add(btnSave);
 	toolLayout.add(btnStart);
@@ -139,26 +157,7 @@ int main()
 	toolLayout.add(labelVolume);
 	toolLayout.add(inputVolume);
 	toolLayout.add(labelDuration);
-	toolLayout.add(input);
-
-	// View
-	View view(0, 0, 0, 0, style);
-	view.setAnchorMin(sf::Vector2f(0, 0));
-	view.setAnchorMax(sf::Vector2f(1, 1));
-	view.setMargins(200, 10, 150, 10);
-
-	// Window layout
-	Layout rootLayout(0, 0, Window::GetWidth(), Window::GetHeight());
-	Window::SetLayout(rootLayout);
-	rootLayout.add(button);
-	//rootLayout.add(input);
-	rootLayout.add(vLayout);
-	rootLayout.add(view);
-	//rootLayout.add(btnPlay);
-	//rootLayout.add(inputVolume);
-	rootLayout.add(toolLayout);
-
-
+	toolLayout.add(inputDuration);
 
 
 	vector<sf::Int16> samples;
@@ -218,7 +217,7 @@ int main()
 			samples.clear();
 			//vertices.clear();
 
-			float duration = input.getFloat();
+			float duration = inputDuration.getFloat();
 
 			//float step = Window::GetWidth() / (duration * SAMPLERATE);
 			//float frequency = input.getInt();
