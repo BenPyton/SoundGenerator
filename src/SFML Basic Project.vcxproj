@@ -171,15 +171,22 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Components.h" />
+    <ClInclude Include="Components\AddComponent.h" />
+    <ClInclude Include="Components\ADSRComponent.h" />
     <ClInclude Include="Components\Component.h" />
     <ClInclude Include="Components\ComponentFactory.h" />
     <ClInclude Include="Components\ComponentRenderer.h" />
+    <ClInclude Include="Components\DelayComponent.h" />
+    <ClInclude Include="Components\MultiplyComponent.h" />
     <ClInclude Include="Components\OutputComponent.h" />
     <ClInclude Include="Components\RandomComponent.h" />
+    <ClInclude Include="Components\RepeatComponent.h" />
     <ClInclude Include="Components\SawToothComponent.h" />
     <ClInclude Include="Components\SinusComponent.h" />
     <ClInclude Include="Components\SquareComponent.h" />
     <ClInclude Include="Components\TriangleComponent.h" />
+    <ClInclude Include="JSON\FileManager.h" />
+    <ClInclude Include="JSON\json.hpp" />
     <ClInclude Include="Pin.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="Core\AbstractUI.h" />
@@ -209,15 +216,21 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Components\AddComponent.cpp" />
+    <ClCompile Include="Components\ADSRComponent.cpp" />
     <ClCompile Include="Components\Component.cpp" />
     <ClCompile Include="Components\ComponentFactory.cpp" />
     <ClCompile Include="Components\ComponentRenderer.cpp" />
+    <ClCompile Include="Components\DelayComponent.cpp" />
+    <ClCompile Include="Components\MultiplyComponent.cpp" />
     <ClCompile Include="Components\OutputComponent.cpp" />
     <ClCompile Include="Components\RandomComponent.cpp" />
+    <ClCompile Include="Components\RepeatComponent.cpp" />
     <ClCompile Include="Components\SawToothComponent.cpp" />
     <ClCompile Include="Components\SinusComponent.cpp" />
     <ClCompile Include="Components\SquareComponent.cpp" />
     <ClCompile Include="Components\TriangleComponent.cpp" />
+    <ClCompile Include="JSON\FileManager.cpp" />
     <ClCompile Include="Pin.cpp" />
     <ClCompile Include="Core\AbstractUI.cpp" />
     <ClCompile Include="Core\Animation.cpp" />

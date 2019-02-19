@@ -8,6 +8,11 @@
 #include "Components/TriangleComponent.h"
 #include "Components/SawToothComponent.h"
 #include "Components/RandomComponent.h"
+#include "Components/AddComponent.h"
+#include "Components/MultiplyComponent.h"
+#include "Components/DelayComponent.h"
+#include "Components/RepeatComponent.h"
+#include "Components/ADSRComponent.h"
 #include "Components/OutputComponent.h"
 
 #endif // _COMPONENTS_H

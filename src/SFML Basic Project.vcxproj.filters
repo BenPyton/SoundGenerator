@@ -25,6 +25,12 @@
     <Filter Include="Fichiers sources\Components">
       <UniqueIdentifier>{ca20b206-51d1-44eb-96ca-36dd25d2d46e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers sources\JSON">
+      <UniqueIdentifier>{2688087a-2bc2-47d2-9eb1-8126f66fa940}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête\JSON">
+      <UniqueIdentifier>{683b022b-c2f0-427b-bcc9-1b902249f0be}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -141,6 +147,27 @@
     <ClInclude Include="Components.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
+    <ClInclude Include="JSON\FileManager.h">
+      <Filter>Fichiers d%27en-tête\JSON</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\MultiplyComponent.h">
+      <Filter>Fichiers d%27en-tête\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\RepeatComponent.h">
+      <Filter>Fichiers d%27en-tête\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\AddComponent.h">
+      <Filter>Fichiers d%27en-tête\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\ADSRComponent.h">
+      <Filter>Fichiers d%27en-tête\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\DelayComponent.h">
+      <Filter>Fichiers d%27en-tête\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="JSON\json.hpp">
+      <Filter>Fichiers d%27en-tête\JSON</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -246,6 +273,24 @@
       <Filter>Fichiers sources\Components</Filter>
     </ClCompile>
     <ClCompile Include="Components\ComponentFactory.cpp">
+      <Filter>Fichiers sources\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="JSON\FileManager.cpp">
+      <Filter>Fichiers sources\JSON</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\MultiplyComponent.cpp">
+      <Filter>Fichiers sources\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\RepeatComponent.cpp">
+      <Filter>Fichiers sources\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\AddComponent.cpp">
+      <Filter>Fichiers sources\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\ADSRComponent.cpp">
+      <Filter>Fichiers sources\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\DelayComponent.cpp">
       <Filter>Fichiers sources\Components</Filter>
     </ClCompile>
   </ItemGroup>

@@ -36,6 +36,26 @@ Component * ComponentFactory::CreateComponent(const string & _compName)
 	{
 		pComp = new RandomComponent();
 	}
+	else if (_compName == "Add")
+	{
+		pComp = new AddComponent();
+	}
+	else if (_compName == "Multiply")
+	{
+		pComp = new MultiplyComponent();
+	}
+	else if (_compName == "Repeat")
+	{
+		pComp = new RepeatComponent();
+	}
+	else if (_compName == "Delay")
+	{
+		pComp = new DelayComponent();
+	}
+	else if (_compName == "ADSR")
+	{
+		pComp = new ADSRComponent();
+	}
 
 	return pComp;
 }
