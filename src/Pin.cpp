@@ -81,6 +81,20 @@ void Pin::swap(Pin & _other)
 	std::swap(m_multiConnection, _other.m_multiConnection);
 }
 
+bool Pin::connect(Pin * _other)
+{
+	vector<Pin*>::iterator it = find(m_pConnections.begin(), m_pConnections.end(), _other);
+	if (it == m_pConnections.end() && _tryConnect(_other))
+	{
+		m_pConnections.push_back(_other);
+		_other->m_pConnections.push_back(this);
+		_updateConnections();
+		_other->_updateConnections();
+		return true;
+	}
+	return false;
+}
+
 void Pin::_updateState()
 {
 	if (hovered(Input::GetMousePosition()) && UIManager::GetFirstHoveredUI(Input::GetMousePosition()) == this)
@@ -113,14 +127,15 @@ void Pin::_updateState()
 			Pin* ui = UIManager::GetFirstHoveredUIOfType<Pin>(Input::GetMousePosition());
 			if (ui != nullptr && ui->_canConnect())
 			{
-				vector<Pin*>::iterator it = find(m_pConnections.begin(), m_pConnections.end(), ui);
+				/*vector<Pin*>::iterator it = find(m_pConnections.begin(), m_pConnections.end(), ui);
 				if (it == m_pConnections.end() && _tryConnect(ui))
 				{
 					m_pConnections.push_back(ui);
 					ui->m_pConnections.push_back(this);
 					_updateConnections();
 					ui->_updateConnections();
-				}
+				}*/
+				connect(ui);
 			}
 			m_connectionState = ConnectionState::None;
 		}

@@ -10,6 +10,7 @@
 #include "SignalRenderer.h"
 #include "Components.h"
 #include "Components/ComponentRenderer.h"
+#include "JSON/FileManager.h"
 
 #define SAMPLERATE 48000
 
@@ -130,6 +131,9 @@ int main()
 	btnEnd.setIconSize(32, 32);
 	btnEnd.setIcon("../../../data/Images/icon_end.png");
 
+	IconButton btnExport(10, 10, 30, 30, style);
+	btnExport.setIconSize(32, 32);
+	btnExport.setIcon("../../../data/Images/icon_export.png");
 
 	Label labelVolume(0, 0, 100, 30, style);
 	labelVolume.setText("Volume");
@@ -149,6 +153,7 @@ int main()
 
 	toolLayout.add(btnLoad);
 	toolLayout.add(btnSave);
+	toolLayout.add(btnExport);
 	toolLayout.add(btnStart);
 	toolLayout.add(btnPlay);
 	toolLayout.add(btnPause);
@@ -285,6 +290,19 @@ int main()
 			paused = true;
 		}
 
+		if (btnSave.click())
+		{
+			FileManager::Save("test.json", outputRenderer, compRenderers);
+		}
+		if (btnLoad.click())
+		{
+			FileManager::Load("test.json", view, outputRenderer, compRenderers, components);
+		}
+
+		if (btnExport.click())
+		{
+			FileManager::ExportWav("test.wav", *signal.getSound()->getBuffer());
+		}
 
 		if (view.hovered(Input::GetMousePosition()))
 		{

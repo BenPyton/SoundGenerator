@@ -47,6 +47,7 @@ public:
 	Pin& operator=(Pin&& _p);
 	void swap(Pin& _other);
 
+	bool connect(Pin* _other);
 protected:
 	virtual bool _tryConnect(Pin* _other) { return false; }
 	virtual void _disconnect() {}

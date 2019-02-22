@@ -31,7 +31,7 @@ AbstractUI * UIManager::GetFirstHoveredUI(sf::Vector2f position)
 		if ((*rit)->hovered(position))
 		{
 			hoveredUI = *rit;
-			cout << "Hovered: " << hoveredUI << endl;
+			//cout << "Hovered: " << hoveredUI << endl;
 			break;
 		}
 	}

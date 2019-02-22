@@ -14,20 +14,32 @@
 
 #include <iostream>
 #include <vector>
+#include <SFML/Audio.hpp>
 
 using namespace std;
+
+class ComponentRenderer;
+class Component;
+class View;
 
 class FileManager
 {
 private:
-public:
 	FileManager();
+public:
 	~FileManager();
 
+	static bool ExportWav(string _fileName, const sf::SoundBuffer& _sound);
+
+	static bool SaveConfig(string _fileName);
+	static bool LoadConfig(string _fileName);
+
+	static bool Save(string _fileName, ComponentRenderer& _inOutput, const vector<ComponentRenderer*>& _inComponentRenderer);
+	static bool Load(string _fileName, View& _view, ComponentRenderer& _outOutput, vector<ComponentRenderer*>& _outComponentRenderer, vector<Component*>& _outComponents);
 
 
-	bool ToJSON(const vector<class ComponentRenderer*>& _inComponentRenderer, string& _outJson);
-	bool FromJSON(const string& _inJson, vector<class ComponentRenderer*>& _outComponentRenderers, vector<class Component*>& _outComponents);
+	static bool ToJSON(ComponentRenderer& _inOutput, const vector<ComponentRenderer*>& _inComponentRenderer, string& _outJson);
+	static bool FromJSON(const string& _inJson, View& _view, ComponentRenderer& _outOutput, vector<ComponentRenderer*>& _outComponentRenderers, vector<Component*>& _outComponents);
 
 };
 

@@ -77,6 +77,22 @@ void ComponentRenderer::setComponent(Component * _comp)
 	m_size.y = heightSum;
 }
 
+PinInput * ComponentRenderer::getInput(string _name)
+{
+	PinInput* input = nullptr;
+
+	for (int i = 0; i < m_inputPins.size(); i++)
+	{
+		if (m_inputPins[i].getInput()->getName() == _name)
+		{
+			input = &m_inputPins[i];
+			break;
+		}
+	}
+
+	return input;
+}
+
 void ComponentRenderer::update()
 {
 	DraggableBox::update();

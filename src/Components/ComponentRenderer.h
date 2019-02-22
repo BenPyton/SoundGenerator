@@ -41,6 +41,9 @@ public:
 	void setComponent(Component* _comp);
 	Component* getComponent() { return m_pComponent; }
 
+	PinInput* getInput(string _name);
+	PinOutput* getOutput() { return &m_outputPin; }
+
 	virtual void update() override;
 protected:
 	virtual void _updateState() override;
