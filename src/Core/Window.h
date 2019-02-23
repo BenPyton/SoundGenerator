@@ -47,7 +47,7 @@ public:
 	static float GetHeight();
 	static sf::Vector2f GetSize();
 
-	static void SetLayout(Layout& layout) { m_instance.m_layout = &layout; }
+	static void SetLayout(Layout& layout);// { m_instance.m_layout = &layout; }
 	static Layout* GetLayout() { return m_instance.m_layout; }
 
 	static void SetFramerate(int framerate) { m_instance.m_framerate = framerate; }

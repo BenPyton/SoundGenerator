@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <math.h>
+#include <functional>
 #include "Core.h" // custom classes and functions (like Input, Button, etc.)
 #include "Signal.h"
 #include "SignalRenderer.h"
@@ -165,6 +166,41 @@ int main()
 	toolLayout.add(inputDuration);
 
 
+	// ============  Filename layout  ==============
+
+	Label lblFilenameTitle(10, 10, 200, 30, style);
+	lblFilenameTitle.setText("Filename");
+
+	InputField inputFilename(10, 50, 200, 30, style);
+
+	Button btnFilenameCancel(0, 0, 100, 30, style);
+	btnFilenameCancel.setText("Cancel");
+
+	Button btnFilenameApply(0, 0, 100, 30, style);
+	btnFilenameApply.setAnchor(sf::Vector2f(1, 0));
+	btnFilenameApply.setPivot(sf::Vector2f(1, 0));
+	btnFilenameApply.setText("Apply");
+
+	Layout layoutFilenameButtons(0, 0, 0, 30);
+	layoutFilenameButtons.add(btnFilenameCancel);
+	layoutFilenameButtons.add(btnFilenameApply);
+
+	VerticalLayout vLayoutFilename(0, 0, 0, 150);
+	vLayoutFilename.setAnchorMin(sf::Vector2f(0, 0.5f));
+	vLayoutFilename.setAnchorMax(sf::Vector2f(1, 0.5f));
+	vLayoutFilename.setPivot(sf::Vector2f(0.5f, 0.5f));
+	vLayoutFilename.setMargins(100, 100, 0, 0);
+	vLayoutFilename.setSpacing(10);
+	vLayoutFilename.add(lblFilenameTitle);
+	vLayoutFilename.add(inputFilename);
+	vLayoutFilename.add(layoutFilenameButtons);
+
+	Layout filenameLayout(0, 0, 0, 0);
+	filenameLayout.add(vLayoutFilename);
+
+	// callback called by the filename apply button
+	//void(*callback)(string);
+	function<void(string)> callback;
 	vector<sf::Int16> samples;
 	/*sf::VertexArray vertices;
 	vertices.setPrimitiveType(sf::PrimitiveType::LineStrip);*/
@@ -200,6 +236,7 @@ int main()
 	float maxZoomIn = 0.1f;
 	float maxZoomOut = 10.0f;
 
+	Window::SetLayout(filenameLayout);
 
 	ComponentRenderer* selectedComp = nullptr;
 
@@ -290,18 +327,56 @@ int main()
 			paused = true;
 		}
 
+		if (Input::GetKeyDown(sf::Keyboard::Num1))
+		{
+			Window::SetLayout(rootLayout);
+		}
+		if (Input::GetKeyDown(sf::Keyboard::Num2))
+		{
+			Window::SetLayout(filenameLayout);
+		}
+
 		if (btnSave.click())
 		{
-			FileManager::Save("test.json", outputRenderer, compRenderers);
+			Window::SetLayout(filenameLayout);
+			lblFilenameTitle.setText("Save Project");
+			callback = [&](string _filename) {
+				FileManager::Save(_filename + ".json", outputRenderer, compRenderers);
+			};
 		}
 		if (btnLoad.click())
 		{
-			FileManager::Load("test.json", view, outputRenderer, compRenderers, components);
+			Window::SetLayout(filenameLayout);
+			lblFilenameTitle.setText("Load Project");
+			callback = [&](string _filename) {
+				FileManager::Load(_filename + ".json", view, outputRenderer, compRenderers, components);
+			};
 		}
 
 		if (btnExport.click())
 		{
-			FileManager::ExportWav("test.wav", *signal.getSound()->getBuffer());
+			Window::SetLayout(filenameLayout);
+			lblFilenameTitle.setText("Export Wav Sound");
+			callback = [&](string _filename) {
+				FileManager::ExportWav(_filename + ".wav", *signal.getSound()->getBuffer());
+			};
+		}
+
+		if (btnFilenameApply.click())
+		{
+			string filename = inputFilename.getString();
+			if (!filename.empty())
+			{
+				inputFilename.setString("");
+				//(*callback)(filename);
+				callback(filename);
+				Window::SetLayout(rootLayout);
+			}
+		}
+		if (btnFilenameCancel.click())
+		{
+			inputFilename.setString("");
+			Window::SetLayout(rootLayout);
 		}
 
 		if (view.hovered(Input::GetMousePosition()))

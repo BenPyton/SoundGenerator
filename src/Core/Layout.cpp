@@ -13,7 +13,7 @@
 #include "Layout.h"
 
 Layout::Layout(int x, int y, int width, int height)
-	: AbstractUI(x, y, width, height)
+	: AbstractUI(x, y, width, height, UIStyle::Default, false)
 {
 }
 

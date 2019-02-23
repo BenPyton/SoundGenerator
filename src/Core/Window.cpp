@@ -129,6 +129,12 @@ sf::Vector2f Window::GetSize()
 	return (sf::Vector2f)m_instance.m_window->getSize();
 }
 
+void Window::SetLayout(Layout & layout)
+{
+	m_instance.m_layout = &layout;
+	m_instance.m_layout->setSize(GetSize());
+}
+
 sf::RenderWindow * Window::GetWindow()
 {
 	assert(nullptr != m_instance.m_window);

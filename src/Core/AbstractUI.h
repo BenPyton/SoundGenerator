@@ -25,6 +25,7 @@ protected:
 	AbstractUI* m_parent;
 	class View* m_viewParent;
 
+	bool m_registerInManager = true;
 	bool m_enabled;
 	bool m_focused;
 	sf::RectangleShape* m_rect;
@@ -41,7 +42,7 @@ protected:
 	bool m_horiStretch, m_vertStretch;
 
 public:
-	AbstractUI(int x, int y, int width, int height, UIStyle& style = UIStyle::Default);
+	AbstractUI(int x, int y, int width, int height, UIStyle& style = UIStyle::Default, bool registerInManager = true);
 	AbstractUI(const AbstractUI& _aui);
 	AbstractUI(AbstractUI&& _aui);
 	virtual ~AbstractUI();
