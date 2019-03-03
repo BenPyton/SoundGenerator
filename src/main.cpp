@@ -71,9 +71,9 @@ int main()
 	VerticalLayout vLayout(0, 100, 200, 200);
 	vLayout.setAnchorMin(sf::Vector2f(0, 0));
 	vLayout.setAnchorMax(sf::Vector2f(0, 1));
-	vLayout.setMargins(10, 10, 150, 10);
+	vLayout.setMargins(10, 10, 170, 10);
 	vLayout.setSpacing(10);
-	vLayout.setPaddings(10, 10, 10, 10);
+	vLayout.setPaddings(10, 10, 0, 0);
 
 	vector<Button> compBtns;
 	compBtns.resize(10, Button(0, 0, 0, 30, style));
@@ -93,7 +93,7 @@ int main()
 	View view(0, 0, 0, 0, style);
 	view.setAnchorMin(sf::Vector2f(0, 0));
 	view.setAnchorMax(sf::Vector2f(1, 1));
-	view.setMargins(200, 10, 150, 10);
+	view.setMargins(200, 10, 170, 10);
 
 	// Window layout
 	Layout rootLayout(0, 0, Window::GetWidth(), Window::GetHeight());
@@ -195,6 +195,7 @@ int main()
 	vLayoutFilename.add(inputFilename);
 	vLayoutFilename.add(layoutFilenameButtons);
 
+
 	Layout filenameLayout(0, 0, 0, 0);
 	filenameLayout.add(vLayoutFilename);
 
@@ -210,9 +211,18 @@ int main()
 	signalRenderer.setSignal(signal);
 	signalRenderer.setAnchorMin(sf::Vector2f(0, 0));
 	signalRenderer.setAnchorMax(sf::Vector2f(1, 0));
-	signalRenderer.setMargins(200, 10, 10, 10);
+	signalRenderer.setMargins(10, 10, 10, 10);
+	signalRenderer.setSampleOffset(0);
+	signalRenderer.setSampleRange(10);
 	rootLayout.add(signalRenderer);
 
+	Scrollbar scrollbar(0, 140, 0, 20, style);
+	scrollbar.setAnchorMin(sf::Vector2f(0, 0));
+	scrollbar.setAnchorMax(sf::Vector2f(1, 0));
+	scrollbar.setMargins(10, 10, 10, 10);
+	scrollbar.setNbStep(10);
+	scrollbar.setViewedStep(1);
+	rootLayout.add(scrollbar);
 	/*float fadein_first = 0.2;
 	float fadein_last = 0.6f;
 	float fadeout_first = 0.4f;
@@ -236,9 +246,11 @@ int main()
 	float maxZoomIn = 0.1f;
 	float maxZoomOut = 10.0f;
 
-	Window::SetLayout(filenameLayout);
+	Window::SetLayout(rootLayout);
 
 	ComponentRenderer* selectedComp = nullptr;
+
+	float currendViewedStep = 1.0f;
 
 	// ///////////////////////////// APPLICATION LOOP
 	while (Window::IsOpen())
@@ -266,6 +278,7 @@ int main()
 			//float attenuation = 0.5f;
 
 			sf::Uint64 totalSample = duration * SAMPLERATE;
+			output.init();
 
 			for (int i = 0; i < totalSample; i++)
 			{
@@ -294,7 +307,13 @@ int main()
 			//buffer.loadFromSamples(samples.data(), SAMPLERATE, 1, SAMPLERATE);
 			signal.setData(samples);
 			cout << "Signal sample count: " << signal.getSampleCount() << endl;
+
+			scrollbar.setNbStep(samples.size());
+			scrollbar.setViewedStep(currendViewedStep * signal.getSampleCount());
 		}
+
+		signalRenderer.setSampleRange(scrollbar.getViewedStep());
+		signalRenderer.setSampleOffset(scrollbar.getCurrentStep());
 
 
 		for (int i = 0; i < compBtns.size(); i++)
@@ -327,13 +346,15 @@ int main()
 			paused = true;
 		}
 
-		if (Input::GetKeyDown(sf::Keyboard::Num1))
+		if (Input::GetKeyDown(sf::Keyboard::Add))
 		{
-			Window::SetLayout(rootLayout);
+			currendViewedStep = clamp(currendViewedStep - 0.1f, 0.1f, 1.0f);
+			scrollbar.setViewedStep(currendViewedStep * signal.getSampleCount());
 		}
-		if (Input::GetKeyDown(sf::Keyboard::Num2))
+		if (Input::GetKeyDown(sf::Keyboard::Subtract))
 		{
-			Window::SetLayout(filenameLayout);
+			currendViewedStep = clamp(currendViewedStep + 0.1f, 0.1f, 1.0f);
+			scrollbar.setViewedStep(currendViewedStep * signal.getSampleCount());
 		}
 
 		if (btnSave.click())

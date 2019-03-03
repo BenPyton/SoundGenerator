@@ -12,22 +12,16 @@
 #ifndef _SQUARECOMPONENT_H
 #define _SQUARECOMPONENT_H
 
-#include <iostream>
-#include "Component.h"
+#include "GeneratorComponent.h"
 
-using namespace std;
-
-class SquareComponent : public Component
+class SquareComponent : public GeneratorComponent
 {
 private:
 public:
 	SquareComponent();
 	virtual ~SquareComponent();
 
-
 	virtual float getOutput(float _time) override;
-
-
 };
 
 #endif // _SQUARECOMPONENT_H

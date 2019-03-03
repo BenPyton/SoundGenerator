@@ -177,6 +177,7 @@
     <ClInclude Include="Components\ComponentFactory.h" />
     <ClInclude Include="Components\ComponentRenderer.h" />
     <ClInclude Include="Components\DelayComponent.h" />
+    <ClInclude Include="Components\GeneratorComponent.h" />
     <ClInclude Include="Components\MultiplyComponent.h" />
     <ClInclude Include="Components\OutputComponent.h" />
     <ClInclude Include="Components\RandomComponent.h" />
@@ -185,6 +186,7 @@
     <ClInclude Include="Components\SinusComponent.h" />
     <ClInclude Include="Components\SquareComponent.h" />
     <ClInclude Include="Components\TriangleComponent.h" />
+    <ClInclude Include="Core\Scrollbar.h" />
     <ClInclude Include="JSON\FileManager.h" />
     <ClInclude Include="JSON\json.hpp" />
     <ClInclude Include="Pin.h" />
@@ -222,6 +224,7 @@
     <ClCompile Include="Components\ComponentFactory.cpp" />
     <ClCompile Include="Components\ComponentRenderer.cpp" />
     <ClCompile Include="Components\DelayComponent.cpp" />
+    <ClCompile Include="Components\GeneratorComponent.cpp" />
     <ClCompile Include="Components\MultiplyComponent.cpp" />
     <ClCompile Include="Components\OutputComponent.cpp" />
     <ClCompile Include="Components\RandomComponent.cpp" />
@@ -230,6 +233,7 @@
     <ClCompile Include="Components\SinusComponent.cpp" />
     <ClCompile Include="Components\SquareComponent.cpp" />
     <ClCompile Include="Components\TriangleComponent.cpp" />
+    <ClCompile Include="Core\Scrollbar.cpp" />
     <ClCompile Include="JSON\FileManager.cpp" />
     <ClCompile Include="Pin.cpp" />
     <ClCompile Include="Core\AbstractUI.cpp" />

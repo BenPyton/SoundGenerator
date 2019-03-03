@@ -33,6 +33,8 @@ public:
 	Component(Component&& _c);
 	virtual ~Component();
 
+	virtual void init();
+
 	bool hasOutput() { return m_hasOutput; }
 	virtual float getOutput(float _time) = 0;
 

@@ -55,19 +55,23 @@ void SignalRenderer::_updateTransform()
 			m_vertices[i].position.y = m_rect->getPosition().y + m_rect->getSize().y * (0.5f - m_signal->getValue(i) * stepY);
 		}
 	}*/
-	int nbVertex = min((int)m_signal->getSampleCount(), (int)m_rect->getSize().x);
+
+	int nbSample = min((int)m_signal->getSampleCount(), m_sampleRange + 1);
+	int nbVertex = min(nbSample, (int)m_rect->getSize().x);
 	m_vertices.resize(nbVertex);
 	//cout << "Render vertex count: " << m_vertices.getVertexCount() << endl;
 	if (m_vertices.getVertexCount() > 0)
 	{
-		float sampleStep = m_signal->getSampleCount() / (float)m_vertices.getVertexCount();
-		float stepX = m_rect->getSize().x / (float)m_vertices.getVertexCount();
+		float sampleStep = (nbSample) / (float)m_vertices.getVertexCount();
+		float stepX = m_rect->getSize().x / (float)(m_vertices.getVertexCount()-1);
 		float stepY = 1.0f / 0xffff;
 
 		for (int i = 0; i < m_vertices.getVertexCount(); i++)
 		{
 			m_vertices[i].position.x = m_rect->getPosition().x + (float)i * stepX;
-			m_vertices[i].position.y = m_rect->getPosition().y + m_rect->getSize().y * (0.5f - m_signal->getValue(i * sampleStep) * stepY);
+			int sampleIndex = i * sampleStep + m_sampleOffset;
+			sf::Int16 value = sampleIndex >= m_signal->getSampleCount() ? 0 : m_signal->getValue(sampleIndex);
+			m_vertices[i].position.y = m_rect->getPosition().y + m_rect->getSize().y * (0.5f - value*stepY);
 		}
 	}
 

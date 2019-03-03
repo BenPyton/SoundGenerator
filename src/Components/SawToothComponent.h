@@ -12,21 +12,16 @@
 #ifndef _SAWTOOTHCOMPONENT_H
 #define _SAWTOOTHCOMPONENT_H
 
-#include <iostream>
-#include "Component.h"
+#include "GeneratorComponent.h"
 
-using namespace std;
-
-class SawToothComponent : public Component
+class SawToothComponent : public GeneratorComponent
 {
 private:
 public:
 	SawToothComponent();
 	virtual ~SawToothComponent();
 
-
 	virtual float getOutput(float _time) override;
-
 };
 
 #endif // _SAWTOOTHCOMPONENT_H

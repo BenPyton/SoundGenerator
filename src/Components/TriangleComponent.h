@@ -12,22 +12,16 @@
 #ifndef _TRIANGLECOMPONENT_H
 #define _TRIANGLECOMPONENT_H
 
-#include <iostream>
-#include "Component.h"
+#include "GeneratorComponent.h"
 
-using namespace std;
-
-class TriangleComponent : public Component
+class TriangleComponent : public GeneratorComponent
 {
 private:
 public:
 	TriangleComponent();
 	virtual ~TriangleComponent();
 
-
-
 	virtual float getOutput(float _time) override;
-
 };
 
 #endif // _TRIANGLECOMPONENT_H

@@ -168,6 +168,12 @@
     <ClInclude Include="JSON\json.hpp">
       <Filter>Fichiers d%27en-tête\JSON</Filter>
     </ClInclude>
+    <ClInclude Include="Core\Scrollbar.h">
+      <Filter>Fichiers d%27en-tête\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\GeneratorComponent.h">
+      <Filter>Fichiers d%27en-tête\Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -291,6 +297,12 @@
       <Filter>Fichiers sources\Components</Filter>
     </ClCompile>
     <ClCompile Include="Components\DelayComponent.cpp">
+      <Filter>Fichiers sources\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Scrollbar.cpp">
+      <Filter>Fichiers sources\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\GeneratorComponent.cpp">
       <Filter>Fichiers sources\Components</Filter>
     </ClCompile>
   </ItemGroup>

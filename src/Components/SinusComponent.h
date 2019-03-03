@@ -12,18 +12,15 @@
 #ifndef _SINUSCOMPONENT_H
 #define _SINUSCOMPONENT_H
 
-#include <iostream>
-#include "Component.h"
+#include "GeneratorComponent.h"
 
-using namespace std;
-
-class SinusComponent : public Component
+class SinusComponent : public GeneratorComponent
 {
 private:
+
 public:
 	SinusComponent();
 	virtual ~SinusComponent();
-
 
 	virtual float getOutput(float _time) override;
 };

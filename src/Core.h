@@ -18,6 +18,7 @@
 #include "Core/InputField.h"
 #include "Core/Toggle.h"
 #include "Core/DraggableBox.h"
+#include "Core/Scrollbar.h"
 #include "Core/Utils.h"
 #include "Core/UIManager.h"
 

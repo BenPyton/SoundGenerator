@@ -28,6 +28,18 @@ Component::~Component()
 {
 }
 
+void Component::init()
+{
+	for (ComponentInput input : m_inputs)
+	{
+		Component* c = input.getComponent();
+		if (nullptr != c)
+		{
+			c->init();
+		}
+	}
+}
+
 ComponentInput * Component::getInput(int _index)
 {
 	if (_index >= 0 && _index < m_inputs.size())

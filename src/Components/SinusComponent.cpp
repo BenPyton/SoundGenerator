@@ -18,14 +18,6 @@
 SinusComponent::SinusComponent()
 {
 	m_name = "Sinusoidal";
-
-	m_inputs.push_back(ComponentInput("Frequency", this));
-	m_inputs.push_back(ComponentInput("Amplitude", this));
-	m_inputs.push_back(ComponentInput("Offset", this));
-
-	m_inputs[0].setDefaultValue(400.0f);
-	m_inputs[1].setDefaultValue(1.0f);
-	m_inputs[2].setDefaultValue(0.0f);
 }
 
 SinusComponent::~SinusComponent()
@@ -38,5 +30,8 @@ float SinusComponent::getOutput(float _time)
 	float amplitude = m_inputs[1].getValue(_time);
 	float offset = m_inputs[2].getValue(_time);
 
-	return offset + amplitude * sinf(frequency * _2PI * _time);
+	m_temp += (_time - m_prevTime) * frequency;
+	m_prevTime = _time;
+
+	return offset + amplitude * sinf(_2PI * m_temp);
 }
