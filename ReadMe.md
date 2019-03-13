@@ -6,6 +6,8 @@
 
 <b>Author :</b> PELLETIER Benoit
 
+<img src="images/screen01.png?raw=true" width="800"></img>
+
 ### Description :
 Nodal editor to create sounds from scratch. <br>
 
@@ -22,7 +24,3 @@ If you have issues with compilation, check the version of windows' SDK in projec
 - Mix sound signals with operators like Add, Subtract, Multiply, etc.
 - Save and load editor projects;
 - Save resulting sound in wav file;
-
-
-### Screenshots :
-Comming soon ! (when there are some visual stuff of the tool)
