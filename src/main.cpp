@@ -15,15 +15,19 @@
 
 #define SAMPLERATE 48000
 
+#define DATADIR string("../../../data/")
+
 using namespace std;
 
 int main()
 {
-	Window::Create(sf::VideoMode(800, 600), "Sound Generator");
+	string title = "Sound Generator";
+
+	Window::Create(sf::VideoMode(1280, 720), title);
 
 	// Load font
 	sf::Font font;
-	if (!font.loadFromFile("../../../data/font/consola.ttf"))
+	if (!font.loadFromFile(DATADIR + "font/consola.ttf"))
 	{
 		printf("Error when loading font");
 	}
@@ -106,35 +110,35 @@ int main()
 
 	IconButton btnLoad(10, 10, 30, 30, style);
 	btnLoad.setIconSize(32, 32);
-	btnLoad.setIcon("../../../data/Images/icon_open.png");
+	btnLoad.setIcon(DATADIR + "Images/icon_open.png");
 
 	IconButton btnSave(10, 10, 30, 30, style);
 	btnSave.setIconSize(32, 32);
-	btnSave.setIcon("../../../data/Images/icon_save.png");
+	btnSave.setIcon(DATADIR + "Images/icon_save.png");
 
 	IconButton btnStart(10, 10, 30, 30, style);
 	btnStart.setIconSize(32, 32);
-	btnStart.setIcon("../../../data/Images/icon_start.png");
+	btnStart.setIcon(DATADIR + "Images/icon_start.png");
 
 	IconButton btnPlay(10, 10, 30, 30, style);
 	btnPlay.setIconSize(32, 32);
-	btnPlay.setIcon("../../../data/Images/icon_play.png");
+	btnPlay.setIcon(DATADIR + "Images/icon_play.png");
 
 	IconButton btnPause(10, 10, 30, 30, style);
 	btnPause.setIconSize(32, 32);
-	btnPause.setIcon("../../../data/Images/icon_pause.png");
+	btnPause.setIcon(DATADIR + "Images/icon_pause.png");
 
 	IconButton btnStop(10, 10, 30, 30, style);
 	btnStop.setIconSize(32, 32);
-	btnStop.setIcon("../../../data/Images/icon_stop.png");
+	btnStop.setIcon(DATADIR + "Images/icon_stop.png");
 
 	IconButton btnEnd(10, 10, 30, 30, style);
 	btnEnd.setIconSize(32, 32);
-	btnEnd.setIcon("../../../data/Images/icon_end.png");
+	btnEnd.setIcon(DATADIR + "Images/icon_end.png");
 
 	IconButton btnExport(10, 10, 30, 30, style);
 	btnExport.setIconSize(32, 32);
-	btnExport.setIcon("../../../data/Images/icon_export.png");
+	btnExport.setIcon(DATADIR + "Images/icon_export.png");
 
 	Label labelVolume(0, 0, 100, 30, style);
 	labelVolume.setText("Volume");
@@ -143,12 +147,12 @@ int main()
 	// InputField Example
 	InputField inputDuration(10, 90, 150, 30, style);
 	inputDuration.setMaxLength(10);
-	inputDuration.setFloat(0.1f);
+	inputDuration.setFloat(1.0f);
 	inputDuration.setPlaceholder("Test");
 
 	InputField inputVolume(90, 50, 70, 30, style);
 	inputVolume.setMaxLength(5);
-	inputVolume.setFloat(10.0f);
+	inputVolume.setFloat(20.0f);
 	inputVolume.setPlaceholder("Volume");
 
 
@@ -264,47 +268,23 @@ int main()
 			Window::Close();
 		}
 
-		Window::GetWindow()->setTitle("Sound Generator | FPS: " + floatToStr(Time::GetFps(), 0));
+		Window::GetWindow()->setTitle(title + " | FPS: " + floatToStr(Time::GetFps(), 0));
 
 		if (button.click())
 		{
 			samples.clear();
-			//vertices.clear();
 
 			float duration = inputDuration.getFloat();
-
-			//float step = Window::GetWidth() / (duration * SAMPLERATE);
-			//float frequency = input.getInt();
-			//float attenuation = 0.5f;
 
 			sf::Uint64 totalSample = duration * SAMPLERATE;
 			output.init();
 
 			for (int i = 0; i < totalSample; i++)
 			{
-				//samples.push_back(Random::Range(-128, 128));
 				float x = (float)i / SAMPLERATE;
-				//attenuation = 1.0f;
-				/*if (x > fadeout_last || x < fadein_first)
-				{
-					attenuation = 0;
-				}
-				else {
-					if (x >= fadein_first && x <= fadein_last)
-					{
-						attenuation *= mapValue(x, fadein_first, fadein_last, 0, 1);
-					}
-					if (x >= fadeout_first && x <= fadeout_last)
-					{
-						attenuation *= mapValue(x, fadeout_first, fadeout_last, 1, 0);
-					}
-				}*/
-				//samples.push_back(0x8000 * 0.999f * attenuation * sinf(frequency * 2 * 3.1415926f * x));
-
 				samples.push_back(0x7FFF * clamp(output.getOutput(x), -1.0f, 1.0f));
-				//vertices.append(sf::Vertex(sf::Vector2f(i * step, 0.5f * Window::GetWidth() + mapValue(samples[i], -512, 512, -200, 200)), sf::Color::White));
 			}
-			//buffer.loadFromSamples(samples.data(), SAMPLERATE, 1, SAMPLERATE);
+
 			signal.setData(samples);
 			cout << "Signal sample count: " << signal.getSampleCount() << endl;
 
@@ -460,11 +440,11 @@ int main()
 			}
 		}
 
-		if (Input::GetMouseButtonDown(sf::Mouse::Left))
-		{
-			sf::Vector2f mousePos = Input::GetMousePosition();
-			//cout << "Mouse position: (" << mousePos.x << "," << mousePos.y << ")" << endl;
-		}
+		//if (Input::GetMouseButtonDown(sf::Mouse::Left))
+		//{
+		//	sf::Vector2f mousePos = Input::GetMousePosition();
+		//	//cout << "Mouse position: (" << mousePos.x << "," << mousePos.y << ")" << endl;
+		//}
 
 		// ///////////////////////// START DRAW
 		Window::Clear();
