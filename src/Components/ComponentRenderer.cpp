@@ -20,6 +20,7 @@ ComponentRenderer::ComponentRenderer(int x, int y, int width, int height, UIStyl
 	assert(nullptr != m_pText);
 	m_pText->setString("No component");
 	m_outputPin.setParent(this);
+	m_snapGrid = sf::Vector2f(50, 50);
 }
 
 ComponentRenderer::ComponentRenderer(ComponentRenderer && _cr)
@@ -108,6 +109,8 @@ void ComponentRenderer::update()
 		m_inputPins[i].setViewParent(m_viewParent);
 		m_inputPins[i].update();
 	}
+
+	m_snap = Input::GetKey(sf::Keyboard::LShift);
 }
 
 void ComponentRenderer::_updateState()

@@ -21,7 +21,12 @@ class DraggableBox : public AbstractUI
 {
 protected:
 	bool m_dragged;
-	sf::Vector2f m_mouseOffset;
+	sf::Vector2f m_mouseStart;
+	sf::Vector2f m_startPos;
+
+	bool m_snap = true;
+	sf::Vector2f m_snapGrid = sf::Vector2f(50, 50);
+
 public:
 	DraggableBox(int x, int y, int width, int height, UIStyle& style = UIStyle::Default);
 	DraggableBox(const DraggableBox& _db);
@@ -31,14 +36,8 @@ public:
 	DraggableBox& operator=(DraggableBox&& _db);
 	void swap(DraggableBox& _other);
 
-
-
-	//virtual void update();
-
 protected:
 	virtual void _updateState() override;
-	//virtual void _updateTransform() override;
-	//virtual void _updateStyle() override;
 };
 
 #endif // _DRAGGABLEBOX_H
