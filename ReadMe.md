@@ -1,10 +1,6 @@
-# Nodal Sound Editor Tool
+# Sound Generator with Nodal Interface
 
-```diff
-- WARNING: This project is under development, some features may not work yet.
-```
-
-<b>Author :</b> PELLETIER Benoit
+<b>Author :</b> PELLETIER Benoît
 
 <img src="images/screen01.png?raw=true" width="800"></img>
 
@@ -19,8 +15,13 @@ Please install one or both of VC++15 SFML from [here](https://www.sfml-dev.org/d
 If you have issues with compilation, check the version of windows' SDK in project properties. <br>
 
 ### Features :
-\[Planned\]
-- Base sound signals : Sinus, Square, Triangle, Sawtooth, etc.
-- Mix sound signals with operators like Add, Subtract, Multiply, etc.
+\[Done\]
+- Base sound signals : Sinus, Square, Triangle, Sawtooth, Random (White noise);
+- Mix sound signals with operators like Add, Multiply;
+- Modify sound signals with Delay, Repeat and ADSR;
 - Save and load editor projects;
-- Save resulting sound in wav file;
+- Save resulting sound in wav file.
+
+\[Planned\]
+- Switch to Qt interface;
+- Add more components.
