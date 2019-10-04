@@ -2,7 +2,7 @@
 
 I don't have a good name at this time, but this software will be renamed later.
 
-<img src="images/screen01.jpg?raw=true" width="800"></img>
+<img src="Images/screen01.jpg?raw=true" width="800"></img>
 
 ## Description
 
