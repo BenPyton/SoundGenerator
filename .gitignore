@@ -1,6 +1,10 @@
 # Created by https://www.gitignore.io/api/qt,qtcreator
 # Edit at https://www.gitignore.io/?templates=qt,qtcreator
 
+Installer/x64/*
+Installer/x86/*
+Installer/installs/*
+
 ### Qt ###
 # C++ objects and libs
 *.slo
