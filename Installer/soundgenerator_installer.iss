@@ -1,13 +1,4 @@
 ; Inno setup script to generate Windows 32 bits and 64 bits installers
-
-#define MyAppName "Sound Generator"
-#define MyAppVersion "0.0.1"
-#define MyAppPublisher "Ben Pyton"
-#define MyAppURL "https://github.com/BenPyton/SoundGenerator"
-#define MyAppExeName "SoundGenerator.exe"
-#define OutputDir "installs"  
-#define RedistDir "vcredist" 
-
 #ifdef x64
   #define Arch "x64"
   #define RegKey ""
@@ -17,6 +8,13 @@
   #define RegKey "WOW6432Node\"
   #define ArchMode  ""
 #endif
+
+#define MyAppName "Sound Generator"
+#define MyAppPublisher "Ben Pyton"
+#define MyAppURL "https://github.com/BenPyton/SoundGenerator"
+#define MyAppExeName "SoundGenerator.exe"
+#define OutputDir "installs"  
+#define RedistDir "vcredist" 
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
