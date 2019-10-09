@@ -50,6 +50,10 @@ public:
     qreal width() { return m_width; }
     void setWidth(qreal width) { m_width = width; }
 
+    static QJsonArray NodeArrayToJson(const QVector<NodeItem*> &nodeArray);
+    static QVector<NodeItem*> JsonToNodeArray(const QJsonArray &jsonArray);
+
+
 protected:
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget* widget) override;
     virtual QRectF boundingRect() const override;

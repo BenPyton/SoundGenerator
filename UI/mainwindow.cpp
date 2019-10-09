@@ -31,7 +31,7 @@
 
 #define MAJOR_VERSION 0
 #define MINOR_VERSION 0
-#define BUGFIX_VERSION 1
+#define BUGFIX_VERSION 2
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -70,6 +70,26 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_signal.setComponent(ui->nodalView->getOutput()->component());
 
+    // ===== Edit Menu =====
+
+    QAction* act_selectAll = new QAction("Select All", this);
+    act_selectAll->setShortcut(QKeySequence::SelectAll);
+    connect(act_selectAll, SIGNAL(triggered()), ui->nodalView, SLOT(selectAll()));
+
+    QAction* act_copy = new QAction("Copy", this);
+    act_copy->setShortcut(QKeySequence::Copy);
+    connect(act_copy, SIGNAL(triggered()), ui->nodalView, SLOT(copyComponents()));
+
+    QAction* act_paste = new QAction("Paste", this);
+    act_paste->setShortcut(QKeySequence::Paste);
+    connect(act_paste, SIGNAL(triggered()), ui->nodalView, SLOT(pasteComponents()));
+
+    ui->menuEdit->addAction(act_copy);
+    ui->menuEdit->addAction(act_paste);
+    ui->menuEdit->addAction(act_selectAll);
+
+    // ===== Component Menu =====
+
     QMenu* menu_Add = new QMenu("Add", this);
     ui->menuComponents->addMenu(menu_Add);
 
@@ -86,6 +106,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
         menu_Add->addAction(action);
     }
+
+    // ===== Audio Menu =====
 
     QAction* act_generate = new QAction("Generate", this);
     act_generate->setShortcut(QKeySequence::Refresh);

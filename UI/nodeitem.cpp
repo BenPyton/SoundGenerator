@@ -50,10 +50,10 @@ NodeItem::NodeItem(QGraphicsItem *parent)
 
 NodeItem::~NodeItem()
 {
-    m_outputPin->disconnectAll();
+    m_outputPin->unlinkAll();
     for(PinInputItem* input : m_inputPins)
     {
-        input->disconnectAll();
+        input->unlinkAll();
     }
 
     if(m_component != nullptr)
@@ -219,4 +219,133 @@ void NodeItem::clearInputs()
         delete pin;
     }
     m_inputPins.clear();
+}
+
+
+QJsonArray NodeItem::NodeArrayToJson(const QVector<NodeItem*> &nodeArray)
+{
+    // create a json array with all selected components
+    QJsonArray jsonArray;
+    for(int i = 0; i < nodeArray.size(); i++)
+    {
+        QJsonArray inputArray;
+        for(int k = 0; k < nodeArray[i]->getInputCount(); k++)
+        {
+            PinInputItem* pin = nodeArray[i]->getInput(k);
+
+            Component* link = pin->input()->getComponent();
+            int linkIndex = -1;
+            if(link != nullptr)
+            {
+                for(int p = 0; p < nodeArray.size() && linkIndex < 0; p++)
+                {
+                    if(nodeArray[p]->component() == link)
+                    {
+                        linkIndex = p;
+                    }
+                }
+            }
+
+            QJsonObject input;
+            input["name"] = pin->input()->getName();
+            input["value"] = pin->input()->getDefaultValue();
+            input["link"] = linkIndex;
+
+            inputArray.append(input);
+        }
+
+        QJsonObject component;
+        component["id"] = i;
+        component["x"] = nodeArray[i]->x();
+        component["y"] = nodeArray[i]->y();
+        component["name"] = nodeArray[i]->component()->getName();
+        component["inputs"] = inputArray;
+
+        jsonArray.append(component);
+    }
+
+    return jsonArray;
+}
+
+QVector<NodeItem*> NodeItem::JsonToNodeArray(const QJsonArray &jsonArray)
+{
+    Q_UNUSED(jsonArray);
+    QVector<NodeItem*> nodeArray;
+    /*
+    // first create all components
+    for(int i = 0; i < jsonArray.size(); i++)
+    {
+        QJsonObject component = jsonArray[i].toObject();
+
+        qDebug() << "Node at: " << i;
+
+        // ============== COMPONENT NAME =============
+        if(Utils::CheckJsonValue(component, "name", QJsonValue::String, 130))
+        {
+            qDebug() << "Node name: " << component["name"].toString();
+            if(component["name"].toString() != "Output")
+            {
+                NodeItem* node = createNode(component["name"].toString());
+                node->setSelected(true);
+                nodeArray.append(node);
+
+                // ============== COMPONENT COORDINATES =============
+
+                if(Utils::CheckJsonValue(component, "x", QJsonValue::Double, 140))
+                    node->setX(component["x"].toDouble() + m_nextPastePosition.x());
+
+                if(Utils::CheckJsonValue(component, "y", QJsonValue::Double, 150))
+                    node->setY(component["y"].toDouble() + m_nextPastePosition.y());
+
+                qDebug() << "Append node: " << component["name"].toString();
+
+            }
+        }
+    }
+
+    qDebug() << "Nb pasted node: " << nodeArray.size();
+
+    // then set values and connect pins of each component
+    for(int i = 0; i < jsonArray.size(); i++)
+    {
+        QJsonObject component = jsonArray[i].toObject();
+        if(!Utils::CheckJsonValue(component, "inputs", QJsonValue::Array, 160))
+            continue;
+
+        QJsonArray inputs = component["inputs"].toArray();
+
+        if(i >= nodeArray.size())
+        {
+            Utils::ErrorMsg(1000, "ERROR index #" + QString::number(i) + " doesn't correspond to pasted node");
+            continue;
+        }
+
+        for(int k = 0; k < inputs.size(); k++)
+        {
+            QJsonObject input = inputs[k].toObject();
+            if(!Utils::CheckJsonValue(input, "value", QJsonValue::Double, 170))
+                continue;
+            PinInputItem* pin = nodeArray[i]->getInput(k);
+            pin->setDefaultValue(input["value"].toDouble());
+
+            if(!Utils::CheckJsonValue(input, "link", QJsonValue::Double, 180))
+                continue;
+            int linkIndex = input["link"].toInt();
+            if(linkIndex >= 0 && linkIndex < nodeArray.size())
+            {
+                LinkItem* link = new LinkItem();
+                scene()->addItem(link);
+                link->setFirstPin(pin);
+                pin->addLink(link);
+
+                PinOutputItem* otherPin = nodeArray[linkIndex]->getOutput();
+
+                if(!pin->connect(otherPin, link))
+                {
+                    delete link;
+                }
+            }
+        }
+    }*/
+    return nodeArray;
 }

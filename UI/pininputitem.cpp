@@ -42,8 +42,8 @@ PinInputItem::PinInputItem(QGraphicsItem *parent)
     m_inputDefaultValue = new LineEditQReal();
     //m_inputDefaultValue->setValidator(&getValidator());
     QObject::connect(m_inputDefaultValue, &QLineEdit::editingFinished, this, &PinInputItem::updateInput);
-    QObject::connect(this, &PinItem::connected, [this](){m_inputDefaultValue->setEnabled(false);});
-    QObject::connect(this, &PinItem::disconnected, [this](){m_inputDefaultValue->setEnabled(true);});
+    QObject::connect(this, &PinItem::onLink, [this](){m_inputDefaultValue->setEnabled(false);});
+    QObject::connect(this, &PinItem::onUnlink, [this](){m_inputDefaultValue->setEnabled(true);});
 
     m_proxyLineEdit = new QGraphicsProxyWidget(this);
     m_proxyLineEdit->setWidget(m_inputDefaultValue);

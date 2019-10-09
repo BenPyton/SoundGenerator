@@ -21,6 +21,7 @@
 #include "linkitem.h"
 #include "nodalview.h"
 #include "pinitem.h"
+#include <QtMath>
 
 LinkItem::LinkItem(QGraphicsItem *parent)
     : QGraphicsItem(parent)
@@ -106,4 +107,25 @@ QRectF LinkItem::boundingRect() const
     bounds.setBottom(qMax(firstPoint.y(), secondPoint.y()) + 20);
 
     return bounds;
+}
+
+QPainterPath LinkItem::shape() const
+{
+    qreal width = 1.;
+    qreal pinRadius = 10.;
+    QPointF firstPoint = (m_pinA != nullptr) ? m_pinA->scenePos() : m_mousePos;
+    QPointF secondPoint = (m_pinB != nullptr) ? m_pinB->scenePos() : m_mousePos;
+
+    QPointF delta = secondPoint - firstPoint;
+    qreal length = qSqrt(delta.x() * delta.x() + delta.y() * delta.y());
+    QPointF dir = delta / length;
+    QPointF ortho(-dir.y(), dir.x());
+
+    QPainterPath path;
+    path.moveTo(firstPoint + dir * pinRadius + ortho * width);
+    path.lineTo(secondPoint - dir * pinRadius + ortho * width);
+    path.lineTo(secondPoint - dir * pinRadius - ortho * width);
+    path.lineTo(firstPoint + dir * pinRadius - ortho * width);
+    path.closeSubpath();
+    return path;
 }

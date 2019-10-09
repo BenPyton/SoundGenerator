@@ -57,6 +57,7 @@ public:
 protected:
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget* widget) override;
     virtual QRectF boundingRect() const override;
+    virtual QPainterPath shape() const override;
 private:
 
     int m_size;

@@ -40,24 +40,24 @@ public:
     bool isPinVisible() { return m_pinVisible; }
     void setPinVisible(bool visible) { m_pinVisible = visible; }
 
-    bool isConnected() { return m_links.size() > 0; }
-    void setMaxConnection(int maxConnection) { m_maxLink = maxConnection; }
-    int maxConnection() { return m_maxLink; }
+    bool isLinked() { return m_links.size() > 0; }
+    void setMaxLink(int maxConnection) { m_maxLink = maxConnection; }
+    int maxLink() { return m_maxLink; }
 
     void addLink(LinkItem* link);
     void removeLink(LinkItem* link);
 
     void updateLinks();
 
-    bool connect(PinItem* pin, LinkItem* link);
-    void disconnectAll();
+    bool link(PinItem* pin, LinkItem* link);
+    void unlinkAll();
 
 protected slots:
     void setDirty() { emit dirtyChanged(); }
 
 signals:
-    void connected();
-    void disconnected();
+    void onLink();
+    void onUnlink();
     void dirtyChanged();
 
 protected:
@@ -72,6 +72,7 @@ protected:
 
     virtual bool _tryConnect(PinItem* other) { Q_UNUSED(other); return true; }
     virtual void _disconnect() {}
+    virtual QPainterPath shape() const override;
 
 private:
     bool _canConnect();

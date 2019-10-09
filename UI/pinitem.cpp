@@ -41,7 +41,7 @@ void PinItem::addLink(LinkItem *link)
     if(m_links.indexOf(link) == -1)
     {
         m_links.append(link);
-        emit connected();
+        emit onLink();
     }
 }
 
@@ -53,7 +53,7 @@ void PinItem::removeLink(LinkItem *link)
         m_links.removeAt(index);
         if(m_links.size() <= 0)
         {
-            emit disconnected();
+            emit onUnlink();
         }
     }
 }
@@ -66,9 +66,9 @@ void PinItem::updateLinks()
     }
 }
 
-bool PinItem::connect(PinItem *pin, LinkItem* link)
+bool PinItem::link(PinItem *pin, LinkItem* link)
 {
-    bool connected = false;
+    bool linked = false;
     if(pin != nullptr && pin != this && pin->_canConnect())
     {
         // search for an existing link with this pin
@@ -84,17 +84,17 @@ bool PinItem::connect(PinItem *pin, LinkItem* link)
         // no existing pin, so connect to it
         if(existingLink == nullptr && _tryConnect(pin))
         {
-            connected = true;
+            linked = true;
             link->setSecondPin(pin);
             pin->addLink(link);
             setDirty();
         }
     }
 
-    return connected;
+    return linked;
 }
 
-void PinItem::disconnectAll()
+void PinItem::unlinkAll()
 {
     _disconnect();
     for(LinkItem* link : m_links)
@@ -126,20 +126,20 @@ void PinItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
         pen.setWidth(m_hovered ? 3 : 1);
         pen.setCosmetic(true);
 
-        if(isConnected())
+        if(isLinked())
         {
             brush.setColor(QColor(200, 200, 200));
         }
 
         painter->setBrush(brush);
         painter->setPen(pen);
-        painter->drawEllipse(boundingRect());
+        painter->drawEllipse(-m_radius, -m_radius, 2*m_radius, 2*m_radius);
     }
 }
 
 QRectF PinItem::boundingRect() const
 {
-    return QRectF(-m_radius, -m_radius, 2*m_radius, 2*m_radius);
+    return QRectF(-2.*m_radius, -2.*m_radius, 4.*m_radius, 4.*m_radius);
 }
 
 void PinItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -161,7 +161,7 @@ void PinItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         else if(event->button() == Qt::MouseButton::MiddleButton)
         {
             qDebug() << "Pin Reset!";
-            disconnectAll();
+            unlinkAll();
             update();
         }
     }
@@ -183,7 +183,7 @@ void PinItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
                 pin = dynamic_cast<PinItem*>(items[i]);
             }
 
-            if(connect(pin, m_currentLink))
+            if(link(pin, m_currentLink))
             {
                 qDebug() << "Pin connected!";
                 pin->update();
@@ -210,6 +210,13 @@ void PinItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
         update();
         qDebug() << "Mouse move!";
     }
+}
+
+QPainterPath PinItem::shape() const
+{
+    QPainterPath path;
+    path.addEllipse(-2.*m_radius, -2.*m_radius, 4.*m_radius, 4.*m_radius);
+    return path;
 }
 
 //void PinItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)

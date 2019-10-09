@@ -19,8 +19,6 @@
  */
 
 #include "nodalview.h"
-#include <QtWidgets>
-#include <QWidget>
 #include <utils.h>
 #include "nodeitem.h"
 #include "Components.h"
@@ -76,7 +74,7 @@ void NodalView::setZoom(qreal zoom)
 
 void NodalView::save(QString fileName, const qreal duration)
 {
-    QJsonArray componentArray;
+    /*QJsonArray componentArray;
     // save data
     for(int i = 0; i < m_nodeList.size(); i++)
     {
@@ -114,7 +112,9 @@ void NodalView::save(QString fileName, const qreal duration)
         component["inputs"] = inputArray;
 
         componentArray.append(component);
-    }
+    }*/
+
+    QJsonArray componentArray = NodeItem::NodeArrayToJson(m_nodeList);
 
 
     QJsonObject root;
@@ -142,44 +142,82 @@ void NodalView::load(QString fileName, qreal& duration)
     QJsonDocument json = QJsonDocument::fromJson(data);
     QJsonObject root = json.object();
 
+    // ============== VERSION =============
+    if(!Utils::CheckJsonValue(root, "version", QJsonValue::Double, 100))
+        return;
+
     if(root["version"].toInt() != 1)
+    {
+        Utils::ErrorMsg(102, "Wrong version: project version is " + QString::number(root["version"].toInt()) + " and should be 1");
+        return;
+    }
+
+    // ============== DURATION =============
+    if(!Utils::CheckJsonValue(root, "duration", QJsonValue::Double, 110))
         return;
 
     duration = root["duration"].toDouble();
 
-    clearItems(1);
 
+    // ============== CREATE COMPONENTS =============
+    if(!Utils::CheckJsonValue(root, "components", QJsonValue::Array, 120))
+        return;
+
+    clearItems(1);
     QJsonArray componentArray = root["components"].toArray();
+    bool success = true;
     // first create all components
     for(int i = 0; i < componentArray.size(); i++)
     {
+        success = true;
         QJsonObject component = componentArray[i].toObject();
         NodeItem* node = nullptr;
-        if(component["name"] == "Output")
-        {
-            node = m_nodeList[0];
-        }
-        else
-        {
-            node = createNode(component["name"].toString());
-        }
 
-        node->setX(component["x"].toDouble());
-        node->setY(component["y"].toDouble());
+        // ============== COMPONENT NAME =============
+        if(!Utils::CheckJsonValue(component, "name", QJsonValue::String, 130))
+            success = false;
+
+        if(success)
+        {
+            if(component["name"].toString() == "Output")
+            {
+                node = m_nodeList[0];
+            }
+            else
+            {
+                node = createNode(component["name"].toString());
+            }
+
+            // ============== COMPONENT COORDINATES =============
+
+            if(Utils::CheckJsonValue(component, "x", QJsonValue::Double, 140))
+                node->setX(component["x"].toDouble());
+
+            if(Utils::CheckJsonValue(component, "y", QJsonValue::Double, 150))
+                node->setY(component["y"].toDouble());
+        }
     }
 
-    // the set values and connect pins of each component
-    for(int i = 0; i < root.size(); i++)
+    // then set values and connect pins of each component
+    for(int i = 0; i < componentArray.size(); i++)
     {
-        //QJsonObject component = root[i].toObject();
-        QJsonArray inputs = componentArray[i].toObject()["inputs"].toArray();
+        QJsonObject component = componentArray[i].toObject();
+        if(!Utils::CheckJsonValue(component, "inputs", QJsonValue::Array, 160))
+            continue;
+
+        QJsonArray inputs = component["inputs"].toArray();
 
         for(int k = 0; k < inputs.size(); k++)
         {
+            QJsonObject input = inputs[k].toObject();
+            if(!Utils::CheckJsonValue(input, "value", QJsonValue::Double, 170))
+                continue;
             PinInputItem* pin = m_nodeList[i]->getInput(k);
-            pin->setDefaultValue(inputs[k].toObject()["value"].toDouble());
+            pin->setDefaultValue(input["value"].toDouble());
 
-            int linkIndex = inputs[k].toObject()["link"].toInt();
+            if(!Utils::CheckJsonValue(input, "link", QJsonValue::Double, 180))
+                continue;
+            int linkIndex = input["link"].toInt();
             if(linkIndex >= 0 && linkIndex < m_nodeList.size())
             {
                 LinkItem* link = new LinkItem();
@@ -189,7 +227,7 @@ void NodalView::load(QString fileName, qreal& duration)
 
                 PinOutputItem* otherPin = m_nodeList[linkIndex]->getOutput();
 
-                if(!pin->connect(otherPin, link))
+                if(!pin->link(otherPin, link))
                 {
                     delete link;
                 }
@@ -201,6 +239,7 @@ void NodalView::load(QString fileName, qreal& duration)
 NodeItem* NodalView::createComponent(QString componentName, qreal width)
 {
     setDirty();
+    m_nextCreationPosition += QPoint(20, 20);
     return createNode(componentName, width);
 }
 
@@ -470,6 +509,198 @@ int NodalView::deleteSelection()
     return nbRemoved;
 }
 
+void NodalView::selectAll()
+{
+    for(QGraphicsItem* item : scene()->items())
+    {
+        if((item->flags() & QGraphicsItem::ItemIsSelectable) != 0)
+        {
+            item->setSelected(true);
+        }
+    }
+}
+
+void NodalView::deselectAll()
+{
+    for(QGraphicsItem* item : scene()->items())
+    {
+        if((item->flags() & QGraphicsItem::ItemIsSelectable) != 0)
+        {
+            item->setSelected(false);
+        }
+    }
+}
+
+void NodalView::copyComponents()
+{
+    m_nextPastePosition = QPoint(0, 0);
+
+    // get all selected components except the output
+    QVector<NodeItem*> selectedNodes;
+    for(int i = 0; i < m_nodeList.size(); i++)
+    {
+        if(m_nodeList[i]->isSelected() && m_nodeList[i]->component()->getName() != "Output")
+        {
+            qDebug() << "Copy: " << m_nodeList[i]->component()->getName();
+            selectedNodes.append(m_nodeList[i]);
+        }
+    }
+
+    // create a json array with all selected components
+    QJsonArray componentArray = NodeItem::NodeArrayToJson(selectedNodes);
+    /*QJsonArray componentArray;
+    for(int i = 0; i < selectedNodes.size(); i++)
+    {
+        QJsonArray inputArray;
+        for(int k = 0; k < selectedNodes[i]->getInputCount(); k++)
+        {
+            PinInputItem* pin = selectedNodes[i]->getInput(k);
+
+            Component* link = pin->input()->getComponent();
+            int linkIndex = -1;
+            if(link != nullptr)
+            {
+                for(int p = 0; p < selectedNodes.size() && linkIndex < 0; p++)
+                {
+                    if(selectedNodes[p]->component() == link)
+                    {
+                        linkIndex = p;
+                    }
+                }
+            }
+
+            QJsonObject input;
+            input["name"] = pin->input()->getName();
+            input["value"] = pin->input()->getDefaultValue();
+            input["link"] = linkIndex;
+
+            inputArray.append(input);
+        }
+
+        QJsonObject component;
+        component["id"] = i;
+        component["x"] = selectedNodes[i]->x();
+        component["y"] = selectedNodes[i]->y();
+        component["name"] = selectedNodes[i]->component()->getName();
+        component["inputs"] = inputArray;
+
+        componentArray.append(component);
+    }*/
+
+
+    QJsonObject root;
+    root["components"] = componentArray;
+
+
+    QJsonDocument json(root);
+    QByteArray data = json.toJson();
+
+    QMimeData* mimeData = new QMimeData();
+    mimeData->setData("sound/component", data);
+
+    QClipboard* clipboard = QApplication::clipboard();
+    clipboard->setMimeData(mimeData);
+}
+
+void NodalView::pasteComponents()
+{
+    m_nextPastePosition += QPoint(20, 20);
+
+    QClipboard* clipboard = QApplication::clipboard();
+    const QMimeData* mimeData = clipboard->mimeData();
+
+    QJsonDocument json = QJsonDocument::fromJson(mimeData->data("sound/component"));
+
+    QJsonObject root = json.object();
+    if(!Utils::CheckJsonValue(root, "components", QJsonValue::Array, 120))
+        return;
+    QJsonArray componentArray = root["components"].toArray();
+
+    QList<NodeItem*> pastedNodes;
+
+    // first create all components
+    for(int i = 0; i < componentArray.size(); i++)
+    {
+        QJsonObject component = componentArray[i].toObject();
+
+        qDebug() << "Node at: " << i;
+
+        // ============== COMPONENT NAME =============
+        if(Utils::CheckJsonValue(component, "name", QJsonValue::String, 130))
+        {
+            qDebug() << "Node name: " << component["name"].toString();
+            if(component["name"].toString() != "Output")
+            {
+                NodeItem* node = createNode(component["name"].toString());
+                pastedNodes.append(node);
+
+                // ============== COMPONENT COORDINATES =============
+
+                if(Utils::CheckJsonValue(component, "x", QJsonValue::Double, 140))
+                    node->setX(component["x"].toDouble() + m_nextPastePosition.x());
+
+                if(Utils::CheckJsonValue(component, "y", QJsonValue::Double, 150))
+                    node->setY(component["y"].toDouble() + m_nextPastePosition.y());
+
+                qDebug() << "Append node: " << component["name"].toString();
+
+            }
+        }
+    }
+
+    qDebug() << "Nb pasted node: " << pastedNodes.size();
+    if(pastedNodes.size() > 0)
+    {
+        deselectAll();
+
+        // then set values and connect pins of each component
+        for(int i = 0; i < componentArray.size(); i++)
+        {
+            QJsonObject component = componentArray[i].toObject();
+            if(!Utils::CheckJsonValue(component, "inputs", QJsonValue::Array, 160))
+                continue;
+
+            QJsonArray inputs = component["inputs"].toArray();
+
+            if(i >= pastedNodes.size())
+            {
+                Utils::ErrorMsg(1000, "ERROR index #" + QString::number(i) + " doesn't correspond to pasted node");
+                continue;
+            }
+
+            pastedNodes[i]->setSelected(true);
+
+            for(int k = 0; k < inputs.size(); k++)
+            {
+                QJsonObject input = inputs[k].toObject();
+                if(!Utils::CheckJsonValue(input, "value", QJsonValue::Double, 170))
+                    continue;
+                PinInputItem* pin = pastedNodes[i]->getInput(k);
+                pin->setDefaultValue(input["value"].toDouble());
+
+                if(!Utils::CheckJsonValue(input, "link", QJsonValue::Double, 180))
+                    continue;
+                int linkIndex = input["link"].toInt();
+                if(linkIndex >= 0 && linkIndex < pastedNodes.size())
+                {
+                    LinkItem* link = new LinkItem();
+                    scene()->addItem(link);
+                    link->setFirstPin(pin);
+                    pin->addLink(link);
+
+                    PinOutputItem* otherPin = pastedNodes[linkIndex]->getOutput();
+
+                    if(!pin->link(otherPin, link))
+                    {
+                        delete link;
+                    }
+                }
+            }
+        }
+    }
+
+}
+
 void NodalView::updateZoomView()
 {
     //qreal delta = m_zoom / oldZoom;
@@ -536,21 +767,46 @@ void NodalView::showCustomContextMenu(const QPoint& pos)
     // for QAbstractScrollArea and derived classes you would use:
     // QPoint globalPos = myWidget->viewport()->mapToGlobal(pos);
 
+    QAction act_breakLink("Break link(s)");
+    QAction act_removeComponents("Remove Component(s)");
+
+    QMenu myMenu;
+
+    QGraphicsItem* item = scene()->itemAt(mapToScene(pos), QTransform());
+    PinItem* pin = dynamic_cast<PinItem*>(item);
+    LinkItem* link = dynamic_cast<LinkItem*>(item);
+    if(link != nullptr)
+    {
+        //myMenu.addAction(&act_breakLink);
+        qDebug() << "Link !";
+    }
+    else if(pin != nullptr && pin->isLinked())
+    {
+        myMenu.addAction(&act_breakLink);
+    }
     if(scene()->selectedItems().size() > 0)
     {
-        QMenu myMenu;
-        myMenu.addAction("Remove Component(s)");
+        myMenu.addAction(&act_removeComponents);
+    }
 
-        QAction* selectedAction = myMenu.exec(globalPos);
-        if (selectedAction)
-        {
-            // something was chosen, do stuff
-            deleteSelection();
-        }
-        else
-        {
-            // nothing was chosen
-        }
+    // don't show menu if no action inside
+    if(myMenu.isEmpty())
+        return;
+
+    QAction* selectedAction = myMenu.exec(globalPos);
+    if (selectedAction == &act_breakLink)
+    {
+        qDebug() << "break links";
+        pin->unlinkAll();
+    }
+    else if(selectedAction == &act_removeComponents)
+    {
+        // something was chosen, do stuff
+        deleteSelection();
+    }
+    else
+    {
+        // nothing was chosen
     }
 }
 
@@ -580,7 +836,6 @@ NodeItem *NodalView::createNode(QString componentName, qreal width)
     item->setWidth(width);
 
     addNodeItem(item);
-    m_nextCreationPosition += QPoint(20, 20);
 
     connect(item, SIGNAL(dirtyChanged()), this, SLOT(setDirty()));
 

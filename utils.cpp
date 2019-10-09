@@ -20,6 +20,10 @@
 
 #include "utils.h"
 #include <QtMath>
+#include <QMessageBox>
+#include <QApplication>
+#include <QString>
+#include <QJsonArray>
 
 qreal Utils::SmoothDamp(qreal current,
                  qreal target,
@@ -60,3 +64,27 @@ qreal Utils::MapValue(qreal x, qreal p00, qreal p01, qreal p10, qreal p11)
 
     return newValue;
 }
+
+bool Utils::CheckJsonValue(QJsonObject &object, QString name, QJsonValue::Type type, int startErrorCode)
+{
+    bool success = true;
+    if(!object.contains(name))
+    {
+        ErrorMsg(startErrorCode, "No \"" + name + "\" provided");
+        success = false;
+    }
+
+    if(object[name].type() != type)
+    {
+        ErrorMsg(startErrorCode+1, "\"" + name + "\" is not a number");
+        success = false;
+    }
+    return success;
+}
+
+
+void Utils::ErrorMsg(int code, QString msg)
+{
+    QMessageBox::critical(qApp->activeWindow(), "Load Error", "[Error #" + QString::number(code) + "] " + msg);
+}
+

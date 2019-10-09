@@ -22,6 +22,8 @@
 #define UTILS_H
 
 #include <Qt>
+#include <QJsonValue>
+#include <QJsonObject>
 
 class Utils
 {
@@ -50,6 +52,10 @@ public:
     }
 
     static qreal MapValue(qreal x, qreal p00, qreal p01, qreal p10, qreal p11);
+
+    static bool CheckJsonValue(QJsonObject& object, QString name, QJsonValue::Type type, int startErrorCode);
+
+    static void ErrorMsg(int code, QString msg);
 };
 
 

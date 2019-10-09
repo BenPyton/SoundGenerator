@@ -21,6 +21,8 @@
 #ifndef NODALVIEW_H
 #define NODALVIEW_H
 
+#include <QtWidgets>
+#include <QWidget>
 #include <QGraphicsView>
 
 class NodeItem;
@@ -60,6 +62,10 @@ protected:
 public slots:
     void showCustomContextMenu(const QPoint& pos);
     int deleteSelection();
+    void selectAll();
+    void deselectAll();
+    void copyComponents();
+    void pasteComponents();
     void setDirty() { emit dirtyChanged(); }
 
 protected slots:
@@ -88,6 +94,7 @@ private:
     QPoint m_translation;
 
     QPoint m_nextCreationPosition;
+    QPoint m_nextPastePosition;
     QVector<NodeItem*> m_nodeList;
 
 
