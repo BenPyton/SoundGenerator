@@ -119,6 +119,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QAction* act_loop = new QAction("Loop", this);
     act_loop->setCheckable(true);
 
+    // ===== File Edit =====
 
     QAction* act_newFile = new QAction("New", this);
     act_newFile->setShortcut(QKeySequence::New);
@@ -127,6 +128,23 @@ MainWindow::MainWindow(QWidget *parent) :
     QAction* act_openFile = new QAction("Open", this);
     act_openFile->setShortcut(QKeySequence::Open);
     connect(act_openFile, SIGNAL(triggered()), this, SLOT(open()));
+
+
+    QAction* act_clearRecentFiles = new QAction("Clear recent files", this);
+    connect(act_clearRecentFiles, SIGNAL(triggered()), this, SLOT(clearRecentFiles()));
+
+    menu_openRecentFile = new QMenu("Open Recent", this);
+    for (int i = 0; i < maxRecentFile; ++i)
+    {
+        recentFileActs[i] = new QAction(this);
+        recentFileActs[i]->setVisible(false);
+        connect(recentFileActs[i], SIGNAL(triggered()),
+                this, SLOT(openRecent()));
+        menu_openRecentFile->addAction(recentFileActs[i]);
+    }
+    menu_openRecentFile->addSeparator();
+    menu_openRecentFile->addAction(act_clearRecentFiles);
+
 
     QAction* act_saveFile = new QAction("Save", this);
     act_saveFile->setShortcut(QKeySequence::Save);
@@ -154,6 +172,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->menuFile->addAction(act_newFile);
     ui->menuFile->addAction(act_openFile);
+    ui->menuFile->addMenu(menu_openRecentFile);
     ui->menuFile->addAction(act_saveFile);
     ui->menuFile->addAction(act_saveAsFile);
     ui->menuFile->addSeparator();
@@ -216,7 +235,6 @@ MainWindow::MainWindow(QWidget *parent) :
     }");
 
 
-
     setFileName("");
 
     m_dirtyable = true;
@@ -249,9 +267,22 @@ void MainWindow::setFileName(QString fileName)
     else
     {
         m_windowTitle = fileName.mid(fileName.lastIndexOf('/') + 1);
+
+        // add new filename in recent files
+        QSettings settings;
+        QStringList files = settings.value("recentFileList").toStringList();
+        files.removeAll(fileName);
+        files.prepend(fileName);
+        while (files.size() > maxRecentFile)
+           files.removeLast();
+
+        settings.setValue("recentFileList", files);
+
     }
     m_dirty = false;
     updateWindowTitle();
+
+    updateRecentFileActions();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -350,16 +381,27 @@ void MainWindow::open()
 
         QString fileName = QFileDialog::getOpenFileName(this, "Open Project", ".", "Project (*.proj)");
 
-        if(QFile::exists(fileName))
-        {
-            m_dirtyable = false;
-            qreal duration;
-            ui->nodalView->load(fileName, duration);
-            m_signal.setDuration(duration);
-            m_dirtyable = true;
-            setFileName(fileName);
-        }
+        openFile(fileName);
     }
+}
+
+void MainWindow::openRecent()
+{
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (action)
+    {
+        openFile(action->data().toString());
+    }
+}
+
+void MainWindow::clearRecentFiles()
+{
+    QSettings settings;
+    QStringList files = settings.value("recentFileList").toStringList();
+    files.clear();
+    settings.setValue("recentFileList", files);
+
+    updateRecentFileActions();
 }
 
 void MainWindow::about()
@@ -446,6 +488,19 @@ void MainWindow::createMenus()
 
 }
 
+void MainWindow::openFile(QString fileName)
+{
+    if(QFile::exists(fileName))
+    {
+        m_dirtyable = false;
+        qreal duration;
+        ui->nodalView->load(fileName, duration);
+        m_signal.setDuration(duration);
+        m_dirtyable = true;
+        setFileName(fileName);
+    }
+}
+
 void MainWindow::saveFile(QString fileName)
 {
     setFileName(fileName);
@@ -464,4 +519,23 @@ QMessageBox::StandardButton MainWindow::askSaveChanges(QString action)
 void MainWindow::updateWindowTitle()
 {
     setWindowTitle(Utils::AppName + " [" + m_windowTitle + (m_dirty ? " *" : "") + "]");
+}
+
+void MainWindow::updateRecentFileActions()
+{
+    QSettings settings;
+    QStringList files = settings.value("recentFileList").toStringList();
+
+    int numRecentFiles = qMin(files.size(), maxRecentFile);
+
+    for (int i = 0; i < numRecentFiles; ++i) {
+        QString text = QString("&%1 %2").arg(i + 1).arg(QFileInfo(files[i]).fileName());
+        recentFileActs[i]->setText(text);
+        recentFileActs[i]->setData(files[i]);
+        recentFileActs[i]->setVisible(true);
+    }
+    for (int j = numRecentFiles; j < maxRecentFile; ++j)
+        recentFileActs[j]->setVisible(false);
+
+    menu_openRecentFile->setEnabled(numRecentFiles > 0);
 }

@@ -505,6 +505,23 @@ QMenu
 	background: rgb(50, 50, 50);
 }
 
+QMenu::separator
+{
+	height: 1px;
+	background-color: rgb(100, 100, 100);
+	margin: 5px, 5px, 5px, 5px;
+}
+
+QMenu:disabled
+{
+	color: rgb(100, 100, 100);
+}
+
+QAction:disabled
+{
+	color: rgb(100, 100, 100);
+}
+
 /* QToolBar */
 QToolBar
 {

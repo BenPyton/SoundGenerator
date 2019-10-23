@@ -58,6 +58,8 @@ public slots:
     void save();
     void saveAs();
     void open();
+    void openRecent();
+    void clearRecentFiles();
     void about();
     void exportWAV();
     void quit();
@@ -69,11 +71,15 @@ public slots:
 private:
     void createActions();
     void createMenus();
+    void openFile(QString fileName);
     void saveFile(QString fileName);
     QMessageBox::StandardButton askSaveChanges(QString action);
     void updateWindowTitle();
+    void updateRecentFileActions();
 
 private:
+    static const int maxRecentFile = 10;
+
     Ui::MainWindow *ui;
     QGraphicsScene* scene;
 
@@ -84,6 +90,9 @@ private:
     bool m_dirtyable;
 
     QString m_windowTitle;
+
+    QAction* recentFileActs[maxRecentFile];
+    QMenu* menu_openRecentFile;
 };
 
 #endif // MAINWINDOW_H
