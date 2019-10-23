@@ -19,16 +19,17 @@ You can also contribute by providing your build to share it with other people.
 
 ## Controls
 Press any buttons from the left side to add a component in the scene.<br>
+You can also drag and drop from one of those button to add a component at a position.<br>
+Or you can `right click > add` in the scene to add a component at a position.
 
 You can select components with `mouse left button` and drag them around the scene.<br>
-You can delete selected components with `right click > remove` or by pressing  `delete`.<br>
+You can delete selected components with `right click > remove` or by pressing `delete`.<br>
 (note that the output component cannot be removed)<br>
 
-Press a component pin with `left mouse button` and hold it until you release it  on another pin.<br>
+Press a component pin with `left mouse button` and hold it until you release it on another pin.<br>
 An output pin cannot be connected to another output pin (same for input pins), and you cannot connect components in a loop.<br>
 
 In order to play a sound, you have to generate it with the menu `Audio > Generate` or by pressing `F5`.
-
 
 ## Features
 - Base sound signals : Sinus, Square, Triangle, Sawtooth, Random (White noise);
