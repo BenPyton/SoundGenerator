@@ -326,15 +326,32 @@ void NodalView::mouseMoveEvent(QMouseEvent* event)
 
 void NodalView::dragEnterEvent(QDragEnterEvent *event)
 {
-    Q_UNUSED(event);
+    if(event->mimeData()->hasFormat("add/component"))
+    {
+        event->acceptProposedAction();
+    }
 }
 
 void NodalView::dropEvent(QDropEvent *event)
 {
-    Q_UNUSED(event);
-    //m_nextCreationPosition = mapToScene(event->pos());
+    event->acceptProposedAction();
 
-    //const QMimeData* data = event->mimeData();
+    QString componentName = QString::fromUtf8(event->mimeData()->data("add/component"));
+
+    m_nextCreationPosition = mapToScene(event->pos());
+    createNode(componentName);
+}
+
+// must be implemented
+void NodalView::dragMoveEvent(QDragMoveEvent *event)
+{
+    Q_UNUSED(event);
+}
+
+// must be implemented
+void NodalView::dragLeaveEvent(QDragLeaveEvent *event)
+{
+    Q_UNUSED(event);
 }
 
 void NodalView::drawBackground(QPainter *painter, const QRectF &rect)

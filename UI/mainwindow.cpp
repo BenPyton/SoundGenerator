@@ -26,6 +26,7 @@
 #include "waveformview.h"
 #include "pininputitem.h"
 #include "lineeditqreal.h"
+#include "pushordragbutton.h"
 #include <QStyle>
 #include <utils.h>
 
@@ -97,7 +98,7 @@ MainWindow::MainWindow(QWidget *parent) :
         QAction* action = new QAction(component, this);
         connect(action, &QAction::triggered, [this, component]() { ui->nodalView->createComponent(component); });
 
-        QPushButton* button = new QPushButton(component);
+        PushOrDragButton* button = new PushOrDragButton(component);
         button->setProperty("class", "component");
         ui->buttonLayout->addWidget(button);
         connect(button, SIGNAL(clicked()), action, SLOT(trigger()));
@@ -373,7 +374,6 @@ void MainWindow::about()
 
     box.setTextFormat(Qt::RichText);
     box.exec();
-
 }
 
 void MainWindow::exportWAV()

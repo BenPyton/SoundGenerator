@@ -55,7 +55,8 @@ SOURCES += \
 	UI/pinoutputitem.cpp \
 	UI/pininputitem.cpp \
     wavformat.cpp \
-    UI/lineeditqreal.cpp
+    UI/lineeditqreal.cpp \
+    UI/pushordragbutton.cpp
 
 HEADERS += \
         Components/AddComponent.h \
@@ -86,7 +87,8 @@ HEADERS += \
 	UI/pinoutputitem.h \
 	UI/pininputitem.h \
     wavformat.h \
-    UI/lineeditqreal.h
+    UI/lineeditqreal.h \
+    UI/pushordragbutton.h
 
 FORMS += \
         UI/mainwindow.ui
