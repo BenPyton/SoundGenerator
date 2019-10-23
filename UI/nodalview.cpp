@@ -32,9 +32,11 @@ NodalView::NodalView(QWidget* parent)
     : QGraphicsView (parent),
       m_dragging(false),
       m_rightClickPressed(false),
+      m_contextMenu(false),
       m_zoom(1.0),
       m_nextCreationPosition(0, 0)
 {
+    setAcceptDrops(true);
     setContextMenuPolicy(Qt::CustomContextMenu);
     this->connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), SLOT(showCustomContextMenu(const QPoint&)));
 
@@ -52,6 +54,8 @@ NodalView::NodalView(QWidget* parent)
 
 
     setZoom(1.0);
+
+    m_menuAdd = nullptr;
 }
 
 void NodalView::init()
@@ -74,54 +78,12 @@ void NodalView::setZoom(qreal zoom)
 
 void NodalView::save(QString fileName, const qreal duration)
 {
-    /*QJsonArray componentArray;
-    // save data
-    for(int i = 0; i < m_nodeList.size(); i++)
-    {
-        QJsonArray inputArray;
-        for(int k = 0; k < m_nodeList[i]->getInputCount(); k++)
-        {
-            PinInputItem* pin = m_nodeList[i]->getInput(k);
-
-            Component* link = pin->input()->getComponent();
-            int linkIndex = -1;
-            if(link != nullptr)
-            {
-                for(int p = 0; p < m_nodeList.size() && linkIndex < 0; p++)
-                {
-                    if(m_nodeList[p]->component() == link)
-                    {
-                        linkIndex = p;
-                    }
-                }
-            }
-
-            QJsonObject input;
-            input["name"] = pin->input()->getName();
-            input["value"] = pin->input()->getDefaultValue();
-            input["link"] = linkIndex;
-
-            inputArray.append(input);
-        }
-
-        QJsonObject component;
-        component["id"] = i;
-        component["x"] = m_nodeList[i]->x();
-        component["y"] = m_nodeList[i]->y();
-        component["name"] = m_nodeList[i]->component()->getName();
-        component["inputs"] = inputArray;
-
-        componentArray.append(component);
-    }*/
-
     QJsonArray componentArray = NodeItem::NodeArrayToJson(m_nodeList);
-
 
     QJsonObject root;
     root["duration"] = duration;
     root["version"] = 1;
     root["components"] = componentArray;
-
 
     QJsonDocument json(root);
     QByteArray data = json.toJson();
@@ -240,6 +202,7 @@ NodeItem* NodalView::createComponent(QString componentName, qreal width)
 {
     setDirty();
     m_nextCreationPosition += QPoint(20, 20);
+    qDebug() << "Create Component";
     return createNode(componentName, width);
 }
 
@@ -258,11 +221,6 @@ int NodalView::clearItems(int from)
         m_nodeList.remove(i);
         nbRemoved++;
     }
-
-//    if(nbRemoved > 0)
-//    {
-//        setDirty();
-//    }
 
     return nbRemoved;
 }
@@ -322,22 +280,6 @@ void NodalView::mousePressEvent(QMouseEvent* event)
         setDragMode(QGraphicsView::NoDrag);
         QGraphicsView::mousePressEvent(event);
     }
-
-    /*if(event->button() == Qt::MidButton)
-    {
-        m_lastMousePos = event->pos();
-        m_dragging = true;
-        m_startScenePos = mapToScene(event->pos());
-        m_startMousePos = event->pos();
-    }
-    else if(event->button() == Qt::LeftButton)
-    {
-        m_rubberDrag = true;
-        m_startMousePos = event->pos();
-        m_rubberBand.move(event->pos());
-        m_rubberBand.resize(0, 0);
-        m_rubberBand.show();
-    }*/
 }
 
 void NodalView::mouseReleaseEvent(QMouseEvent *event)
@@ -358,23 +300,6 @@ void NodalView::mouseReleaseEvent(QMouseEvent *event)
 
     QGraphicsView::mouseReleaseEvent(event);
     setDragMode(QGraphicsView::NoDrag);
-    /*if(event->button() == Qt::MidButton)
-    {
-        m_dragging = false;
-    }
-    else if(event->button() == Qt::LeftButton)
-    {
-        m_rubberDrag = false;
-        m_rubberBand.hide();
-        //scene()->clearSelection();
-
-
-        QPointF topLeft = mapToScene(qMin(event->pos().x(), m_startMousePos.x()), qMin(event->pos().y(), m_startMousePos.y()));
-        QPointF bottomRight = mapToScene(qMax(event->pos().x(), m_startMousePos.x()), qMax(event->pos().y(), m_startMousePos.y()));
-        QPainterPath shape;
-        shape.addRect(topLeft.x(), topLeft.y(), bottomRight.x() - topLeft.x(), bottomRight.y() - topLeft.y());
-        scene()->setSelectionArea(shape);
-    }*/
 }
 
 void NodalView::mouseMoveEvent(QMouseEvent* event)
@@ -396,16 +321,20 @@ void NodalView::mouseMoveEvent(QMouseEvent* event)
         QGraphicsView::mouseMoveEvent(event);
     }
 
-    /*if(m_rubberDrag)
-    {
-        QPoint topLeft(qMin(event->pos().x(), m_startMousePos.x()), qMin(event->pos().y(), m_startMousePos.y()));
-        QPoint bottomRight(qMax(event->pos().x(), m_startMousePos.x()), qMax(event->pos().y(), m_startMousePos.y()));
-
-        m_rubberBand.move(topLeft);
-        m_rubberBand.resize(bottomRight.x() - topLeft.x(), bottomRight.y() - topLeft.y());
-    }*/
-
     m_lastMousePos = event->pos();
+}
+
+void NodalView::dragEnterEvent(QDragEnterEvent *event)
+{
+    Q_UNUSED(event);
+}
+
+void NodalView::dropEvent(QDropEvent *event)
+{
+    Q_UNUSED(event);
+    //m_nextCreationPosition = mapToScene(event->pos());
+
+    //const QMimeData* data = event->mimeData();
 }
 
 void NodalView::drawBackground(QPainter *painter, const QRectF &rect)
@@ -413,7 +342,6 @@ void NodalView::drawBackground(QPainter *painter, const QRectF &rect)
     QVector<QLine> lines;
     QVector<QLine> mainLines;
 
-    //int unit = 10;
     int nbLineWidth = qCeil(rect.width() / gridUnit);
     int nbLineHeight = qCeil(rect.height() / gridUnit);
     int startX = qCeil(rect.x() / gridUnit) * gridUnit;
@@ -548,45 +476,6 @@ void NodalView::copyComponents()
 
     // create a json array with all selected components
     QJsonArray componentArray = NodeItem::NodeArrayToJson(selectedNodes);
-    /*QJsonArray componentArray;
-    for(int i = 0; i < selectedNodes.size(); i++)
-    {
-        QJsonArray inputArray;
-        for(int k = 0; k < selectedNodes[i]->getInputCount(); k++)
-        {
-            PinInputItem* pin = selectedNodes[i]->getInput(k);
-
-            Component* link = pin->input()->getComponent();
-            int linkIndex = -1;
-            if(link != nullptr)
-            {
-                for(int p = 0; p < selectedNodes.size() && linkIndex < 0; p++)
-                {
-                    if(selectedNodes[p]->component() == link)
-                    {
-                        linkIndex = p;
-                    }
-                }
-            }
-
-            QJsonObject input;
-            input["name"] = pin->input()->getName();
-            input["value"] = pin->input()->getDefaultValue();
-            input["link"] = linkIndex;
-
-            inputArray.append(input);
-        }
-
-        QJsonObject component;
-        component["id"] = i;
-        component["x"] = selectedNodes[i]->x();
-        component["y"] = selectedNodes[i]->y();
-        component["name"] = selectedNodes[i]->component()->getName();
-        component["inputs"] = inputArray;
-
-        componentArray.append(component);
-    }*/
-
 
     QJsonObject root;
     root["components"] = componentArray;
@@ -762,8 +651,11 @@ void NodalView::updateZoomView()
 
 void NodalView::showCustomContextMenu(const QPoint& pos)
 {
+    m_contextMenu = true;
+
     // for most widgets
     QPoint globalPos = mapToGlobal(pos);
+    m_ContextPosition = mapToScene(pos);
     // for QAbstractScrollArea and derived classes you would use:
     // QPoint globalPos = myWidget->viewport()->mapToGlobal(pos);
 
@@ -771,6 +663,12 @@ void NodalView::showCustomContextMenu(const QPoint& pos)
     QAction act_removeComponents("Remove Component(s)");
 
     QMenu myMenu;
+
+    if(m_menuAdd != nullptr)
+    {
+        myMenu.addMenu(m_menuAdd);
+        qDebug() << "Add menu in context";
+    }
 
     QGraphicsItem* item = scene()->itemAt(mapToScene(pos), QTransform());
     PinItem* pin = dynamic_cast<PinItem*>(item);
@@ -806,8 +704,22 @@ void NodalView::showCustomContextMenu(const QPoint& pos)
     }
     else
     {
+        if(m_menuAdd != nullptr)
+        {
+            bool addAction = false;
+            for(QAction* act : m_menuAdd->actions())
+            {
+                addAction |= (act == selectedAction);
+            }
+            if(addAction)
+            {
+                m_nextCreationPosition = m_ContextPosition;
+            }
+        }
+
         // nothing was chosen
     }
+    m_contextMenu = false;
 }
 
 
@@ -829,10 +741,20 @@ void NodalView::autocomputeSceneSize()
 
 NodeItem *NodalView::createNode(QString componentName, qreal width)
 {
+    QPointF position;
+    if(m_contextMenu)
+    {
+        position = m_ContextPosition;
+    }
+    else
+    {
+        position = m_nextCreationPosition;
+    }
+
     Component* component = ComponentFactory::CreateComponent(componentName);
     NodeItem* item = new NodeItem();
     item->setComponent(component);
-    item->setPos(m_nextCreationPosition);
+    item->setPos(position);
     item->setWidth(width);
 
     addNodeItem(item);

@@ -50,12 +50,16 @@ public:
 
     NodeItem* getOutput() { return m_nodeList[0]; }
 
+    void setMenuAdd(QMenu* menuAdd) { m_menuAdd = menuAdd; }
+
 protected:
     virtual void keyPressEvent(QKeyEvent * event) override;
     virtual void wheelEvent(QWheelEvent* event) override;
     virtual void mousePressEvent(QMouseEvent* event) override;
     virtual void mouseReleaseEvent(QMouseEvent *event) override;
     virtual void mouseMoveEvent(QMouseEvent* event) override;
+    virtual void dragEnterEvent(QDragEnterEvent* event) override;
+    virtual void dropEvent(QDropEvent* event) override;
 
     virtual void drawBackground(QPainter * painter, const QRectF & rect) override;
 
@@ -83,6 +87,7 @@ private:
 private:
     bool m_dragging;
     bool m_rightClickPressed;
+    bool m_contextMenu;
     QPoint m_lastMousePos;
     QPoint m_startMousePos;
     QPointF m_startScenePos;
@@ -93,9 +98,12 @@ private:
     qreal m_zoom;
     QPoint m_translation;
 
-    QPoint m_nextCreationPosition;
-    QPoint m_nextPastePosition;
+    QPointF m_nextCreationPosition;
+    QPointF m_nextPastePosition;
+    QPointF m_ContextPosition;
     QVector<NodeItem*> m_nodeList;
+
+    QMenu* m_menuAdd;
 
 
 public:
