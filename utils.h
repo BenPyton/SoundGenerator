@@ -56,6 +56,11 @@ public:
     static bool CheckJsonValue(QJsonObject& object, QString name, QJsonValue::Type type, int startErrorCode);
 
     static void ErrorMsg(int code, QString msg);
+
+    static QString GetAppVersion();
+
+    static const QString AppName;
+    static const QString CompanyName;
 };
 
 

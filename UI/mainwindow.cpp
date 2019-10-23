@@ -29,9 +29,6 @@
 #include <QStyle>
 #include <utils.h>
 
-#define MAJOR_VERSION 0
-#define MINOR_VERSION 0
-#define BUGFIX_VERSION 2
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -92,6 +89,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QMenu* menu_Add = new QMenu("Add", this);
     ui->menuComponents->addMenu(menu_Add);
+    ui->nodalView->setMenuAdd(menu_Add);
 
     // Create commponents buttons and actions
     for(QString component : componentList)
@@ -265,12 +263,22 @@ void MainWindow::closeEvent(QCloseEvent *event)
         {
             save();
         }
+        QSettings settings;
+        settings.setValue("geometry", saveGeometry());
+        settings.setValue("windowState", saveState());
         event->accept();
     }
     else
     {
         event->ignore();
     }
+}
+
+void MainWindow::readSettings()
+{
+    QSettings settings;
+    restoreGeometry(settings.value("geometry").toByteArray());
+    restoreState(settings.value("windowState").toByteArray());
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
@@ -355,10 +363,8 @@ void MainWindow::open()
 
 void MainWindow::about()
 {
-    QString version = QString::number(MAJOR_VERSION) + "." +  QString::number(MINOR_VERSION) + "." + QString::number(BUGFIX_VERSION);
-
-    QMessageBox box(QMessageBox::NoIcon, "About Sound Generator",
-                    "Alpha " + version + "<br><br>Copyright 2019 Pelletier Benoit<br><br>\
+    QMessageBox box(QMessageBox::NoIcon, "About " + Utils::AppName,
+                    "Alpha " + Utils::GetAppVersion() + "<br><br>Copyright 2019 " + Utils::CompanyName + "<br><br>\
                     This software is free and under <a style=\"color:#00FFFF\" href=\"https://www.gnu.org/licenses/gpl-3.0.txt\">GPLv3</a> license. <br>This software is dynamically linked to Qt5.<br>\
                     The source code of Qt SDK can be found <a style=\"color:#00FFFF\" href=\"http://download.qt.io/official_releases/qt/5.12/5.12.2/\">here</a>.<br>\
                     The full text for the GPLv3 license was distributed as a text file with this software.<br><br> \
@@ -457,5 +463,5 @@ QMessageBox::StandardButton MainWindow::askSaveChanges(QString action)
 
 void MainWindow::updateWindowTitle()
 {
-    setWindowTitle("Sound Generator [" + m_windowTitle + (m_dirty ? " *" : "") + "]");
+    setWindowTitle(Utils::AppName + " [" + m_windowTitle + (m_dirty ? " *" : "") + "]");
 }

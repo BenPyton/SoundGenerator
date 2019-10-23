@@ -25,6 +25,14 @@
 #include <QString>
 #include <QJsonArray>
 
+
+#define MAJOR_VERSION 0
+#define MINOR_VERSION 0
+#define BUGFIX_VERSION 3
+
+const QString Utils::AppName = "Sound Generator";
+const QString Utils::CompanyName = "Benoit Pelletier";
+
 qreal Utils::SmoothDamp(qreal current,
                  qreal target,
                  qreal& currentVelocity,
@@ -86,5 +94,10 @@ bool Utils::CheckJsonValue(QJsonObject &object, QString name, QJsonValue::Type t
 void Utils::ErrorMsg(int code, QString msg)
 {
     QMessageBox::critical(qApp->activeWindow(), "Load Error", "[Error #" + QString::number(code) + "] " + msg);
+}
+
+QString Utils::GetAppVersion()
+{
+    return QString::number(MAJOR_VERSION) + "." +  QString::number(MINOR_VERSION) + "." + QString::number(BUGFIX_VERSION);
 }
 
