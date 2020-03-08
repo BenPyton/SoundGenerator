@@ -27,8 +27,9 @@
 #include "pininputitem.h"
 #include "lineeditqreal.h"
 #include "pushordragbutton.h"
+#include "NodalScene.h"
 #include <QStyle>
-#include <utils.h>
+#include <Utils.h>
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -57,34 +58,44 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->waveFormView->setScrollBar(ui->waveFormScrollBar);
     ui->waveFormView->setSignal(&m_signal);
 
-    scene = new QGraphicsScene(ui->nodalView);
-    scene->setBackgroundBrush(Qt::black);
+    m_scene = new NodalScene(ui->nodalView);
+    m_scene->setBackgroundBrush(Qt::black);
 
-    ui->nodalView->setScene(scene);
+    ui->nodalView->setScene(m_scene);
     ui->nodalView->setZoomLimits(0.1, 5.0);
     ui->nodalView->init();
     ui->nodalView->show();
-    connect(ui->nodalView, SIGNAL(dirtyChanged()), this, SLOT(setDirty()));
+    connect(ui->nodalView, &NodalView::dirtyChanged, this, &MainWindow::setDirty);
 
-    m_signal.setComponent(ui->nodalView->getOutput()->component());
+    m_signal.setComponent(m_scene->getOutput()->component());
 
     // ===== Edit Menu =====
 
     QAction* act_selectAll = new QAction("Select All", this);
     act_selectAll->setShortcut(QKeySequence::SelectAll);
-    connect(act_selectAll, SIGNAL(triggered()), ui->nodalView, SLOT(selectAll()));
+    connect(act_selectAll, &QAction::triggered, m_scene, &NodalScene::selectAll);
 
     QAction* act_copy = new QAction("Copy", this);
     act_copy->setShortcut(QKeySequence::Copy);
-    connect(act_copy, SIGNAL(triggered()), ui->nodalView, SLOT(copyComponents()));
+    connect(act_copy, &QAction::triggered, m_scene, &NodalScene::copyComponents);
 
     QAction* act_paste = new QAction("Paste", this);
     act_paste->setShortcut(QKeySequence::Paste);
-    connect(act_paste, SIGNAL(triggered()), ui->nodalView, SLOT(pasteComponents()));
+    connect(act_paste, &QAction::triggered, m_scene, &NodalScene::pasteComponents);
+
+    QAction* act_undo = new QAction("Undo", this);
+    act_undo ->setShortcut(QKeySequence::Undo);
+    connect(act_undo, &QAction::triggered, m_scene, &NodalScene::undoCommand);
+
+    QAction* act_redo = new QAction("Redo", this);
+    act_redo->setShortcut(QKeySequence::Redo);
+    connect(act_redo, &QAction::triggered, m_scene, &NodalScene::redoCommand);
 
     ui->menuEdit->addAction(act_copy);
     ui->menuEdit->addAction(act_paste);
     ui->menuEdit->addAction(act_selectAll);
+    ui->menuEdit->addAction(act_undo);
+    ui->menuEdit->addAction(act_redo);
 
     // ===== Component Menu =====
 
@@ -96,7 +107,7 @@ MainWindow::MainWindow(QWidget *parent) :
     for(QString component : componentList)
     {
         QAction* action = new QAction(component, this);
-        connect(action, &QAction::triggered, [this, component]() { ui->nodalView->createComponent(component); });
+        connect(action, &QAction::triggered, [this, component]() { m_scene->createComponent(component); });
 
         PushOrDragButton* button = new PushOrDragButton(component);
         button->setProperty("class", "component");
@@ -326,7 +337,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
 MainWindow::~MainWindow()
 {
-    delete scene;
+    delete m_scene;
     delete ui;
 }
 
@@ -340,7 +351,7 @@ void MainWindow::newFile()
             save();
         }
 
-        ui->nodalView->reset();
+        m_scene->reset();
 
         setFileName("");
     }
@@ -494,7 +505,7 @@ void MainWindow::openFile(QString fileName)
     {
         m_dirtyable = false;
         qreal duration;
-        ui->nodalView->load(fileName, duration);
+        m_scene->load(fileName, duration);
         m_signal.setDuration(duration);
         m_dirtyable = true;
         setFileName(fileName);
@@ -505,7 +516,7 @@ void MainWindow::saveFile(QString fileName)
 {
     setFileName(fileName);
     m_dirtyable = false;
-    ui->nodalView->save(fileName, m_signal.duration());
+    m_scene->save(fileName, m_signal.duration());
     m_dirtyable = true;
 }
 

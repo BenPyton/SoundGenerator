@@ -20,12 +20,18 @@
 
 #include "nodeitem.h"
 #include "nodalview.h"
+#include "NodalScene.h"
 #include "pinitem.h"
 #include "pininputitem.h"
 #include "pinoutputitem.h"
 #include <QWidget>
 #include <QtWidgets>
 #include <QPainter>
+#include "Utils.h"
+#include "linkitem.h"
+#include "UndoCommands/CreateComponentCommand.h"
+#include "UndoCommands/MoveComponentCommand.h"
+
 
 NodeItem::NodeItem(QGraphicsItem *parent)
     : QGraphicsItem(parent), m_width(200), m_height(100), m_component(nullptr)
@@ -34,12 +40,10 @@ NodeItem::NodeItem(QGraphicsItem *parent)
     setFlag(QGraphicsItem::ItemIsSelectable);
     setFlag(QGraphicsItem::ItemSendsGeometryChanges);
 
-//    m_inputPin = new PinInputItem(this);
-//    m_inputPin->setX(10);
-//    m_inputPin->setY(50);
     m_outputPin = new PinOutputItem(this);
     m_outputPin->setX(190);
     m_outputPin->setY(50);
+    m_outputPin->setUndoStack(undoStack());
     connect(m_outputPin, SIGNAL(dirtyChanged()), this, SLOT(setDirty()));
 
     m_label = new QGraphicsTextItem(this);
@@ -50,12 +54,6 @@ NodeItem::NodeItem(QGraphicsItem *parent)
 
 NodeItem::~NodeItem()
 {
-    m_outputPin->unlinkAll();
-    for(PinInputItem* input : m_inputPins)
-    {
-        input->unlinkAll();
-    }
-
     if(m_component != nullptr)
         delete m_component;
 }
@@ -124,6 +122,17 @@ PinInputItem *NodeItem::getInput(int index)
     return input;
 }
 
+void NodeItem::unlink()
+{
+    undoStack()->beginMacro("Unlink Component");
+    for(PinInputItem* input : m_inputPins)
+    {
+        input->unlinkAll();
+    }
+    m_outputPin->unlinkAll();
+    undoStack()->endMacro();
+}
+
 void NodeItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(option);
@@ -180,31 +189,25 @@ QVariant NodeItem::itemChange(GraphicsItemChange change, const QVariant &value)
 {
     QVariant toReturn = value;
 
-    if (change == ItemPositionChange) {
+    if (change == ItemPositionChange)
+    {
         QPointF newPos = value.toPointF();
         if(QGuiApplication::mouseButtons() == Qt::LeftButton
-          && QGuiApplication::keyboardModifiers() == Qt::ShiftModifier/* && nullptr != view*/){
-
+          && QGuiApplication::keyboardModifiers() == Qt::ShiftModifier)
+        {
             int gridSize = NodalView::gridUnit;
-            qreal xV = round(newPos.x()/gridSize)*gridSize;
-            qreal yV = round(newPos.y()/gridSize)*gridSize;
-            toReturn = QPointF(xV, yV);
+            qreal correctedX = round(newPos.x() / gridSize) * gridSize;
+            qreal correctedY = round(newPos.y() / gridSize) * gridSize;
+            toReturn = QPointF(correctedX, correctedY);
         }
         else
+        {
             toReturn = newPos;
+        }
 
-//        for(QGraphicsItem* item : childItems())
-//        {
-//            PinItem* pin = qgraphicsitem_cast<PinItem*>(item);
-//            if(pin != nullptr)
-//            {
-//                pin->updateLinks();
-//            }
-//        }
         // not performant, but work well enough
         if(scene() != nullptr)
             scene()->update();
-
 
         setDirty();
     }
@@ -267,85 +270,98 @@ QJsonArray NodeItem::NodeArrayToJson(const QVector<NodeItem*> &nodeArray)
     return jsonArray;
 }
 
-QVector<NodeItem*> NodeItem::JsonToNodeArray(const QJsonArray &jsonArray)
+QVector<NodeItem*> NodeItem::JsonToNodeArray(
+        const QJsonArray &jsonArray,
+        NodalScene* _scene,
+        QPointF _positionOffset,
+        QUndoStack* _commandStack)
 {
-    Q_UNUSED(jsonArray);
+    Q_ASSERT(nullptr != _commandStack);
     QVector<NodeItem*> nodeArray;
-    /*
+
+    _commandStack->beginMacro("Create Components");
+
     // first create all components
     for(int i = 0; i < jsonArray.size(); i++)
     {
         QJsonObject component = jsonArray[i].toObject();
-
-        qDebug() << "Node at: " << i;
+        NodeItem* node = nullptr;
 
         // ============== COMPONENT NAME =============
         if(Utils::CheckJsonValue(component, "name", QJsonValue::String, 130))
         {
-            qDebug() << "Node name: " << component["name"].toString();
-            if(component["name"].toString() != "Output")
+            QPointF position;
+            // ============== COMPONENT COORDINATES =============
+            if(Utils::CheckJsonValue(component, "x", QJsonValue::Double, 140))
+                position.setX(component["x"].toDouble() + _positionOffset.x());
+            if(Utils::CheckJsonValue(component, "y", QJsonValue::Double, 150))
+                position.setY(component["y"].toDouble() + _positionOffset.y());
+
+            if(component["name"].toString() == "Output")
             {
-                NodeItem* node = createNode(component["name"].toString());
-                node->setSelected(true);
-                nodeArray.append(node);
+                node = _scene->getOutput();
+                node->setPos(position);
+            }
+            else
+            {
+                CreateComponentCommand *command = new CreateComponentCommand(_scene, component["name"].toString(), position, 200.f);
+                _commandStack->push(command);
+                node = command->getItem();
+                node->setUndoStack(_commandStack);
+            }
 
-                // ============== COMPONENT COORDINATES =============
+            nodeArray.append(node);
+        }
+    }
 
-                if(Utils::CheckJsonValue(component, "x", QJsonValue::Double, 140))
-                    node->setX(component["x"].toDouble() + m_nextPastePosition.x());
+    if(nodeArray.size() > 0)
+    {
+        // then set values and connect pins of each component
+        for(int i = 0; i < jsonArray.size(); i++)
+        {
+            if(i >= nodeArray.size())
+            {
+                Utils::ErrorMsg(1000, "ERROR index #" + QString::number(i) + " doesn't correspond to pasted node");
+                continue;
+            }
+            nodeArray[i]->setSelected(true);
 
-                if(Utils::CheckJsonValue(component, "y", QJsonValue::Double, 150))
-                    node->setY(component["y"].toDouble() + m_nextPastePosition.y());
+            QJsonObject component = jsonArray[i].toObject();
+            if(!Utils::CheckJsonValue(component, "inputs", QJsonValue::Array, 160))
+                continue;
+            QJsonArray inputs = component["inputs"].toArray();
 
-                qDebug() << "Append node: " << component["name"].toString();
+            for(int k = 0; k < inputs.size(); ++k)
+            {
+                QJsonObject input = inputs[k].toObject();
+                if(!Utils::CheckJsonValue(input, "value", QJsonValue::Double, 170))
+                    continue;
+                PinInputItem* pin = nodeArray[i]->getInput(k);
+                pin->setDefaultValue(input["value"].toDouble());
 
+                if(!Utils::CheckJsonValue(input, "link", QJsonValue::Double, 180))
+                    continue;
+                int linkIndex = input["link"].toInt();
+                if(linkIndex >= 0 && linkIndex < nodeArray.size())
+                {
+                    PinOutputItem* otherPin = nodeArray[linkIndex]->getOutput();
+                    pin->link(otherPin);
+                }
             }
         }
     }
 
-    qDebug() << "Nb pasted node: " << nodeArray.size();
+    _commandStack->endMacro();
 
-    // then set values and connect pins of each component
-    for(int i = 0; i < jsonArray.size(); i++)
-    {
-        QJsonObject component = jsonArray[i].toObject();
-        if(!Utils::CheckJsonValue(component, "inputs", QJsonValue::Array, 160))
-            continue;
-
-        QJsonArray inputs = component["inputs"].toArray();
-
-        if(i >= nodeArray.size())
-        {
-            Utils::ErrorMsg(1000, "ERROR index #" + QString::number(i) + " doesn't correspond to pasted node");
-            continue;
-        }
-
-        for(int k = 0; k < inputs.size(); k++)
-        {
-            QJsonObject input = inputs[k].toObject();
-            if(!Utils::CheckJsonValue(input, "value", QJsonValue::Double, 170))
-                continue;
-            PinInputItem* pin = nodeArray[i]->getInput(k);
-            pin->setDefaultValue(input["value"].toDouble());
-
-            if(!Utils::CheckJsonValue(input, "link", QJsonValue::Double, 180))
-                continue;
-            int linkIndex = input["link"].toInt();
-            if(linkIndex >= 0 && linkIndex < nodeArray.size())
-            {
-                LinkItem* link = new LinkItem();
-                scene()->addItem(link);
-                link->setFirstPin(pin);
-                pin->addLink(link);
-
-                PinOutputItem* otherPin = nodeArray[linkIndex]->getOutput();
-
-                if(!pin->connect(otherPin, link))
-                {
-                    delete link;
-                }
-            }
-        }
-    }*/
     return nodeArray;
+}
+
+void NodeItem::setUndoStack(QUndoStack *_undoStack)
+{
+    m_undoStack = _undoStack;
+    m_outputPin->setUndoStack(m_undoStack);
+    for(PinInputItem* input : m_inputPins)
+    {
+        input->setUndoStack(m_undoStack);
+    }
 }

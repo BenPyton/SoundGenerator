@@ -18,7 +18,7 @@
  *
  */
 
-#include "wavformat.h"
+#include "WAVFormat.h"
 #include <QDataStream>
 #include <QFile>
 

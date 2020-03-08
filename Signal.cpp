@@ -19,12 +19,12 @@
  */
 
 #include "Signal.h"
-#include "utils.h"
+#include "Utils.h"
 #include <QtCore>
 #include <QtMath>
 #include "Components.h"
 #include <QAudioRecorder>
-#include "wavformat.h"
+#include "WAVFormat.h"
 
 Signal::Signal(QObject *parent)
     : QObject(parent),

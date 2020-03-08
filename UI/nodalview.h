@@ -25,8 +25,7 @@
 #include <QWidget>
 #include <QGraphicsView>
 
-class NodeItem;
-//class Component;
+class NodalScene;
 
 class NodalView : public QGraphicsView
 {
@@ -39,17 +38,6 @@ public:
     void setZoomLimits(qreal min, qreal max);
     void setZoom(qreal zoom);
     inline qreal getZoom() { return m_zoom; }
-
-    void save(QString fileName, const qreal duration);
-    void load(QString fileName, qreal& duration);
-
-    NodeItem* createComponent(QString componentName, qreal width = 200.0);
-    void addNodeItem(NodeItem *item);
-    int clearItems(int from = 0);
-    void reset();
-
-    NodeItem* getOutput() { return m_nodeList[0]; }
-
     void setMenuAdd(QMenu* menuAdd) { m_menuAdd = menuAdd; }
 
 protected:
@@ -62,16 +50,12 @@ protected:
     virtual void dragMoveEvent(QDragMoveEvent* event) override;
     virtual void dragLeaveEvent(QDragLeaveEvent* event) override;
     virtual void dropEvent(QDropEvent* event) override;
-
     virtual void drawBackground(QPainter * painter, const QRectF & rect) override;
+
+    NodalScene* getScene();
 
 public slots:
     void showCustomContextMenu(const QPoint& pos);
-    int deleteSelection();
-    void selectAll();
-    void deselectAll();
-    void copyComponents();
-    void pasteComponents();
     void setDirty() { emit dirtyChanged(); }
 
 protected slots:
@@ -84,29 +68,22 @@ signals:
 private:
     void autocomputeSceneSize();
     void updateTransform();
-    NodeItem *createNode(QString componentName, qreal width = 200.0);
 
 private:
     bool m_dragging;
     bool m_rightClickPressed;
-    bool m_contextMenu;
     QPoint m_lastMousePos;
     QPoint m_startMousePos;
     QPointF m_startScenePos;
 
     qreal m_zoomMin;
     qreal m_zoomMax;
-
     qreal m_zoom;
     QPoint m_translation;
 
-    QPointF m_nextCreationPosition;
-    QPointF m_nextPastePosition;
-    QPointF m_ContextPosition;
-    QVector<NodeItem*> m_nodeList;
-
     QMenu* m_menuAdd;
 
+    NodalScene* m_scene;
 
 public:
     static const int gridUnit;

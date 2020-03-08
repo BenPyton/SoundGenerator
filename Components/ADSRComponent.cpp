@@ -19,7 +19,7 @@
  */
 
 #include "ADSRComponent.h"
-#include "utils.h"
+#include "Utils.h"
 
 // https://en.wikipedia.org/wiki/File:ADSR_parameter.svg
 // https://www.youtube.com/watch?v=A6pp6OMU5r8&ab_channel=SynthSchool

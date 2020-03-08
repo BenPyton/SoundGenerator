@@ -26,15 +26,14 @@ PinOutputItem::PinOutputItem(QGraphicsItem *parent)
 {
 }
 
-bool PinOutputItem::_tryConnect(PinItem *other)
+bool PinOutputItem::_canConnect(PinItem *_other)
 {
-    PinInputItem* input = qgraphicsitem_cast<PinInputItem*>(other);
+    PinInputItem* input = qgraphicsitem_cast<PinInputItem*>(_other);
     if (input != nullptr && input->input() != nullptr && input->input()->getParent() != nullptr
         && m_component != nullptr && input->input()->getParent() != m_component
-        && input->input()->setComponent(m_component))
+        && input->input()->canSetComponent(m_component))
     {
-        return true;
+        return PinItem::_canConnect(_other);
     }
-
     return false;
 }

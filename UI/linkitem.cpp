@@ -23,6 +23,8 @@
 #include "pinitem.h"
 #include <QtMath>
 
+QVector<LinkItem*> LinkItem::s_linkList;
+
 LinkItem::LinkItem(QGraphicsItem *parent)
     : QGraphicsItem(parent)
 {
@@ -34,6 +36,15 @@ LinkItem::LinkItem(QGraphicsItem *parent)
     m_mousePos = QPointF(0, 0);
 
     setZValue(10000);
+
+    s_linkList.append(this);
+}
+
+LinkItem::~LinkItem()
+{
+    int index = s_linkList.indexOf(this);
+    Q_ASSERT(index >= 0);
+    s_linkList.removeAt(index);
 }
 
 void LinkItem::setMousePos(QPointF mousePos)
@@ -42,31 +53,28 @@ void LinkItem::setMousePos(QPointF mousePos)
     prepareGeometryChange();
 }
 
-void LinkItem::setFirstPin(PinItem *pin)
+void LinkItem::setPins(PinItem *_pinA, PinItem* _pinB)
 {
-    m_pinA = pin;
-}
-
-void LinkItem::setSecondPin(PinItem *pin)
-{
-    m_pinB = pin;
-}
-
-void LinkItem::unlink()
-{
-    if(m_pinA != nullptr)
-    {
-        m_pinA->removeLink(this);
-    }
-    if(m_pinB != nullptr)
-    {
-        m_pinB->removeLink(this);
-    }
+    m_pinA = _pinA;
+    m_pinB = _pinB;
 }
 
 void LinkItem::prepareChange()
 {
     prepareGeometryChange();
+}
+
+LinkItem *LinkItem::getLinkBetween(PinItem *_pinA, PinItem *_pinB)
+{
+    LinkItem* link = nullptr;
+    for(int i = 0; link == nullptr && i < s_linkList.size(); ++i)
+    {
+        if(s_linkList[i]->hasPins(_pinA, _pinB))
+        {
+            link = s_linkList[i];
+        }
+    }
+    return link;
 }
 
 PinItem *LinkItem::getPinThatIsNot(PinItem *pin)
@@ -77,6 +85,11 @@ PinItem *LinkItem::getPinThatIsNot(PinItem *pin)
     else if(m_pinB != pin)
         toReturn = m_pinB;
     return toReturn;
+}
+
+bool LinkItem::hasPins(PinItem *_pinA, PinItem *_pinB)
+{
+    return (m_pinA == _pinA && m_pinB == _pinB) || (m_pinA == _pinB && m_pinB == _pinA);
 }
 
 void LinkItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)

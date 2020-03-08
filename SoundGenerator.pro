@@ -27,6 +27,15 @@ INCLUDEPATH += UI
 CONFIG += c++11
 
 SOURCES += \
+    NodalScene.cpp \
+    UndoCommands/ChangeInputValueCommand.cpp \
+    UndoCommands/CreateComponentCommand.cpp \
+    UndoCommands/DeleteComponentCommand.cpp \
+    UndoCommands/LinkPinCommand.cpp \
+    UndoCommands/MoveComponentCommand.cpp \
+    UndoCommands/UnlinkPinCommand.cpp \
+    Utils.cpp \
+    WAVFormat.cpp \
         main.cpp \
         Components/AddComponent.cpp \
         Components/ADSRComponent.cpp \
@@ -51,12 +60,11 @@ SOURCES += \
         UI/waveformview.cpp \
         Random.cpp \
         Signal.cpp \
-        utils.cpp \
 	UI/pinoutputitem.cpp \
 	UI/pininputitem.cpp \
-    wavformat.cpp \
     UI/lineeditqreal.cpp \
-    UI/pushordragbutton.cpp
+    UI/pushordragbutton.cpp \
+    UndoCommands/SelectComponentCommand.cpp
 
 HEADERS += \
         Components/AddComponent.h \
@@ -73,6 +81,8 @@ HEADERS += \
         Components/SinusComponent.h \
         Components/SquareComponent.h \
         Components/TriangleComponent.h \
+    NodalScene.h \
+    Types.h \
         UI/mainwindow.h \
         UI/linkitem.h \
         UI/nodalview.h \
@@ -82,13 +92,19 @@ HEADERS += \
         UI/waveformview.h \
         Random.h \
         Signal.h \
-        types.h \
-        utils.h \
+    UndoCommands/ChangeInputValueCommand.h \
+    UndoCommands/CreateComponentCommand.h \
+    UndoCommands/DeleteComponentCommand.h \
+    UndoCommands/LinkPinCommand.h \
+    UndoCommands/MoveComponentCommand.h \
+    UndoCommands/UnlinkPinCommand.h \
+    Utils.h \
+    WAVFormat.h \
 	UI/pinoutputitem.h \
 	UI/pininputitem.h \
-    wavformat.h \
     UI/lineeditqreal.h \
-    UI/pushordragbutton.h
+    UI/pushordragbutton.h \
+    UndoCommands/SelectComponentCommand.h
 
 FORMS += \
         UI/mainwindow.ui

@@ -36,7 +36,7 @@ public:
     Component* component() { return m_component; }
 
 protected:
-    virtual bool _tryConnect(PinItem* other) override;
+    virtual bool _canConnect(PinItem* _other) override;
 
 private:
     Component* m_component;

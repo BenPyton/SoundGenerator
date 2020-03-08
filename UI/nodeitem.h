@@ -22,11 +22,13 @@
 #define NODEITEM_H
 
 #include <QGraphicsItem>
-#include "types.h"
+#include <QUndoStack>
+#include "Types.h"
 
 class PinInputItem;
 class PinOutputItem;
 class Component;
+class NodalScene;
 
 class NodeItem : public QObject, public QGraphicsItem
 {
@@ -50,9 +52,16 @@ public:
     qreal width() { return m_width; }
     void setWidth(qreal width) { m_width = width; }
 
-    static QJsonArray NodeArrayToJson(const QVector<NodeItem*> &nodeArray);
-    static QVector<NodeItem*> JsonToNodeArray(const QJsonArray &jsonArray);
+    void unlink();
 
+    void setUndoStack(QUndoStack* _undoStack);
+
+    static QJsonArray NodeArrayToJson(const QVector<NodeItem*> &nodeArray);
+    static QVector<NodeItem*> JsonToNodeArray(
+            const QJsonArray &jsonArray,
+            NodalScene* _scene,
+            QPointF _positionOffset,
+            QUndoStack* _commandStack);
 
 protected:
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget* widget) override;
@@ -60,6 +69,7 @@ protected:
     virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
 
     void clearInputs();
+    inline QUndoStack* undoStack() { return m_undoStack; }
 
 protected slots:
     void setDirty() { emit dirtyChanged(); }
@@ -68,10 +78,10 @@ signals:
     void dirtyChanged();
 
 private:
+    QUndoStack* m_undoStack;
     qreal m_width;
     qreal m_height;
     Component* m_component;
-
     QGraphicsTextItem* m_label;
     QVector<PinInputItem*> m_inputPins;
     PinOutputItem* m_outputPin;

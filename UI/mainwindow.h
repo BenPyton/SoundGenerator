@@ -26,8 +26,8 @@
 #include <QtWidgets>
 #include "Signal.h"
 
-//class Component;
 class NodeItem;
+class NodalScene;
 
 namespace Ui {
 class MainWindow;
@@ -81,7 +81,7 @@ private:
     static const int maxRecentFile = 10;
 
     Ui::MainWindow *ui;
-    QGraphicsScene* scene;
+    NodalScene* m_scene;
 
     Signal m_signal;
 

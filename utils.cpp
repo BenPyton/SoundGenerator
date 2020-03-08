@@ -18,7 +18,7 @@
  *
  */
 
-#include "utils.h"
+#include "Utils.h"
 #include <QtMath>
 #include <QMessageBox>
 #include <QApplication>
@@ -101,3 +101,23 @@ QString Utils::GetAppVersion()
     return QString::number(MAJOR_VERSION) + "." +  QString::number(MINOR_VERSION) + "." + QString::number(BUGFIX_VERSION);
 }
 
+qreal Utils::Distance(const QPointF &p1, const QPointF &p2)
+{
+    return Length(p2 - p1);
+}
+
+qreal Utils::DistanceSqr(const QPointF &p1, const QPointF &p2)
+{
+    return LengthSqr(p2 - p1);
+}
+
+
+qreal Utils::Length(const QPointF &p)
+{
+    return qSqrt(LengthSqr(p));
+}
+
+qreal Utils::LengthSqr(const QPointF &p)
+{
+    return p.x() * p.x() + p.y() * p.y();
+}

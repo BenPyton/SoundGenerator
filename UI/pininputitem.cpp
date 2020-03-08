@@ -27,6 +27,7 @@
 #include <qvalidator.h>
 #include "pinoutputitem.h"
 #include "Components/Component.h"
+#include "UndoCommands/ChangeInputValueCommand.h"
 
 PinInputItem::PinInputItem(QGraphicsItem *parent)
     : PinItem(parent)
@@ -83,30 +84,40 @@ void PinInputItem::setDefaultValue(qreal value)
     }
 }
 
-bool PinInputItem::_tryConnect(PinItem *other)
+bool PinInputItem::_canConnect(PinItem *_other)
 {
-    PinOutputItem* output = qgraphicsitem_cast<PinOutputItem*>(other);
+    PinOutputItem* output = qgraphicsitem_cast<PinOutputItem*>(_other);
     if (output != nullptr && m_input != nullptr && m_input->getParent() != nullptr
         && output->component() != nullptr && output->component() != m_input->getParent()
-        && m_input->setComponent(output->component()))
+        && m_input->canSetComponent(output->component()))
     {
-        return true;
+        return PinItem::_canConnect(_other);
     }
-
     return false;
 }
 
-void PinInputItem::_disconnect()
+void PinInputItem::_connect(PinItem *_other)
 {
+    PinItem::_connect(_other);
+    PinOutputItem* output = qgraphicsitem_cast<PinOutputItem*>(_other);
+    Q_ASSERT(nullptr != output);
+    m_input->setComponent(output->component());
+}
+
+void PinInputItem::_disconnect(PinItem *_other)
+{
+    PinItem::_disconnect(_other);
     m_input->setComponent(nullptr);
 }
 
 void PinInputItem::updateInput()
 {
-    if(m_input != nullptr)
+    if(m_input != nullptr
+        && !qFuzzyCompare(m_input->getDefaultValue(), m_inputDefaultValue->value()))
     {
-        m_input->setDefaultValue(m_inputDefaultValue->value());
-        m_proxyLineEdit->clearFocus();
+        //m_input->setDefaultValue(m_inputDefaultValue->value());
+        undoStack()->push(new ChangeInputValueCommand(this, m_inputDefaultValue->value()));
         setDirty();
     }
+    m_proxyLineEdit->clearFocus();
 }

@@ -23,7 +23,7 @@
 
 //#include <QWidget>
 #include <QGraphicsItem>
-#include "types.h"
+#include "Types.h"
 
 class PinItem;
 
@@ -34,7 +34,7 @@ public:
     int type() const override { return Type; }
 
     LinkItem(QGraphicsItem *parent = nullptr);
-    //virtual ~LinkItem() override;
+    ~LinkItem();
 
     void setPenStyle(Qt::PenStyle penStyle) { m_penStyle = penStyle; }
     void setPenSize(int size) { m_size = size; }
@@ -43,29 +43,29 @@ public:
     void setMousePos(QPointF mousePos);
     QPointF mousePos() { return m_mousePos; }
 
-    void setFirstPin(PinItem* pin);
-    void setSecondPin(PinItem* pin);
+    void setPins(PinItem* _pinA, PinItem* _pinB);
     PinItem* firstPin() { return m_pinA; }
     PinItem* secondPin() { return m_pinB; }
-
     PinItem* getPinThatIsNot(PinItem* pin);
-
-    void unlink();
+    bool hasPins(PinItem* _pinA, PinItem* _pinB);
 
     void prepareChange();
+
+    static LinkItem *getLinkBetween(PinItem* _pinA, PinItem* _pinB);
 
 protected:
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget* widget) override;
     virtual QRectF boundingRect() const override;
     virtual QPainterPath shape() const override;
-private:
 
+private:
     int m_size;
     Qt::PenStyle m_penStyle;
     PinItem* m_pinA;
     PinItem* m_pinB;
-
     QPointF m_mousePos;
+
+    static QVector<LinkItem*> s_linkList;
 };
 
 #endif // LINKITEM_H

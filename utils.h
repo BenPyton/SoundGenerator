@@ -24,6 +24,7 @@
 #include <Qt>
 #include <QJsonValue>
 #include <QJsonObject>
+#include <QPointF>
 
 class Utils
 {
@@ -58,6 +59,11 @@ public:
     static void ErrorMsg(int code, QString msg);
 
     static QString GetAppVersion();
+
+    static qreal Distance(const QPointF& p1, const QPointF& p2);
+    static qreal DistanceSqr(const QPointF& p1, const QPointF& p2);
+    static qreal Length(const QPointF &p);
+    static qreal LengthSqr(const QPointF &p);
 
     static const QString AppName;
     static const QString CompanyName;

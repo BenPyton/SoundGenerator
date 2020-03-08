@@ -42,8 +42,9 @@ public:
     void setDefaultValue(qreal value);
 
 protected:
-    virtual bool _tryConnect(PinItem* other) override;
-    virtual void _disconnect() override;
+    virtual bool _canConnect(PinItem* _other) override;
+    virtual void _connect(PinItem* _other) override;
+    virtual void _disconnect(PinItem* _other) override;
     void updateInput();
 
 private:

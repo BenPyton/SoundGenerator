@@ -24,11 +24,18 @@
 #include <QObject>
 #include <QGraphicsItem>
 #include <QGraphicsObject>
-#include "types.h"
+#include "Types.h"
+#include <QUndoStack>
 
+class LinkPinCommand;
+class UnlinkPinCommand;
 class LinkItem;
+
 class PinItem : public QObject, public QGraphicsItem
 {
+    friend LinkPinCommand;
+    friend UnlinkPinCommand;
+
     Q_OBJECT
     Q_INTERFACES(QGraphicsItem)
 public:
@@ -40,17 +47,15 @@ public:
     bool isPinVisible() { return m_pinVisible; }
     void setPinVisible(bool visible) { m_pinVisible = visible; }
 
-    bool isLinked() { return m_links.size() > 0; }
-    void setMaxLink(int maxConnection) { m_maxLink = maxConnection; }
+    bool isLinked() { return m_linkedPins.size() > 0; }
+    void setMaxLink(int maxLink) { m_maxLink = maxLink; }
     int maxLink() { return m_maxLink; }
-
-    void addLink(LinkItem* link);
-    void removeLink(LinkItem* link);
-
-    void updateLinks();
-
-    bool link(PinItem* pin, LinkItem* link);
+    bool hasMaxLink() { return m_maxLink >= 0 && m_linkedPins.size() >= m_maxLink; }
+    bool link(PinItem* pin);
     void unlinkAll();
+    bool isLinkedWith(PinItem* _pin);
+
+    void setUndoStack(QUndoStack* _undoStack) { m_undoStack = _undoStack; }
 
 protected slots:
     void setDirty() { emit dirtyChanged(); }
@@ -70,25 +75,28 @@ protected:
     //virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event) override;
     //virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event) override;
 
-    virtual bool _tryConnect(PinItem* other) { Q_UNUSED(other); return true; }
-    virtual void _disconnect() {}
+    virtual bool _canConnect(PinItem* _other);
+    virtual void _connect(PinItem* _other);
+    virtual void _disconnect(PinItem* _other);
     virtual QPainterPath shape() const override;
 
-private:
-    bool _canConnect();
+    inline QUndoStack* undoStack() { return m_undoStack; }
 
+private:
+    void _showLinkPreview(bool show);
 
 protected:
     int m_maxLink;
 
 private:
+    QUndoStack* m_undoStack;
     bool m_pinVisible;
     bool m_hovered;
     int m_radius;
-    LinkItem* m_currentLink;
-    QList<LinkItem*> m_links;
+    QList<PinItem*> m_linkedPins;
+    bool m_dragging;
 
-
+    static LinkItem* s_linkPreview;
 };
 
 #endif // PINITEM_H

@@ -43,15 +43,15 @@ public:
 
 	virtual void init();
 
-    bool isRemovable() { return m_removable; }
-	bool hasOutput() { return m_hasOutput; }
+    bool isRemovable() const { return m_removable; }
+    bool hasOutput() const { return m_hasOutput; }
     virtual qreal getOutput(qreal _time) = 0;
 
     ComponentInput* getInput(int _index);
     ComponentInput* getInput(QString _name);
-    int getInputCount() { return m_inputs.size(); }
+    int getInputCount() const { return m_inputs.size(); }
 
-    QString getName() { return m_name; }
+    QString getName() const { return m_name; }
 
 private:
 	bool _hasAlreadyInput(Component* _comp);
@@ -73,21 +73,22 @@ public:
     ComponentInput();
     ComponentInput(QString _name, Component* _parent = nullptr);
 
-	Component* getParent() { return m_pParent; }
-    QString getName() { return m_name; }
+    Component* getParent() const { return m_pParent; }
+    QString getName() const { return m_name; }
     qreal getValue(qreal _time);
 
-	bool setComponent(Component* _comp);
-	Component* getComponent() { return m_pComponent; }
+    bool canSetComponent(Component* _comp);
+    void setComponent(Component* _comp) { m_pComponent = _comp; }
+    Component* getComponent() const { return m_pComponent; }
 
     void setDefaultValue(qreal _value) { m_defaultValue = _value; }
-    qreal getDefaultValue() { return m_defaultValue; }
+    qreal getDefaultValue() const { return m_defaultValue; }
 
     void setEditable(bool _editable) { m_editable = _editable; }
-    bool getEditable() { return m_editable; }
+    bool getEditable() const { return m_editable; }
 
     void setLinkable(bool _linkable) { m_linkable = _linkable; }
-    bool getLinkable() { return m_linkable; }
+    bool getLinkable() const { return m_linkable; }
 };
 
 #endif // COMPONENT_H

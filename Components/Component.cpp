@@ -65,14 +65,9 @@ ComponentInput::ComponentInput(QString _name, Component* _parent)
 {
 }
 
-bool ComponentInput::setComponent(Component * _comp)
+bool ComponentInput::canSetComponent(Component * _comp)
 {
-	if (_comp == nullptr || !_comp->_hasAlreadyInput(m_pParent))
-	{
-		m_pComponent = _comp;
-		return true;
-	}
-	return false;
+    return _comp != nullptr && !_comp->_hasAlreadyInput(m_pParent);
 }
 
 qreal ComponentInput::getValue(qreal _time)
