@@ -18,17 +18,17 @@
  *
  */
 
-#include "nodeitem.h"
-#include "nodalview.h"
+#include "NodeItem.h"
+#include "NodalView.h"
 #include "NodalScene.h"
-#include "pinitem.h"
-#include "pininputitem.h"
-#include "pinoutputitem.h"
+#include "PinItem.h"
+#include "PinInputItem.h"
+#include "PinOutputItem.h"
 #include <QWidget>
 #include <QtWidgets>
 #include <QPainter>
 #include "Utils.h"
-#include "linkitem.h"
+#include "LinkItem.h"
 #include "UndoCommands/CreateComponentCommand.h"
 #include "UndoCommands/MoveComponentCommand.h"
 

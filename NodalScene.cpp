@@ -2,11 +2,11 @@
 #include <QUndoStack>
 #include <Utils.h>
 #include "NodalScene.h"
-#include "nodeitem.h"
+#include "NodeItem.h"
 #include "Components.h"
-#include "pininputitem.h"
-#include "linkitem.h"
-#include "pinoutputitem.h"
+#include "PinInputItem.h"
+#include "LinkItem.h"
+#include "PinOutputItem.h"
 #include "UndoCommands/CreateComponentCommand.h"
 #include "UndoCommands/DeleteComponentCommand.h"
 #include "UndoCommands/MoveComponentCommand.h"

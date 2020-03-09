@@ -1,5 +1,5 @@
 #include "ChangeInputValueCommand.h"
-#include "pininputitem.h"
+#include "PinInputItem.h"
 #include "Components/Component.h"
 
 ChangeInputValueCommand::ChangeInputValueCommand(PinInputItem* input, qreal value, QUndoCommand* _parent)

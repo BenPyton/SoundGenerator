@@ -18,8 +18,8 @@
  *
  */
 
-#include "pinoutputitem.h"
-#include "pininputitem.h"
+#include "PinOutputItem.h"
+#include "PinInputItem.h"
 
 PinOutputItem::PinOutputItem(QGraphicsItem *parent)
     : PinItem(parent)

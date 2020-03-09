@@ -18,12 +18,12 @@
  *
  */
 
-#include "nodalview.h"
+#include "NodalView.h"
 #include <Utils.h>
-#include "nodeitem.h"
+#include "NodeItem.h"
 #include "NodalScene.h"
-#include "linkitem.h"
-#include "pinitem.h"
+#include "LinkItem.h"
+#include "PinItem.h"
 
 const int NodalView::gridUnit = 20;
 

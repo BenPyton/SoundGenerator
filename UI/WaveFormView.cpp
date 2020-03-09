@@ -18,8 +18,8 @@
  *
  */
 
-#include "waveformview.h"
-#include "waveformchunk.h"
+#include "WaveFormView.h"
+#include "WaveFormChunk.h"
 #include <QPainter>
 
 const int WaveFormView::chunkSize = 128;

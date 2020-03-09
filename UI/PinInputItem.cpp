@@ -18,14 +18,14 @@
  *
  */
 
-#include "lineeditqreal.h"
-#include "pininputitem.h"
-#include "pinitem.h"
+#include "LineEditQReal.h"
+#include "PinInputItem.h"
+#include "PinItem.h"
 #include <QGraphicsTextItem>
 #include <QLineEdit>
 #include <QGraphicsProxyWidget>
 #include <qvalidator.h>
-#include "pinoutputitem.h"
+#include "PinOutputItem.h"
 #include "Components/Component.h"
 #include "UndoCommands/ChangeInputValueCommand.h"
 

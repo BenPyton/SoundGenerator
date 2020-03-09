@@ -1,5 +1,5 @@
 #include "MoveComponentCommand.h"
-#include "nodeitem.h"
+#include "NodeItem.h"
 #include "NodalScene.h"
 
 MoveComponentCommand::MoveComponentCommand(NodeItem* _item, QPointF _oldPosition, QUndoCommand* _parent)

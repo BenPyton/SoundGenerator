@@ -18,7 +18,7 @@
  *
  */
 
-#include "lineeditqreal.h"
+#include "LineEditQReal.h"
 #include <QDoubleValidator>
 #include <QTimer>
 

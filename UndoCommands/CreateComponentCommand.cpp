@@ -1,5 +1,5 @@
 #include "CreateComponentCommand.h"
-#include "nodeitem.h"
+#include "NodeItem.h"
 #include "NodalScene.h"
 #include "Components.h"
 

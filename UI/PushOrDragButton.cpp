@@ -1,4 +1,4 @@
-#include "pushordragbutton.h"
+#include "PushOrDragButton.h"
 #include <QApplication>
 #include <QDrag>
 #include <QMimeData>

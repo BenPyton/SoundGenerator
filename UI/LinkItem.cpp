@@ -18,9 +18,9 @@
  *
  */
 
-#include "linkitem.h"
-#include "nodalview.h"
-#include "pinitem.h"
+#include "LinkItem.h"
+#include "NodalView.h"
+#include "PinItem.h"
 #include <QtMath>
 
 QVector<LinkItem*> LinkItem::s_linkList;

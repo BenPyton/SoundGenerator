@@ -1,5 +1,5 @@
 #include "DeleteComponentCommand.h"
-#include "nodeitem.h"
+#include "NodeItem.h"
 #include "NodalScene.h"
 #include <QtCore>
 

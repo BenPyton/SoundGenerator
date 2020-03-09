@@ -1,7 +1,7 @@
 #include "UnlinkPinCommand.h"
-#include "linkitem.h"
-#include "pininputitem.h"
-#include "pinoutputitem.h"
+#include "LinkItem.h"
+#include "PinInputItem.h"
+#include "PinOutputItem.h"
 
 UnlinkPinCommand::UnlinkPinCommand(QGraphicsScene* _scene, PinItem* _pinA, PinItem* _pinB, QUndoCommand* _parent)
     : QUndoCommand (_parent)

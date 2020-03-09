@@ -18,9 +18,9 @@
  *
  */
 
-#include "pinitem.h"
-#include "nodalview.h"
-#include "linkitem.h"
+#include "PinItem.h"
+#include "NodalView.h"
+#include "LinkItem.h"
 #include <QPainter>
 #include <QWidget>
 #include <QtWidgets>

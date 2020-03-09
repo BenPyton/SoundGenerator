@@ -18,7 +18,7 @@
  *
  */
 
-#include "waveformchunk.h"
+#include "WaveFormChunk.h"
 #include <QPainter>
 #include <QtMath>
 #include <QtCore>

@@ -1,8 +1,8 @@
 #include "LinkPinCommand.h"
 #include "NodalScene.h"
-#include "linkitem.h"
-#include "pininputitem.h"
-#include "pinoutputitem.h"
+#include "LinkItem.h"
+#include "PinInputItem.h"
+#include "PinOutputItem.h"
 
 LinkPinCommand::LinkPinCommand(QGraphicsScene* _scene, PinItem* _pinA, PinItem* _pinB, QUndoCommand* _parent)
     : QUndoCommand (_parent)

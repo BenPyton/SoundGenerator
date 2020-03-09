@@ -18,28 +18,40 @@
  *
  */
 
-#ifndef PINOUTPUTITEM_H
-#define PINOUTPUTITEM_H
+#ifndef PinInputItem_H
+#define PinInputItem_H
 
-#include "pinitem.h"
-#include "Components/Component.h"
+#include "PinItem.h"
 
-class PinOutputItem : public PinItem
+class LineEditQReal;
+class QGraphicsTextItem;
+class QGraphicsProxyWidget;
+class ComponentInput;
+
+
+class PinInputItem : public PinItem
 {
 public:
-    enum { Type = UserType + PINOUTPUT_TYPE };
+    enum { Type = UserType + PININPUT_TYPE };
     int type() const override { return Type; }
 
-    PinOutputItem(QGraphicsItem *parent = nullptr);
+    PinInputItem(QGraphicsItem *parent = nullptr);
 
-    void setComponent(Component* comp) { m_component = comp;}
-    Component* component() { return m_component; }
+    void setInput(ComponentInput* input);
+    ComponentInput* input() { return m_input; }
+    void setDefaultValue(qreal value);
 
 protected:
     virtual bool _canConnect(PinItem* _other) override;
+    virtual void _connect(PinItem* _other) override;
+    virtual void _disconnect(PinItem* _other) override;
+    void updateInput();
 
 private:
-    Component* m_component;
+    QGraphicsTextItem* m_label;
+    LineEditQReal* m_inputDefaultValue;
+    QGraphicsProxyWidget* m_proxyLineEdit;
+    ComponentInput* m_input;
 };
 
-#endif // PINOUTPUTITEM_H
+#endif // PinInputItem_H

@@ -18,15 +18,15 @@
  *
  */
 
-#include "mainwindow.h"
+#include "MainWindow.h"
 #include "ui_mainwindow.h"
-#include "nodeitem.h"
-#include "nodalview.h"
-#include "waveformchunk.h"
-#include "waveformview.h"
-#include "pininputitem.h"
-#include "lineeditqreal.h"
-#include "pushordragbutton.h"
+#include "NodeItem.h"
+#include "NodalView.h"
+#include "WaveFormChunk.h"
+#include "WaveFormView.h"
+#include "PinInputItem.h"
+#include "LineEditQReal.h"
+#include "PushOrDragButton.h"
 #include "NodalScene.h"
 #include <QStyle>
 #include <Utils.h>

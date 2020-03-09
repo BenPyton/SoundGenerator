@@ -36,62 +36,55 @@ SOURCES += \
     UndoCommands/UnlinkPinCommand.cpp \
     Utils.cpp \
     WAVFormat.cpp \
-        main.cpp \
-        Components/AddComponent.cpp \
-        Components/ADSRComponent.cpp \
-        Components/Component.cpp \
-        Components/ComponentFactory.cpp \
-        Components/DelayComponent.cpp \
-        Components/GeneratorComponent.cpp \
-        Components/MultiplyComponent.cpp \
-        Components/OutputComponent.cpp \
-        Components/RandomComponent.cpp \
-        Components/RepeatComponent.cpp \
-        Components/SawToothComponent.cpp \
-        Components/SinusComponent.cpp \
-        Components/SquareComponent.cpp \
-        Components/TriangleComponent.cpp \
-        UI/mainwindow.cpp \
-        UI/linkitem.cpp \
-        UI/nodalview.cpp \
-        UI/nodeitem.cpp \
-        UI/pinitem.cpp \
-        UI/waveformchunk.cpp \
-        UI/waveformview.cpp \
-        Random.cpp \
-        Signal.cpp \
-	UI/pinoutputitem.cpp \
-	UI/pininputitem.cpp \
-    UI/lineeditqreal.cpp \
-    UI/pushordragbutton.cpp \
-    UndoCommands/SelectComponentCommand.cpp
+    main.cpp \
+    Components/AddComponent.cpp \
+    Components/ADSRComponent.cpp \
+    Components/Component.cpp \
+    Components/ComponentFactory.cpp \
+    Components/DelayComponent.cpp \
+    Components/GeneratorComponent.cpp \
+    Components/MultiplyComponent.cpp \
+    Components/OutputComponent.cpp \
+    Components/RandomComponent.cpp \
+    Components/RepeatComponent.cpp \
+    Components/SawToothComponent.cpp \
+    Components/SinusComponent.cpp \
+    Components/SquareComponent.cpp \
+    Components/TriangleComponent.cpp \
+    Random.cpp \
+    Signal.cpp \
+    UndoCommands/SelectComponentCommand.cpp \
+    UI/LineEditQReal.cpp \
+    UI/LinkItem.cpp \
+    UI/MainWindow.cpp \
+    UI/NodalView.cpp \
+    UI/NodeItem.cpp \
+    UI/PinInputItem.cpp \
+    UI/PinItem.cpp \
+    UI/PinOutputItem.cpp \
+    UI/PushOrDragButton.cpp \
+    UI/WaveFormChunk.cpp \
+    UI/WaveFormView.cpp
 
 HEADERS += \
-        Components/AddComponent.h \
-        Components/ADSRComponent.h \
-        Components/Component.h \
-        Components/ComponentFactory.h \
-        Components/DelayComponent.h \
-        Components/GeneratorComponent.h \
-        Components/MultiplyComponent.h \
-        Components/OutputComponent.h \
-        Components/RandomComponent.h \
-        Components/RepeatComponent.h \
-        Components/SawToothComponent.h \
-        Components/SinusComponent.h \
-        Components/SquareComponent.h \
-        Components/TriangleComponent.h \
+    Components/AddComponent.h \
+    Components/ADSRComponent.h \
+    Components/Component.h \
+    Components/ComponentFactory.h \
+    Components/DelayComponent.h \
+    Components/GeneratorComponent.h \
+    Components/MultiplyComponent.h \
+    Components/OutputComponent.h \
+    Components/RandomComponent.h \
+    Components/RepeatComponent.h \
+    Components/SawToothComponent.h \
+    Components/SinusComponent.h \
+    Components/SquareComponent.h \
+    Components/TriangleComponent.h \
     NodalScene.h \
     Types.h \
-        UI/mainwindow.h \
-        UI/linkitem.h \
-        UI/nodalview.h \
-        UI/nodeitem.h \
-        UI/pinitem.h \
-        UI/waveformchunk.h \
-        UI/waveformview.h \
-        Random.h \
-        Signal.h \
+    Random.h \
+    Signal.h \
     UndoCommands/ChangeInputValueCommand.h \
     UndoCommands/CreateComponentCommand.h \
     UndoCommands/DeleteComponentCommand.h \
@@ -100,14 +93,21 @@ HEADERS += \
     UndoCommands/UnlinkPinCommand.h \
     Utils.h \
     WAVFormat.h \
-	UI/pinoutputitem.h \
-	UI/pininputitem.h \
-    UI/lineeditqreal.h \
-    UI/pushordragbutton.h \
-    UndoCommands/SelectComponentCommand.h
+    UndoCommands/SelectComponentCommand.h \
+    UI/LineEditQReal.h \
+    UI/LinkItem.h \
+    UI/MainWindow.h \
+    UI/NodalView.h \
+    UI/NodeItem.h \
+    UI/PinInputItem.h \
+    UI/PinItem.h \
+    UI/PinOutputItem.h \
+    UI/PushOrDragButton.h \
+    UI/WaveFormChunk.h \
+    UI/WaveFormView.h
 
 FORMS += \
-        UI/mainwindow.ui
+    UI/mainwindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
