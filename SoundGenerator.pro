@@ -64,7 +64,8 @@ SOURCES += \
     UI/PinOutputItem.cpp \
     UI/PushOrDragButton.cpp \
     UI/WaveFormChunk.cpp \
-    UI/WaveFormView.cpp
+    UI/WaveFormView.cpp \
+    LoopableBuffer.cpp
 
 HEADERS += \
     Components/AddComponent.h \
@@ -104,7 +105,8 @@ HEADERS += \
     UI/PinOutputItem.h \
     UI/PushOrDragButton.h \
     UI/WaveFormChunk.h \
-    UI/WaveFormView.h
+    UI/WaveFormView.h \
+    LoopableBuffer.h
 
 FORMS += \
     UI/mainwindow.ui

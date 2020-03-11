@@ -27,6 +27,7 @@
 #include <QAudioOutput>
 
 class Component;
+class LoopableBuffer;
 
 class Signal : public QObject
 {
@@ -52,9 +53,13 @@ signals:
 
 public slots:
     void play();
+    void stop();
     void pause();
+    void toStart();
+    void toEnd();
     void generate();
     void exportWAV(QString fileName);
+    void loop(bool enable);
 
 private slots:
     void handleStateChanged(QAudio::State newState);
@@ -64,7 +69,7 @@ private:
     qreal m_duration;
     QAudioOutput* m_audio;
     QByteArray* m_samples;
-    QBuffer* m_buffer;
+    LoopableBuffer* m_buffer;
     Component* m_component;
 };
 

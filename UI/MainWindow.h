@@ -41,12 +41,9 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     virtual ~MainWindow() override;
 
-    QMenu* getMenu(QString name);
     QString fileName() { return m_fileName; }
     void setFileName(QString fileName);
-
     void readSettings();
-    
 
 protected:
     virtual void closeEvent(QCloseEvent* event) override;

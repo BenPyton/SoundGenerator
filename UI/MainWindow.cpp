@@ -129,6 +129,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QAction* act_loop = new QAction("Loop", this);
     act_loop->setCheckable(true);
+    connect(act_loop, SIGNAL(triggered(bool)), &m_signal, SLOT(loop(bool)));
 
     // ===== File Edit =====
 
@@ -193,7 +194,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->menuAudio->addAction(act_generate);
     ui->menuAudio->addAction(act_play);
-    //ui->menuAudio->addAction(act_loop);
+    ui->menuAudio->addAction(act_loop);
 
     ui->mainToolBar->clear();
     ui->mainToolBar->addAction(act_newFile);
@@ -251,20 +252,10 @@ MainWindow::MainWindow(QWidget *parent) :
     m_dirtyable = true;
 }
 
-QMenu* MainWindow::getMenu(QString name)
+MainWindow::~MainWindow()
 {
-    QMenu* menu = nullptr;
-
-    QList<QMenu*> menus = ui->menuBar->findChildren<QMenu*>();
-    for(int i = 0; i < menus.size() && menu == nullptr; i++)
-    {
-        if(menus[i]->title() == name)
-        {
-            menu = menus[i];
-        }
-    }
-
-    return menu;
+    delete m_scene;
+    delete ui;
 }
 
 void MainWindow::setFileName(QString fileName)
@@ -333,12 +324,6 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     }
 
     QMainWindow::mousePressEvent(event);
-}
-
-MainWindow::~MainWindow()
-{
-    delete m_scene;
-    delete ui;
 }
 
 void MainWindow::newFile()

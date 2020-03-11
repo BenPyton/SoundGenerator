@@ -25,6 +25,7 @@
 #include "Components.h"
 #include <QAudioRecorder>
 #include "WAVFormat.h"
+#include "LoopableBuffer.h"
 
 Signal::Signal(QObject *parent)
     : QObject(parent),
@@ -78,12 +79,14 @@ Signal::Signal(QObject *parent)
     connect(m_audio, SIGNAL(stateChanged(QAudio::State)), this, SLOT(handleStateChanged(QAudio::State)));
     m_audio->setVolume(0.2);
 
-    // start audio with buffer
-    m_buffer = new QBuffer(m_samples);
+    // create the buffer with the audio samples
+    m_buffer = new LoopableBuffer(m_samples);
+    m_buffer->open(QIODevice::ReadOnly);
 }
 
 Signal::~Signal()
 {
+    stop();
     m_buffer->close();
     delete m_audio;
     delete m_buffer;
@@ -123,26 +126,14 @@ qint32 Signal::getSample(int index)
 {
     if(m_samples != nullptr && index * 4 >= 0 && index * 4 <= m_samples->size() - 4)
     {
-        //qint32 convertedValue =
         return qFromLittleEndian<qint32>(m_samples->constData() + (index * 4));
-        //m_samples->append(convertedValue, 4);
     }
     return 0;
 }
 
 void Signal::generate()
 {
-//    if(m_samples != nullptr)
-//    {
-//        delete m_samples;
-//    }
-
-
-
-
     int totalSample = qRound(m_duration * m_sampleRate);
-    //m_samples = new QByteArray(totalSample, NULL);
-    //output.init();
 
     m_samples->clear();
 
@@ -154,9 +145,6 @@ void Signal::generate()
     for (int i = 0; i < totalSample; i++)
     {
         qreal x = qreal(i) / m_sampleRate;
-        //qDebug() << "time: " << x;
-        //qreal sample = Utils::Clamp(sin(400.0 * x), -1.0, 1.0);
-        //qreal sample = qSin(400.0 * x * 2 * M_PI);
         qreal sample = m_component != nullptr ? Utils::Clamp(m_component->getOutput(x), -1., 1.) : 0.0;
 
         //qDebug() << "time: " << x << " | value: " << sample;
@@ -164,7 +152,7 @@ void Signal::generate()
 
         char convertedValue[4] = {0};
         qToLittleEndian(value, convertedValue);
-        m_samples->append(convertedValue, 4);//QByteArray::number(convertedValue));
+        m_samples->append(convertedValue, 4);
     }
 
     qDebug() << "Generated!";
@@ -178,21 +166,49 @@ void Signal::exportWAV(QString fileName)
     wav.writeToFile(fileName, m_samples);
 }
 
+void Signal::loop(bool enable)
+{
+    m_buffer->setLoop(enable);
+}
+
 void Signal::play()
 {
-    if(m_buffer->isOpen())
+    if(m_audio->state() == QAudio::SuspendedState)
+    {
+        m_audio->resume();
+    }
+    else
+    {
+        stop();
+        toStart();
+        m_audio->start(m_buffer);
+    }
+}
+
+void Signal::stop()
+{
+    if(m_audio->state() == QAudio::ActiveState)
     {
         m_audio->stop();
-        m_buffer->close();
     }
-
-    m_buffer->open(QIODevice::ReadOnly);
-    m_audio->start(m_buffer);
 }
 
 void Signal::pause()
 {
+    if(m_audio->state() == QAudio::ActiveState)
+    {
+        m_audio->suspend();
+    }
+}
 
+void Signal::toStart()
+{
+    m_buffer->reset();
+}
+
+void Signal::toEnd()
+{
+    m_buffer->seek(qMax(qint64(0), m_buffer->size() - 1));
 }
 
 
