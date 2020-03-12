@@ -29,7 +29,8 @@
 #include "PushOrDragButton.h"
 #include "NodalScene.h"
 #include <QStyle>
-#include <Utils.h>
+#include "Utils.h"
+#include "ActionCycle.h"
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -123,9 +124,16 @@ MainWindow::MainWindow(QWidget *parent) :
     act_generate->setShortcut(QKeySequence::Refresh);
     connect(act_generate, SIGNAL(triggered()), &m_signal, SLOT(generate()));
 
-    QAction* act_play = new QAction("Play", this);
+    ActionCycle* act_play = new ActionCycle(this);
+    act_play->addAction("Play");
+    act_play->addAction("Pause");
     act_play->setShortcut(QKeySequence("Space"));
-    connect(act_play, SIGNAL(triggered()), &m_signal, SLOT(play()));
+    act_play->reset();
+    connect(act_play, SIGNAL(triggered(int)), this, SLOT(playPause(int)));
+    connect(&m_signal, SIGNAL(stopped()), act_play, SLOT(reset()));
+
+    QAction* act_stop = new QAction("Stop", this);
+    connect(act_stop, SIGNAL(triggered()), &m_signal, SLOT(stop()));
 
     QAction* act_loop = new QAction("Loop", this);
     act_loop->setCheckable(true);
@@ -194,6 +202,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->menuAudio->addAction(act_generate);
     ui->menuAudio->addAction(act_play);
+    ui->menuAudio->addAction(act_stop);
     ui->menuAudio->addAction(act_loop);
 
     ui->mainToolBar->clear();
@@ -203,6 +212,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->mainToolBar->addSeparator();
     ui->mainToolBar->addAction(act_generate);
     ui->mainToolBar->addAction(act_play);
+    ui->mainToolBar->addAction(act_stop);
 
     QWidget* spacer = new QWidget(this);
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -452,6 +462,22 @@ void MainWindow::quit()
             save();
         }
         qApp->quit();
+    }
+}
+
+void MainWindow::playPause(int _index)
+{
+    switch(_index)
+    {
+    case 0:
+        m_signal.play();
+        break;
+    case 1:
+        m_signal.pause();
+        break;
+    default:
+        Q_ASSERT(true);
+        break;
     }
 }
 

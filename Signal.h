@@ -50,6 +50,7 @@ public:
 
 signals:
     void signalChanged();
+    void stopped();
 
 public slots:
     void play();

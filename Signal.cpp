@@ -190,6 +190,7 @@ void Signal::stop()
     if(m_audio->state() == QAudio::ActiveState)
     {
         m_audio->stop();
+        emit stopped();
     }
 }
 
@@ -218,6 +219,7 @@ void Signal::handleStateChanged(QAudio::State newState)
         case QAudio::IdleState:
             // Finished playing (no more data)
             m_audio->stop();
+            emit stopped();
             break;
 
         case QAudio::StoppedState:

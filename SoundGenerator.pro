@@ -65,7 +65,8 @@ SOURCES += \
     UI/PushOrDragButton.cpp \
     UI/WaveFormChunk.cpp \
     UI/WaveFormView.cpp \
-    LoopableBuffer.cpp
+    LoopableBuffer.cpp \
+    ActionCycle.cpp
 
 HEADERS += \
     Components/AddComponent.h \
@@ -106,7 +107,8 @@ HEADERS += \
     UI/PushOrDragButton.h \
     UI/WaveFormChunk.h \
     UI/WaveFormView.h \
-    LoopableBuffer.h
+    LoopableBuffer.h \
+    ActionCycle.h
 
 FORMS += \
     UI/mainwindow.ui

@@ -60,6 +60,7 @@ public slots:
     void about();
     void exportWAV();
     void quit();
+    void playPause(int _index);
     // other
     void setDirty();
     void changeVolume(int value);
