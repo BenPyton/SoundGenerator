@@ -456,93 +456,111 @@
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">*
-{
+   <string notr="true">* {
 	font-family: consolas;
 	color: rgb(200, 200, 200);
 	background-color: rgb(35, 35, 35);
 }
 
 /* QLabel */
-QLabel.standard
-{
+QLabel.standard {
 	font-size: 10pt;
 	background-color: transparent;
 }
 
 /* Menubar */
-QMenuBar
-{
+QMenuBar {
 	background: rgb(50, 50, 50);
 }
 
-QMenuBar::item 
-{
+QMenuBar::item  {
     background-color: transparent;
 	color: rgb(200, 200, 200);
 }
 
-QMenuBar::item:selected
-{
+QMenuBar::item:selected {
     background-color: rgb(100, 100, 100);
 }
 
-QMenuBar::item:pressed
-{
+QMenuBar::item:pressed {
     background-color: rgb(200, 200, 200);
 	color: rgb(20, 20, 20);
 }
 
-QMenuBar::item:disabled
-{
+QMenuBar::item:disabled {
     background-color:transparent;
 	color: rgb(100, 100, 100);
 }
 
 /* QMenu */
-QMenu
-{
+QMenu {
 	background: rgb(50, 50, 50);
 }
 
-QMenu::separator
-{
+QMenu::separator {
 	height: 1px;
 	background-color: rgb(100, 100, 100);
 	margin: 5px, 5px, 5px, 5px;
 }
 
-QMenu:disabled
-{
+QMenu:disabled {
 	color: rgb(100, 100, 100);
 }
 
-QAction:disabled
-{
+/*QMenu::indicator:non-exclusive:unchecked {
+	image: url(:/Resources/Images/checkbox_off.png);
+}
+
+QMenu::indicator:non-exclusive:unchecked:selected {
+	image: url(:/Resources/Images/checkbox_off.png);
+}
+
+QMenu::indicator:non-exclusive:checked {
+	image: url(:/Resources/Images/checkbox_on.png);
+}
+
+QMenu::indicator:non-exclusive:checked:selected {
+	image: url(:/Resources/Images/checkbox_on.png);
+}
+
+QMenu::indicator:exclusive:unchecked {
+	image: url(:/Resources/Images/radiobutton_off.png);
+}
+
+QMenu::indicator:exclusive:unchecked:selected {
+	image: url(:/Resources/Images/radiobutton_off.png);
+}
+
+QMenu::indicator:exclusive:checked {
+	image: url(:/Resources/Images/radiobutton_on.png);
+}
+
+QMenu::indicator:exclusive:checked:selected {
+	image: url(:/Resources/Images/radiobutton_on.png);
+}*/
+
+QAction:disabled {
 	color: rgb(100, 100, 100);
 }
 
 /* QToolBar */
-QToolBar
-{
+QToolBar {
 	border: 0px solid rgb(100, 100, 100);
 	border-width: 0, 1px, 0, 0;
 }
-QToolBar::separator
-{
+
+QToolBar::separator {
 	width: 1px;
 	background-color: rgb(100, 100, 100);
 	margin: 5px, 5px, 20px, 20px;
 }
 
-QToolBar QLabel
-{
+QToolBar QLabel {
 	font-size: 11pt;
 }
 
 /* Button  Component*/
-QMainWindow QPushButton
-{
+QMainWindow QPushButton {
     background: rgb(60, 60, 60);
 	border: 1px solid rgb(200, 200, 200);
 	border-radius: 3px;
@@ -551,39 +569,33 @@ QMainWindow QPushButton
 	min-width: 50px;
 }
 
-QMainWindow QPushButton:hover
-{
+QMainWindow QPushButton:hover {
 	background: rgb(80, 80, 80);
 }
 
-QMainWindow QPushButton:pressed
-{
+QMainWindow QPushButton:pressed {
 	background: rgb(200, 200, 200);
 	color: rgb(20, 20, 20);
 }
 
-QMainWindow  QPushButton.component
-{
+QMainWindow  QPushButton.component {
 	font-size: 11pt;
 	min-width: 100px;
 	padding: 5px, 5px;
 }
 
 /* Scrollbar */
-QScrollBar 
-{
+QScrollBar {
     background-color: rgb(50, 50, 50);
 	border: 1px solid rgb(100, 100, 100);
 	border-radius: 4px;
 }
 
-QScrollBar:horizontal
-{
+QScrollBar:horizontal {
     height: 15px;
 }
 
-QScrollBar:vertical
-{
+QScrollBar:vertical {
     width: 15px;
 }
 
@@ -591,16 +603,14 @@ QScrollBar::add-page, QScrollBar::sub-page {
     background: none;
 }
 
-QScrollBar::add-line 
-{
+QScrollBar::add-line {
 	 border: none;
 	 background: none;
 	width: 0px;
 	height: 0px;
 }
 
-QScrollBar::sub-line
- {
+QScrollBar::sub-line {
 	 border: none;
 	 background: none;
 	width: 0px;
@@ -622,8 +632,8 @@ QScrollBar::handle:pressed {
 }
 
 /* QSlider */
-QSlider
-{
+QSlider:horizontal {
+	min-height: 20px;
 }
 
 QSlider::groove {
@@ -654,9 +664,14 @@ QSlider::handle:hover {
 	background-color: rgb(80, 80, 80);
 }
 
-QSlider::handle:pressed{
+QSlider::handle:pressed {
 	background-color: rgb(200, 200, 200);
 	border-color: rgb(35, 35, 35);
+}
+
+/* QRadioButton */
+QRadioButton::indicator::checked {
+	color: rgb(200, 200, 200);
 }</string>
   </property>
   <widget class="QWidget" name="centralWidget">

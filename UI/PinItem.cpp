@@ -26,11 +26,13 @@
 #include <QtWidgets>
 #include "UndoCommands/LinkPinCommand.h"
 #include "UndoCommands/UnlinkPinCommand.h"
+#include "NodeItem.h"
 
 LinkItem* PinItem::s_linkPreview = new LinkItem();
 
-PinItem::PinItem(QGraphicsItem *parent)
-    : QGraphicsItem(parent), m_pinVisible(true)
+PinItem::PinItem(QGraphicsItem* _parent)
+    : QGraphicsItem(_parent)
+    , m_pinVisible(true)
 {
     m_radius = 5;
     m_maxLink = -1;
@@ -41,16 +43,16 @@ PinItem::PinItem(QGraphicsItem *parent)
     //setAcceptHoverEvents(true);
 }
 
-bool PinItem::link(PinItem *pin)
+bool PinItem::link(PinItem* _pin)
 {
     bool linked = false;
-    if(pin != nullptr && pin != this
-        && !isLinkedWith(pin)
-        && pin->_canConnect(this)
-        && this->_canConnect(pin))
+    if(_pin != nullptr && _pin != this
+        && !isLinkedWith(_pin)
+        && _pin->_canConnect(this)
+        && this->_canConnect(_pin))
     {
         linked = true;
-        undoStack()->push(new LinkPinCommand(scene(), this, pin));
+        undoStack()->push(new LinkPinCommand(scene(), this, _pin));
         setDirty();
     }
     return linked;
@@ -68,15 +70,20 @@ void PinItem::unlinkAll()
     undoStack()->endMacro();
 }
 
-bool PinItem::isLinkedWith(PinItem *_pin)
+bool PinItem::isLinkedWith(PinItem* _pin)
 {
     return m_linkedPins.indexOf(_pin) >= 0;
 }
 
-void PinItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+NodeItem* PinItem::parentNode()
 {
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
+    return qgraphicsitem_cast<NodeItem*>(parentItem());
+}
+
+void PinItem::paint(QPainter* _painter, const QStyleOptionGraphicsItem* _option, QWidget* _widget)
+{
+    Q_UNUSED(_option);
+    Q_UNUSED(_widget);
 
     if(m_pinVisible)
     {
@@ -90,30 +97,30 @@ void PinItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
             brush.setColor(QColor(200, 200, 200));
         }
 
-        painter->setBrush(brush);
-        painter->setPen(pen);
-        painter->drawEllipse(-m_radius, -m_radius, 2*m_radius, 2*m_radius);
+        _painter->setBrush(brush);
+        _painter->setPen(pen);
+        _painter->drawEllipse(-m_radius, -m_radius, 2*m_radius, 2*m_radius);
     }
 }
 
 QRectF PinItem::boundingRect() const
 {
-    return QRectF(-2.*m_radius, -2.*m_radius, 4.*m_radius, 4.*m_radius);
+    return QRectF(-2.0 * m_radius, -2.0 * m_radius, 4.0 * m_radius, 4.0 * m_radius);
 }
 
-void PinItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+void PinItem::mousePressEvent(QGraphicsSceneMouseEvent* _event)
 {
     if(m_pinVisible)
     {
-        if(event->button() == Qt::MouseButton::LeftButton && !hasMaxLink())
+        if(_event->button() == Qt::MouseButton::LeftButton && !hasMaxLink())
         {
             qDebug() << "Pin Clicked!";
             m_dragging = true;
-            s_linkPreview->setMousePos(event->scenePos());
+            s_linkPreview->setMousePos(_event->scenePos());
             _showLinkPreview(true);
             update();
         }
-        else if(event->button() == Qt::MouseButton::MiddleButton)
+        else if(_event->button() == Qt::MouseButton::MiddleButton)
         {
             qDebug() << "Pin Reset!";
             unlinkAll();
@@ -122,15 +129,15 @@ void PinItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
-void PinItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+void PinItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* _event)
 {
-    if(m_pinVisible && event->button() == Qt::MouseButton::LeftButton)
+    if(m_pinVisible && _event->button() == Qt::MouseButton::LeftButton)
     {
         if(m_dragging)
         {
             qDebug() << "Pin Release!";
 
-            QList<QGraphicsItem*> items = scene()->items(event->scenePos());
+            QList<QGraphicsItem*> items = scene()->items(_event->scenePos());
 
             PinItem* pin = nullptr;
             for(int i = 0; i < items.size() && pin == nullptr; i++)
@@ -151,11 +158,11 @@ void PinItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
-void PinItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+void PinItem::mouseMoveEvent(QGraphicsSceneMouseEvent* _event)
 {
     if(m_dragging)
     {
-        s_linkPreview->setMousePos(event->scenePos());
+        s_linkPreview->setMousePos(_event->scenePos());
         scene()->update();
         qDebug() << "Mouse move!";
     }
@@ -164,38 +171,16 @@ void PinItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 QPainterPath PinItem::shape() const
 {
     QPainterPath path;
-    path.addEllipse(-2.*m_radius, -2.*m_radius, 4.*m_radius, 4.*m_radius);
+    path.addEllipse(boundingRect());
     return path;
 }
-
-//void PinItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
-//{
-//    Q_UNUSED(event);
-//    if(boundingRect().contains(event->scenePos()))
-//    {
-//        m_hovered = true;
-//        //event->ignore(); // block children to reveive this event
-//        update();
-//    }
-//}
-
-//void PinItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
-//{
-//    Q_UNUSED(event);
-//    if(boundingRect().contains(event->lastScenePos()))
-//    {
-//        m_hovered = false;
-//        //event->ignore(); // block children to reveive this event
-//        update();
-//    }
-//}
 
 bool PinItem::_canConnect(PinItem* _other)
 {
     return nullptr != _other && !hasMaxLink();
 }
 
-void PinItem::_connect(PinItem *_other)
+void PinItem::_connect(PinItem* _other)
 {
     if(m_linkedPins.size() == 0)
     {
@@ -204,7 +189,7 @@ void PinItem::_connect(PinItem *_other)
     m_linkedPins.append(_other);
 }
 
-void PinItem::_disconnect(PinItem *_other)
+void PinItem::_disconnect(PinItem* _other)
 {
     int index = m_linkedPins.indexOf(_other);
     if(index >= 0)
@@ -218,9 +203,9 @@ void PinItem::_disconnect(PinItem *_other)
     }
 }
 
-void PinItem::_showLinkPreview(bool show)
+void PinItem::_showLinkPreview(bool _show)
 {
-    if(show)
+    if(_show)
     {
         s_linkPreview->setPins(this, nullptr);
         scene()->addItem(s_linkPreview);

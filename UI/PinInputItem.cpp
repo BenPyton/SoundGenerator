@@ -28,9 +28,10 @@
 #include "PinOutputItem.h"
 #include "Components/Component.h"
 #include "UndoCommands/ChangeInputValueCommand.h"
+#include "NodeItem.h"
 
-PinInputItem::PinInputItem(QGraphicsItem *parent)
-    : PinItem(parent)
+PinInputItem::PinInputItem(QGraphicsItem* _parent)
+    : PinItem(_parent)
 {
     m_label = new QGraphicsTextItem(this);
     assert(nullptr != m_label);
@@ -38,10 +39,9 @@ PinInputItem::PinInputItem(QGraphicsItem *parent)
     m_label->setDefaultTextColor(QColor(200, 200, 200));
     m_label->setPlainText("No input");
     m_label->setX(15);
-    m_label->setY(-m_label->boundingRect().height()*0.5 - 2);
+    m_label->setY(-m_label->boundingRect().height() * 0.5 - 2);
 
     m_inputDefaultValue = new LineEditQReal();
-    //m_inputDefaultValue->setValidator(&getValidator());
     QObject::connect(m_inputDefaultValue, &QLineEdit::editingFinished, this, &PinInputItem::updateInput);
     QObject::connect(this, &PinItem::onLink, [this](){m_inputDefaultValue->setEnabled(false);});
     QObject::connect(this, &PinItem::onUnlink, [this](){m_inputDefaultValue->setEnabled(true);});
@@ -53,38 +53,38 @@ PinInputItem::PinInputItem(QGraphicsItem *parent)
     m_maxLink = 1;
 }
 
-void PinInputItem::setInput(ComponentInput *input)
+void PinInputItem::setInput(ComponentInput* _input)
 {
-    m_input = input;
-    if (input != nullptr)
+    m_input = _input;
+    if (_input != nullptr)
     {
-        m_label->setPlainText(input->getName());
-        m_label->setY(-m_label->boundingRect().height()*0.5 - 2);
-        m_inputDefaultValue->setValue(input->getDefaultValue());
-        m_proxyLineEdit->setY(input->getName().isEmpty() ? -10 : 10);
-        m_proxyLineEdit->setVisible(input->getEditable());
-        setPinVisible(input->getLinkable());
+        m_label->setPlainText(_input->getName());
+        m_label->setY(-m_label->boundingRect().height() * 0.5 - 2);
+        m_inputDefaultValue->setValue(_input->getDefaultValue());
+        m_proxyLineEdit->setY(_input->getName().isEmpty() ? -10 : 10);
+        m_proxyLineEdit->setVisible(_input->getEditable());
+        setPinVisible(_input->getLinkable());
     }
     else
     {
         m_label->setPlainText("NULL");
-        m_label->setY(-m_label->boundingRect().height()*0.5);
+        m_label->setY(-m_label->boundingRect().height() * 0.5);
         m_inputDefaultValue->setValue(0.);
         m_proxyLineEdit->setVisible(true);
         setPinVisible(true);
     }
 }
 
-void PinInputItem::setDefaultValue(qreal value)
+void PinInputItem::setDefaultValue(qreal _value)
 {
     if(m_input != nullptr)
     {
-        m_input->setDefaultValue(value);
-        m_inputDefaultValue->setValue(value);
+        m_input->setDefaultValue(_value);
+        m_inputDefaultValue->setValue(_value);
     }
 }
 
-bool PinInputItem::_canConnect(PinItem *_other)
+bool PinInputItem::_canConnect(PinItem* _other)
 {
     PinOutputItem* output = qgraphicsitem_cast<PinOutputItem*>(_other);
     if (output != nullptr && m_input != nullptr && m_input->getParent() != nullptr
@@ -96,18 +96,22 @@ bool PinInputItem::_canConnect(PinItem *_other)
     return false;
 }
 
-void PinInputItem::_connect(PinItem *_other)
+void PinInputItem::_connect(PinItem* _other)
 {
     PinItem::_connect(_other);
     PinOutputItem* output = qgraphicsitem_cast<PinOutputItem*>(_other);
     Q_ASSERT(nullptr != output);
     m_input->setComponent(output->component());
+    connect(_other->parentNode(), &NodeItem::outputChanged, this, &PinInputItem::setOutputChanged);
+    emit outputChanged();
 }
 
-void PinInputItem::_disconnect(PinItem *_other)
+void PinInputItem::_disconnect(PinItem* _other)
 {
     PinItem::_disconnect(_other);
     m_input->setComponent(nullptr);
+    disconnect(_other->parentNode(), &NodeItem::outputChanged, this, &PinInputItem::setOutputChanged);
+    emit outputChanged();
 }
 
 void PinInputItem::updateInput()
@@ -115,9 +119,9 @@ void PinInputItem::updateInput()
     if(m_input != nullptr
         && !qFuzzyCompare(m_input->getDefaultValue(), m_inputDefaultValue->value()))
     {
-        //m_input->setDefaultValue(m_inputDefaultValue->value());
         undoStack()->push(new ChangeInputValueCommand(this, m_inputDefaultValue->value()));
         setDirty();
+        emit outputChanged();
     }
     m_proxyLineEdit->clearFocus();
 }

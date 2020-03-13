@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include <QApplication>
 #include "Utils.h"
+#include <QStyleFactory>
 
 int main(int argc, char *argv[])
 {
@@ -9,6 +10,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName(Utils::CompanyName);
     QCoreApplication::setApplicationName(Utils::AppName);
     QCoreApplication::setApplicationVersion(Utils::GetAppVersion());
+    a.setStyle(QStyleFactory::create("fusion"));
     
     MainWindow w;
     w.readSettings();

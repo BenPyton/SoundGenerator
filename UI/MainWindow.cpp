@@ -33,11 +33,12 @@
 #include "ActionCycle.h"
 
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    m_dirty(false),
-    m_dirtyable(false)
+MainWindow::MainWindow(QWidget* _parent)
+    : QMainWindow(_parent)
+    , ui(new Ui::MainWindow)
+    , m_dirty(false)
+    , m_dirtyable(false)
+    , m_autoGenerateMode(NO_GENERATION)
 {
     ui->setupUi(this);
 
@@ -61,14 +62,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_scene = new NodalScene(ui->nodalView);
     m_scene->setBackgroundBrush(Qt::black);
+    connect(m_scene, &NodalScene::dirtyChanged, this, &MainWindow::setDirty);
 
     ui->nodalView->setScene(m_scene);
     ui->nodalView->setZoomLimits(0.1, 5.0);
     ui->nodalView->init();
     ui->nodalView->show();
-    connect(ui->nodalView, &NodalView::dirtyChanged, this, &MainWindow::setDirty);
 
     m_signal.setComponent(m_scene->getOutput()->component());
+    connect(m_scene->getOutput(), &NodeItem::outputChanged, this, &MainWindow::onOutputChanged);
 
     // ===== Edit Menu =====
 
@@ -139,6 +141,13 @@ MainWindow::MainWindow(QWidget *parent) :
     act_loop->setCheckable(true);
     connect(act_loop, SIGNAL(triggered(bool)), &m_signal, SLOT(loop(bool)));
 
+    m_act_autoGenerateGroup = new QActionGroup(this);
+    m_act_autoGenerateGroup->addAction("No auto-generation")->setCheckable(true);
+    m_act_autoGenerateGroup->addAction("Auto-generate on play")->setCheckable(true);
+    m_act_autoGenerateGroup->addAction("Auto-generate on change")->setCheckable(true);
+    m_act_autoGenerateGroup->actions()[0]->setChecked(true);
+    connect(m_act_autoGenerateGroup, SIGNAL(triggered(QAction*)), this, SLOT(changeAutoGenerate(QAction*)));
+
     // ===== File Edit =====
 
     QAction* act_newFile = new QAction("New", this);
@@ -205,6 +214,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->menuAudio->addAction(act_stop);
     ui->menuAudio->addAction(act_loop);
 
+    QMenu* menu_autoGenerate = ui->menuAudio->addMenu("Auto-Generation");
+    menu_autoGenerate->addActions(m_act_autoGenerateGroup->actions());
+
     ui->mainToolBar->clear();
     ui->mainToolBar->addAction(act_newFile);
     ui->mainToolBar->addAction(act_openFile);
@@ -268,23 +280,23 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::setFileName(QString fileName)
+void MainWindow::setFileName(QString _fileName)
 {
-    m_fileName = fileName;
-    qDebug() << "FileName:" << fileName;
-    if(fileName.isNull() || fileName.isEmpty())
+    m_fileName = _fileName;
+    qDebug() << "FileName:" << _fileName;
+    if(_fileName.isNull() || _fileName.isEmpty())
     {
         m_windowTitle = "Untitled";
     }
     else
     {
-        m_windowTitle = fileName.mid(fileName.lastIndexOf('/') + 1);
+        m_windowTitle = _fileName.mid(_fileName.lastIndexOf('/') + 1);
 
         // add new filename in recent files
         QSettings settings;
         QStringList files = settings.value("recentFileList").toStringList();
-        files.removeAll(fileName);
-        files.prepend(fileName);
+        files.removeAll(_fileName);
+        files.prepend(_fileName);
         while (files.size() > maxRecentFile)
            files.removeLast();
 
@@ -297,7 +309,7 @@ void MainWindow::setFileName(QString fileName)
     updateRecentFileActions();
 }
 
-void MainWindow::closeEvent(QCloseEvent *event)
+void MainWindow::closeEvent(QCloseEvent* _event)
 {
     QMessageBox::StandardButton reply = askSaveChanges("closing");
 
@@ -310,11 +322,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
         QSettings settings;
         settings.setValue("geometry", saveGeometry());
         settings.setValue("windowState", saveState());
-        event->accept();
+        _event->accept();
     }
     else
     {
-        event->ignore();
+        _event->ignore();
     }
 }
 
@@ -325,15 +337,15 @@ void MainWindow::readSettings()
     restoreState(settings.value("windowState").toByteArray());
 }
 
-void MainWindow::mousePressEvent(QMouseEvent *event)
+void MainWindow::mousePressEvent(QMouseEvent* _event)
 {
     QWidget* focusedWidget = qApp->focusWidget();
-    if(focusedWidget != nullptr && focusedWidget != childAt(event->x(), event->y()))
+    if(focusedWidget != nullptr && focusedWidget != childAt(_event->x(), _event->y()))
     {
         focusedWidget->clearFocus();
     }
 
-    QMainWindow::mousePressEvent(event);
+    QMainWindow::mousePressEvent(_event);
 }
 
 void MainWindow::newFile()
@@ -393,7 +405,7 @@ void MainWindow::open()
 
 void MainWindow::openRecent()
 {
-    QAction *action = qobject_cast<QAction *>(sender());
+    QAction* action = qobject_cast<QAction*>(sender());
     if (action)
     {
         openFile(action->data().toString());
@@ -467,6 +479,11 @@ void MainWindow::quit()
 
 void MainWindow::playPause(int _index)
 {
+    if(m_autoGenerateMode == GENERATE_ON_PLAY)
+    {
+        m_signal.generate();
+    }
+
     switch(_index)
     {
     case 0:
@@ -490,14 +507,37 @@ void MainWindow::setDirty()
     }
 }
 
-void MainWindow::changeVolume(int value)
+void MainWindow::changeVolume(int _value)
 {
-   m_signal.setVolume(qreal(value) / 100.0);
+   m_signal.setVolume(qreal(_value) / 100.0);
 }
 
-void MainWindow::changeDuration(qreal value)
+void MainWindow::changeDuration(qreal _value)
 {
-    m_signal.setDuration(value);
+    m_signal.setDuration(_value);
+}
+
+void MainWindow::changeAutoGenerate(QAction* _action)
+{
+    int actionIndex = -1;
+    for(int i = 0; i < m_act_autoGenerateGroup->actions().size(); ++i)
+    {
+        if(_action == m_act_autoGenerateGroup->actions()[i])
+        {
+            actionIndex = i;
+        }
+    }
+
+    Q_ASSERT(actionIndex >= 0 && actionIndex < AUTO_GENERATION_MODE_COUNT);
+    m_autoGenerateMode = static_cast<AutoGenerationMode>(actionIndex);
+}
+
+void MainWindow::onOutputChanged()
+{
+    if(m_autoGenerateMode == GENERATE_ON_CHANGE)
+    {
+        m_signal.generate();
+    }
 }
 
 void MainWindow::createActions()
@@ -510,31 +550,31 @@ void MainWindow::createMenus()
 
 }
 
-void MainWindow::openFile(QString fileName)
+void MainWindow::openFile(QString _fileName)
 {
-    if(QFile::exists(fileName))
+    if(QFile::exists(_fileName))
     {
         m_dirtyable = false;
         qreal duration;
-        m_scene->load(fileName, duration);
+        m_scene->load(_fileName, duration);
         m_signal.setDuration(duration);
         m_dirtyable = true;
-        setFileName(fileName);
+        setFileName(_fileName);
     }
 }
 
-void MainWindow::saveFile(QString fileName)
+void MainWindow::saveFile(QString _fileName)
 {
-    setFileName(fileName);
+    setFileName(_fileName);
     m_dirtyable = false;
-    m_scene->save(fileName, m_signal.duration());
+    m_scene->save(_fileName, m_signal.duration());
     m_dirtyable = true;
 }
 
-QMessageBox::StandardButton MainWindow::askSaveChanges(QString action)
+QMessageBox::StandardButton MainWindow::askSaveChanges(QString _action)
 {
     return (!m_dirty) ? QMessageBox::Ignore
-              : QMessageBox::question(this, "Save your work!", "Some changes in your work are not saved.\nDo you want to save before " + action + "?",
+              : QMessageBox::question(this, "Save your work!", "Some changes in your work are not saved.\nDo you want to save before " + _action + "?",
                                       QMessageBox::Save|QMessageBox::Ignore|QMessageBox::Cancel);
 }
 

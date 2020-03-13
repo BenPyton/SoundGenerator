@@ -31,21 +31,28 @@ class ComponentInput;
 
 class PinInputItem : public PinItem
 {
+    Q_OBJECT
 public:
     enum { Type = UserType + PININPUT_TYPE };
     int type() const override { return Type; }
 
-    PinInputItem(QGraphicsItem *parent = nullptr);
+    PinInputItem(QGraphicsItem* _parent = nullptr);
 
-    void setInput(ComponentInput* input);
+    void setInput(ComponentInput* _input);
     ComponentInput* input() { return m_input; }
-    void setDefaultValue(qreal value);
+    void setDefaultValue(qreal _value);
+
+signals:
+    void outputChanged();
 
 protected:
     virtual bool _canConnect(PinItem* _other) override;
     virtual void _connect(PinItem* _other) override;
     virtual void _disconnect(PinItem* _other) override;
     void updateInput();
+
+protected slots:
+    void setOutputChanged() { emit outputChanged(); }
 
 private:
     QGraphicsTextItem* m_label;

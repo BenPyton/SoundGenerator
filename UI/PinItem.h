@@ -30,6 +30,7 @@
 class LinkPinCommand;
 class UnlinkPinCommand;
 class LinkItem;
+class NodeItem;
 
 class PinItem : public QObject, public QGraphicsItem
 {
@@ -42,20 +43,22 @@ public:
     enum { Type = UserType + PIN_TYPE };
     int type() const override { return Type; }
 
-    PinItem(QGraphicsItem *parent = nullptr);
+    PinItem(QGraphicsItem* parent = nullptr);
 
     bool isPinVisible() { return m_pinVisible; }
-    void setPinVisible(bool visible) { m_pinVisible = visible; }
+    void setPinVisible(bool _visible) { m_pinVisible = _visible; }
 
-    bool isLinked() { return m_linkedPins.size() > 0; }
-    void setMaxLink(int maxLink) { m_maxLink = maxLink; }
-    int maxLink() { return m_maxLink; }
+    inline bool isLinked() { return m_linkedPins.size() > 0; }
+    void setMaxLink(int _maxLink) { m_maxLink = _maxLink; }
+    inline int maxLink() { return m_maxLink; }
     bool hasMaxLink() { return m_maxLink >= 0 && m_linkedPins.size() >= m_maxLink; }
-    bool link(PinItem* pin);
+    bool link(PinItem* _pin);
     void unlinkAll();
     bool isLinkedWith(PinItem* _pin);
 
     void setUndoStack(QUndoStack* _undoStack) { m_undoStack = _undoStack; }
+
+    NodeItem* parentNode();
 
 protected slots:
     void setDirty() { emit dirtyChanged(); }
@@ -66,14 +69,12 @@ signals:
     void dirtyChanged();
 
 protected:
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget* widget) override;
+    virtual void paint(QPainter* _painter, const QStyleOptionGraphicsItem* _option, QWidget* _widget) override;
     virtual QRectF boundingRect() const override;
 
-    virtual void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
-    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
-    virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
-    //virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event) override;
-    //virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event) override;
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent* _event) override;
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent* _event) override;
+    virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* _event) override;
 
     virtual bool _canConnect(PinItem* _other);
     virtual void _connect(PinItem* _other);
@@ -83,7 +84,7 @@ protected:
     inline QUndoStack* undoStack() { return m_undoStack; }
 
 private:
-    void _showLinkPreview(bool show);
+    void _showLinkPreview(bool _show);
 
 protected:
     int m_maxLink;

@@ -38,16 +38,25 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
+    enum AutoGenerationMode
+    {
+        NO_GENERATION,
+        GENERATE_ON_PLAY,
+        GENERATE_ON_CHANGE,
+        AUTO_GENERATION_MODE_COUNT // this value if error
+    };
+
+public:
+    explicit MainWindow(QWidget* _parent = nullptr);
     virtual ~MainWindow() override;
 
     QString fileName() { return m_fileName; }
-    void setFileName(QString fileName);
+    void setFileName(QString _fileName);
     void readSettings();
 
 protected:
-    virtual void closeEvent(QCloseEvent* event) override;
-    virtual void mousePressEvent(QMouseEvent* event) override;
+    virtual void closeEvent(QCloseEvent* _event) override;
+    virtual void mousePressEvent(QMouseEvent* _event) override;
 
 public slots:
     // actions
@@ -63,15 +72,17 @@ public slots:
     void playPause(int _index);
     // other
     void setDirty();
-    void changeVolume(int value);
-    void changeDuration(qreal value);
+    void changeVolume(int _value);
+    void changeDuration(qreal _value);
+    void changeAutoGenerate(QAction* _action);
+    void onOutputChanged();
 
 private:
     void createActions();
     void createMenus();
-    void openFile(QString fileName);
-    void saveFile(QString fileName);
-    QMessageBox::StandardButton askSaveChanges(QString action);
+    void openFile(QString _fileName);
+    void saveFile(QString _fileName);
+    QMessageBox::StandardButton askSaveChanges(QString _action);
     void updateWindowTitle();
     void updateRecentFileActions();
 
@@ -88,9 +99,11 @@ private:
     bool m_dirtyable;
 
     QString m_windowTitle;
+    AutoGenerationMode m_autoGenerateMode;
 
     QAction* recentFileActs[maxRecentFile];
     QMenu* menu_openRecentFile;
+    QActionGroup* m_act_autoGenerateGroup;
 };
 
 #endif // MAINWINDOW_H

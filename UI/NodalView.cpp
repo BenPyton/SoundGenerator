@@ -27,12 +27,12 @@
 
 const int NodalView::gridUnit = 20;
 
-NodalView::NodalView(QWidget* parent)
-    : QGraphicsView (parent),
-      m_dragging(false),
-      m_rightClickPressed(false),
-      m_zoom(1.0),
-      m_scene(nullptr)
+NodalView::NodalView(QWidget* _parent)
+    : QGraphicsView (_parent)
+    , m_dragging(false)
+    , m_rightClickPressed(false)
+    , m_zoom(1.0)
+    , m_scene(nullptr)
 {
     setAcceptDrops(true);
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -60,71 +60,71 @@ void NodalView::init()
     connect(scene(), &QGraphicsScene::changed, this, &NodalView::autocomputeSceneSize);
 }
 
-void NodalView::setZoomLimits(qreal min, qreal max)
+void NodalView::setZoomLimits(qreal _min, qreal _max)
 {
-    m_zoomMin = min;
-    m_zoomMax = max;
+    m_zoomMin = _min;
+    m_zoomMax = _max;
 }
 
-void NodalView::setZoom(qreal zoom)
+void NodalView::setZoom(qreal _zoom)
 {
-    m_zoom = zoom;
+    m_zoom = _zoom;
     updateZoomView();
 }
 
-void NodalView::keyPressEvent(QKeyEvent *event)
+void NodalView::keyPressEvent(QKeyEvent* _event)
 {
-    QGraphicsView::keyPressEvent(event);
-    if(event->key() == Qt::Key::Key_Delete)
+    QGraphicsView::keyPressEvent(_event);
+    if(_event->key() == Qt::Key::Key_Delete)
     {
         getScene()->deleteSelection();
     }
 }
 
-void NodalView::wheelEvent(QWheelEvent* event)
+void NodalView::wheelEvent(QWheelEvent* _event)
 {
     //QPointF pos = mapToScene(event->pos());
     //qreal oldZoom = m_zoom;
     // zoom
     //const ViewportAnchor anchor = transformationAnchor();
     //setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-    int angle = event->angleDelta().y();
+    int angle = _event->angleDelta().y();
     qreal factor = 1.0 + (angle > 0.0 ? -0.05 : 0.05);
     m_zoom *= factor;
     m_zoom = Utils::Clamp(m_zoom, m_zoomMin, m_zoomMax);
 
     updateZoomView();
 
-    event->accept();
+    _event->accept();
 }
 
 
-void NodalView::mousePressEvent(QMouseEvent* event)
+void NodalView::mousePressEvent(QMouseEvent* _event)
 {
-    switch(event->button())
+    switch(_event->button())
     {
     case Qt::RightButton:
         // the scrollhanddrag mode doesn't work ????
         setDragMode(QGraphicsView::NoDrag);
 
-        m_lastMousePos = event->pos();
-        m_startScenePos = mapToScene(event->pos());
-        m_startMousePos = event->pos();
+        m_lastMousePos = _event->pos();
+        m_startScenePos = mapToScene(_event->pos());
+        m_startMousePos = _event->pos();
         m_rightClickPressed = true;
         break;
     case Qt::LeftButton:
         setDragMode(QGraphicsView::RubberBandDrag);
-        QGraphicsView::mousePressEvent(event);
+        QGraphicsView::mousePressEvent(_event);
         break;
     default:
         setDragMode(QGraphicsView::NoDrag);
-        QGraphicsView::mousePressEvent(event);
+        QGraphicsView::mousePressEvent(_event);
     }
 }
 
-void NodalView::mouseReleaseEvent(QMouseEvent *event)
+void NodalView::mouseReleaseEvent(QMouseEvent* _event)
 {
-    if(event->button() == Qt::RightButton)
+    if(_event->button() == Qt::RightButton)
     {
         m_rightClickPressed = false;
         if(m_dragging)
@@ -138,11 +138,11 @@ void NodalView::mouseReleaseEvent(QMouseEvent *event)
         }
     }
 
-    QGraphicsView::mouseReleaseEvent(event);
+    QGraphicsView::mouseReleaseEvent(_event);
     setDragMode(QGraphicsView::NoDrag);
 }
 
-void NodalView::mouseMoveEvent(QMouseEvent* event)
+void NodalView::mouseMoveEvent(QMouseEvent* _event)
 {
 
     if(m_rightClickPressed)
@@ -150,7 +150,7 @@ void NodalView::mouseMoveEvent(QMouseEvent* event)
         m_dragging = true;
         QScrollBar *hBar = horizontalScrollBar();
         QScrollBar *vBar = verticalScrollBar();
-        QPoint delta = event->pos() - m_lastMousePos;
+        QPoint delta = _event->pos() - m_lastMousePos;
         hBar->setValue(hBar->value() + (isRightToLeft() ? delta.x() : -delta.x()));
         vBar->setValue(vBar->value() - delta.y());
 
@@ -158,56 +158,56 @@ void NodalView::mouseMoveEvent(QMouseEvent* event)
     }
     else
     {
-        QGraphicsView::mouseMoveEvent(event);
+        QGraphicsView::mouseMoveEvent(_event);
     }
 
-    m_lastMousePos = event->pos();
+    m_lastMousePos = _event->pos();
 }
 
-void NodalView::dragEnterEvent(QDragEnterEvent *event)
+void NodalView::dragEnterEvent(QDragEnterEvent* _event)
 {
-    if(event->mimeData()->hasFormat("add/component"))
+    if(_event->mimeData()->hasFormat("add/component"))
     {
-        event->acceptProposedAction();
+        _event->acceptProposedAction();
     }
 }
 
-void NodalView::dropEvent(QDropEvent *event)
+void NodalView::dropEvent(QDropEvent* _event)
 {
-    event->acceptProposedAction();
+    _event->acceptProposedAction();
 
-    QString componentName = QString::fromUtf8(event->mimeData()->data("add/component"));
+    QString componentName = QString::fromUtf8(_event->mimeData()->data("add/component"));
 
-    getScene()->setCreationPosition(mapToScene(event->pos()));
+    getScene()->setCreationPosition(mapToScene(_event->pos()));
     getScene()->createComponent(componentName);
 }
 
 // must be implemented
-void NodalView::dragMoveEvent(QDragMoveEvent *event)
+void NodalView::dragMoveEvent(QDragMoveEvent* _event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(_event);
 }
 
 // must be implemented
-void NodalView::dragLeaveEvent(QDragLeaveEvent *event)
+void NodalView::dragLeaveEvent(QDragLeaveEvent* _event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(_event);
 }
 
-void NodalView::drawBackground(QPainter *painter, const QRectF &rect)
+void NodalView::drawBackground(QPainter* _painter, const QRectF& _rect)
 {
     QVector<QLine> lines;
     QVector<QLine> mainLines;
 
-    int nbLineWidth = qCeil(rect.width() / gridUnit);
-    int nbLineHeight = qCeil(rect.height() / gridUnit);
-    int startX = qCeil(rect.x() / gridUnit) * gridUnit;
-    int startY = qCeil(rect.y() / gridUnit) * gridUnit;
+    int nbLineWidth = qCeil(_rect.width() / gridUnit);
+    int nbLineHeight = qCeil(_rect.height() / gridUnit);
+    int startX = qCeil(_rect.x() / gridUnit) * gridUnit;
+    int startY = qCeil(_rect.y() / gridUnit) * gridUnit;
 
     for(int i = 0; i < nbLineWidth; i++)
     {
         int x = startX + i * gridUnit;
-        QLine line = QLine(x, qFloor(rect.top()), x, qCeil(rect.bottom()));
+        QLine line = QLine(x, qFloor(_rect.top()), x, qCeil(_rect.bottom()));
         if((x % (5 * gridUnit)) == 0)
         {
             mainLines.push_front(line);
@@ -220,7 +220,7 @@ void NodalView::drawBackground(QPainter *painter, const QRectF &rect)
     for(int i = 0; i < nbLineHeight; i++)
     {
         int y = startY + i * gridUnit;
-        QLine line = QLine(qFloor(rect.left()), y, qCeil(rect.right()), y);
+        QLine line = QLine(qFloor(_rect.left()), y, qCeil(_rect.right()), y);
         if((y % (5 * gridUnit)) == 0)
         {
             mainLines.push_front(line);
@@ -232,7 +232,7 @@ void NodalView::drawBackground(QPainter *painter, const QRectF &rect)
     }
 
     QBrush brush(QColor(50, 50, 50), Qt::BrushStyle::SolidPattern);
-    painter->fillRect(rect, brush);
+    _painter->fillRect(_rect, brush);
 
     QPen pen(QColor(120, 120, 120));
     pen.setCosmetic(true);
@@ -246,14 +246,14 @@ void NodalView::drawBackground(QPainter *painter, const QRectF &rect)
     qreal gridTo = 0.9;
     qreal gridAmp = 0.5;
 
-    painter->setPen(pen);
+    _painter->setPen(pen);
     if(m_zoom < gridTo)
     {
         opacity = (m_zoom < gridFrom) ?
                     gridAmp
                   : gridAmp * (m_zoom - gridTo)/(gridFrom - gridTo);
-        painter->setOpacity(opacity);
-        painter->drawLines(lines);
+        _painter->setOpacity(opacity);
+        _painter->drawLines(lines);
     }
 
     if(m_zoom < mainGridTo)
@@ -261,8 +261,8 @@ void NodalView::drawBackground(QPainter *painter, const QRectF &rect)
         opacity = (m_zoom < mainGridFrom) ?
                     mainGridAmp
                   : mainGridAmp * (m_zoom - mainGridTo)/(mainGridFrom - mainGridTo);
-        painter->setOpacity(opacity);
-        painter->drawLines(mainLines);
+        _painter->setOpacity(opacity);
+        _painter->drawLines(mainLines);
     }
 }
 
@@ -335,13 +335,13 @@ void NodalView::updateZoomView()
     emit zoomChanged(m_zoom);
 }
 
-void NodalView::showCustomContextMenu(const QPoint& pos)
+void NodalView::showCustomContextMenu(const QPoint& _pos)
 {
     getScene()->isContextMenu(true);
 
     // for most widgets
-    QPoint globalPos = mapToGlobal(pos);
-    getScene()->setContextPosition(mapToScene(pos));
+    QPoint globalPos = mapToGlobal(_pos);
+    getScene()->setContextPosition(mapToScene(_pos));
     // for QAbstractScrollArea and derived classes you would use:
     // QPoint globalPos = myWidget->viewport()->mapToGlobal(pos);
 
@@ -356,7 +356,7 @@ void NodalView::showCustomContextMenu(const QPoint& pos)
         qDebug() << "Add menu in context";
     }
 
-    QGraphicsItem* item = scene()->itemAt(mapToScene(pos), QTransform());
+    QGraphicsItem* item = scene()->itemAt(mapToScene(_pos), QTransform());
     PinItem* pin = dynamic_cast<PinItem*>(item);
     LinkItem* link = dynamic_cast<LinkItem*>(item);
     if(link != nullptr)

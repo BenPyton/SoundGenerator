@@ -32,38 +32,36 @@ class NodalView : public QGraphicsView
     Q_OBJECT
 
 public:
-    NodalView(QWidget* parent = nullptr);
+    NodalView(QWidget* _parent = nullptr);
 
     void init();
-    void setZoomLimits(qreal min, qreal max);
-    void setZoom(qreal zoom);
+    void setZoomLimits(qreal _min, qreal _max);
+    void setZoom(qreal _zoom);
     inline qreal getZoom() { return m_zoom; }
-    void setMenuAdd(QMenu* menuAdd) { m_menuAdd = menuAdd; }
+    inline void setMenuAdd(QMenu* _menuAdd) { m_menuAdd = _menuAdd; }
 
 protected:
-    virtual void keyPressEvent(QKeyEvent * event) override;
-    virtual void wheelEvent(QWheelEvent* event) override;
-    virtual void mousePressEvent(QMouseEvent* event) override;
-    virtual void mouseReleaseEvent(QMouseEvent *event) override;
-    virtual void mouseMoveEvent(QMouseEvent* event) override;
-    virtual void dragEnterEvent(QDragEnterEvent* event) override;
-    virtual void dragMoveEvent(QDragMoveEvent* event) override;
-    virtual void dragLeaveEvent(QDragLeaveEvent* event) override;
-    virtual void dropEvent(QDropEvent* event) override;
-    virtual void drawBackground(QPainter * painter, const QRectF & rect) override;
+    virtual void keyPressEvent(QKeyEvent* _event) override;
+    virtual void wheelEvent(QWheelEvent* _event) override;
+    virtual void mousePressEvent(QMouseEvent* _event) override;
+    virtual void mouseReleaseEvent(QMouseEvent *_event) override;
+    virtual void mouseMoveEvent(QMouseEvent* _event) override;
+    virtual void dragEnterEvent(QDragEnterEvent* _event) override;
+    virtual void dragMoveEvent(QDragMoveEvent* _event) override;
+    virtual void dragLeaveEvent(QDragLeaveEvent* _event) override;
+    virtual void dropEvent(QDropEvent* _event) override;
+    virtual void drawBackground(QPainter* _painter, const QRectF& rect) override;
 
     NodalScene* getScene();
 
 public slots:
-    void showCustomContextMenu(const QPoint& pos);
-    void setDirty() { emit dirtyChanged(); }
+    void showCustomContextMenu(const QPoint& _pos);
 
 protected slots:
     void updateZoomView();
 
 signals:
-    void zoomChanged(qreal zoom);
-    void dirtyChanged();
+    void zoomChanged(qreal _zoom);
 
 private:
     void autocomputeSceneSize();

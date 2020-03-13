@@ -33,8 +33,11 @@
 #include "UndoCommands/MoveComponentCommand.h"
 
 
-NodeItem::NodeItem(QGraphicsItem *parent)
-    : QGraphicsItem(parent), m_width(200), m_height(100), m_component(nullptr)
+NodeItem::NodeItem(QGraphicsItem* _parent)
+    : QGraphicsItem(_parent)
+    , m_width(200)
+    , m_height(100)
+    , m_component(nullptr)
 {
     setFlag(QGraphicsItem::ItemIsMovable);
     setFlag(QGraphicsItem::ItemIsSelectable);
@@ -84,6 +87,8 @@ void NodeItem::setComponent(Component *comp)
 
             m_inputPins.append(pin);
             heightSum += (comp->getInput(i)->getName().isEmpty() ? 20 : 40);
+
+            connect(pin, &PinInputItem::outputChanged, this, &NodeItem::setOutputChanged);
         }
 
         m_outputPin->setVisible(comp->hasOutput());
@@ -97,13 +102,13 @@ void NodeItem::setComponent(Component *comp)
     m_outputPin->setY(0.5*(m_height-20)+20);
 }
 
-PinInputItem *NodeItem::getInput(QString name)
+PinInputItem *NodeItem::getInput(QString _name)
 {
     PinInputItem* input = nullptr;
 
     for (int i = 0; i < m_inputPins.size() && input == nullptr; i++)
     {
-        if (m_inputPins[i]->input()->getName() == name)
+        if (m_inputPins[i]->input()->getName() == _name)
         {
             input = m_inputPins[i];
         }
@@ -112,12 +117,12 @@ PinInputItem *NodeItem::getInput(QString name)
     return input;
 }
 
-PinInputItem *NodeItem::getInput(int index)
+PinInputItem *NodeItem::getInput(int _index)
 {
     PinInputItem* input = nullptr;
-    if(index >= 0 && index < m_inputPins.size())
+    if(_index >= 0 && _index < m_inputPins.size())
     {
-        input = m_inputPins[index];
+        input = m_inputPins[_index];
     }
     return input;
 }
@@ -185,13 +190,13 @@ QRectF NodeItem::boundingRect() const
     return QRectF(0, 0, m_width, m_height);
 }
 
-QVariant NodeItem::itemChange(GraphicsItemChange change, const QVariant &value)
+QVariant NodeItem::itemChange(GraphicsItemChange _change, const QVariant& _value)
 {
-    QVariant toReturn = value;
+    QVariant toReturn = _value;
 
-    if (change == ItemPositionChange)
+    if (_change == ItemPositionChange)
     {
-        QPointF newPos = value.toPointF();
+        QPointF newPos = _value.toPointF();
         if(QGuiApplication::mouseButtons() == Qt::LeftButton
           && QGuiApplication::keyboardModifiers() == Qt::ShiftModifier)
         {
@@ -219,30 +224,31 @@ void NodeItem::clearInputs()
 {
     for(PinInputItem* pin : m_inputPins)
     {
+        disconnect(pin, &PinInputItem::outputChanged, this, &NodeItem::setOutputChanged);
         delete pin;
     }
     m_inputPins.clear();
 }
 
 
-QJsonArray NodeItem::NodeArrayToJson(const QVector<NodeItem*> &nodeArray)
+QJsonArray NodeItem::NodeArrayToJson(const QVector<NodeItem*>& _nodeArray)
 {
     // create a json array with all selected components
     QJsonArray jsonArray;
-    for(int i = 0; i < nodeArray.size(); i++)
+    for(int i = 0; i < _nodeArray.size(); i++)
     {
         QJsonArray inputArray;
-        for(int k = 0; k < nodeArray[i]->getInputCount(); k++)
+        for(int k = 0; k < _nodeArray[i]->getInputCount(); k++)
         {
-            PinInputItem* pin = nodeArray[i]->getInput(k);
+            PinInputItem* pin = _nodeArray[i]->getInput(k);
 
             Component* link = pin->input()->getComponent();
             int linkIndex = -1;
             if(link != nullptr)
             {
-                for(int p = 0; p < nodeArray.size() && linkIndex < 0; p++)
+                for(int p = 0; p < _nodeArray.size() && linkIndex < 0; p++)
                 {
-                    if(nodeArray[p]->component() == link)
+                    if(_nodeArray[p]->component() == link)
                     {
                         linkIndex = p;
                     }
@@ -259,9 +265,9 @@ QJsonArray NodeItem::NodeArrayToJson(const QVector<NodeItem*> &nodeArray)
 
         QJsonObject component;
         component["id"] = i;
-        component["x"] = nodeArray[i]->x();
-        component["y"] = nodeArray[i]->y();
-        component["name"] = nodeArray[i]->component()->getName();
+        component["x"] = _nodeArray[i]->x();
+        component["y"] = _nodeArray[i]->y();
+        component["name"] = _nodeArray[i]->component()->getName();
         component["inputs"] = inputArray;
 
         jsonArray.append(component);
@@ -271,7 +277,7 @@ QJsonArray NodeItem::NodeArrayToJson(const QVector<NodeItem*> &nodeArray)
 }
 
 QVector<NodeItem*> NodeItem::JsonToNodeArray(
-        const QJsonArray &jsonArray,
+        const QJsonArray& _jsonArray,
         NodalScene* _scene,
         QPointF _positionOffset,
         QUndoStack* _commandStack)
@@ -282,9 +288,9 @@ QVector<NodeItem*> NodeItem::JsonToNodeArray(
     _commandStack->beginMacro("Create Components");
 
     // first create all components
-    for(int i = 0; i < jsonArray.size(); i++)
+    for(int i = 0; i < _jsonArray.size(); i++)
     {
-        QJsonObject component = jsonArray[i].toObject();
+        QJsonObject component = _jsonArray[i].toObject();
         NodeItem* node = nullptr;
 
         // ============== COMPONENT NAME =============
@@ -317,7 +323,7 @@ QVector<NodeItem*> NodeItem::JsonToNodeArray(
     if(nodeArray.size() > 0)
     {
         // then set values and connect pins of each component
-        for(int i = 0; i < jsonArray.size(); i++)
+        for(int i = 0; i < _jsonArray.size(); i++)
         {
             if(i >= nodeArray.size())
             {
@@ -326,7 +332,7 @@ QVector<NodeItem*> NodeItem::JsonToNodeArray(
             }
             nodeArray[i]->setSelected(true);
 
-            QJsonObject component = jsonArray[i].toObject();
+            QJsonObject component = _jsonArray[i].toObject();
             if(!Utils::CheckJsonValue(component, "inputs", QJsonValue::Array, 160))
                 continue;
             QJsonArray inputs = component["inputs"].toArray();

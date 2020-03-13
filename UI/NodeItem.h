@@ -38,27 +38,27 @@ public:
     enum { Type = UserType + NODE_TYPE };
     int type() const override { return Type; }
 
-    NodeItem(QGraphicsItem *parent = nullptr);
+    NodeItem(QGraphicsItem* _parent = nullptr);
     virtual ~NodeItem() override;
 
     void setComponent(Component* comp);
     Component* component() { return m_component; }
 
     PinOutputItem* getOutput() { return m_outputPin; }
-    PinInputItem* getInput(QString name);
-    PinInputItem *getInput(int index);
+    PinInputItem* getInput(QString _name);
+    PinInputItem* getInput(int _index);
     int getInputCount() { return m_inputPins.size(); }
 
     qreal width() { return m_width; }
-    void setWidth(qreal width) { m_width = width; }
+    inline void setWidth(qreal _width) { m_width = _width; }
 
     void unlink();
 
     void setUndoStack(QUndoStack* _undoStack);
 
-    static QJsonArray NodeArrayToJson(const QVector<NodeItem*> &nodeArray);
+    static QJsonArray NodeArrayToJson(const QVector<NodeItem*>& _nodeArray);
     static QVector<NodeItem*> JsonToNodeArray(
-            const QJsonArray &jsonArray,
+            const QJsonArray& _jsonArray,
             NodalScene* _scene,
             QPointF _positionOffset,
             QUndoStack* _commandStack);
@@ -66,16 +66,18 @@ public:
 protected:
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget* widget) override;
     virtual QRectF boundingRect() const override;
-    virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
+    virtual QVariant itemChange(GraphicsItemChange _change, const QVariant& _value) override;
 
     void clearInputs();
     inline QUndoStack* undoStack() { return m_undoStack; }
 
 protected slots:
     void setDirty() { emit dirtyChanged(); }
+    void setOutputChanged() { emit outputChanged(); }
 
 signals:
     void dirtyChanged();
+    void outputChanged();
 
 private:
     QUndoStack* m_undoStack;
