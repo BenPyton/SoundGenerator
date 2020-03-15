@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Benoit Pelletier
+ * Copyright 2019-2020 Benoit Pelletier
  *
  * This file is part of Sound Generator.
  *

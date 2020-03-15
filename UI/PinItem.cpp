@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Benoit Pelletier
+ * Copyright 2019-2020 Benoit Pelletier
  *
  * This file is part of Sound Generator.
  *
@@ -39,8 +39,6 @@ PinItem::PinItem(QGraphicsItem* _parent)
     m_linkedPins.clear();
     m_hovered = false;
     m_dragging = false;
-
-    //setAcceptHoverEvents(true);
 }
 
 bool PinItem::link(PinItem* _pin)
