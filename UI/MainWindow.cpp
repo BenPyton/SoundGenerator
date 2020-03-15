@@ -425,7 +425,7 @@ void MainWindow::clearRecentFiles()
 void MainWindow::about()
 {
     QMessageBox box(QMessageBox::NoIcon, "About " + Utils::AppName,
-                    "Alpha " + Utils::GetAppVersion() + "<br><br>Copyright 2019 " + Utils::CompanyName + "<br><br>\
+                    "Alpha " + Utils::GetAppVersion() + "<br><br>Copyright 2019-2020 " + Utils::CompanyName + "<br><br>\
                     This software is free and under <a style=\"color:#00FFFF\" href=\"https://www.gnu.org/licenses/gpl-3.0.txt\">GPLv3</a> license. <br>This software is dynamically linked to Qt5.<br>\
                     The source code of Qt SDK can be found <a style=\"color:#00FFFF\" href=\"http://download.qt.io/official_releases/qt/5.12/5.12.2/\">here</a>.<br>\
                     The full text for the GPLv3 license was distributed as a text file with this software.<br><br> \
