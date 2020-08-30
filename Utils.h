@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Benoit Pelletier
+ * Copyright 2019-2020 Benoit Pelletier
  *
  * This file is part of Sound Generator.
  *
@@ -29,12 +29,12 @@
 class Utils
 {
 public:
-    static qreal SmoothDamp(qreal current,
-                            qreal target,
-                            qreal& currentVelocity,
-                            qreal smoothTime,
-                            qreal maxSpeed,
-                            qreal deltaTime);
+    static qreal SmoothDamp(qreal _current,
+                            qreal _target,
+                            qreal& _currentVelocity,
+                            qreal _smoothTime,
+                            qreal _maxSpeed,
+                            qreal _deltaTime);
 
     template<typename T>
     static T Clamp(const T& _x, T _min, T _max)
@@ -52,18 +52,20 @@ public:
         return value;
     }
 
-    static qreal MapValue(qreal x, qreal p00, qreal p01, qreal p10, qreal p11);
+    static qreal MapValue(qreal _x, qreal _p00, qreal _p01, qreal _p10, qreal _p11);
 
-    static bool CheckJsonValue(QJsonObject& object, QString name, QJsonValue::Type type, int startErrorCode);
+    static bool CheckJsonValue(QJsonObject& _object, QString _name, QJsonValue::Type _type, int _startErrorCode);
 
-    static void ErrorMsg(int code, QString msg);
+    static void ErrorMsg(int _code, QString _msg);
 
     static QString GetAppVersion();
 
-    static qreal Distance(const QPointF& p1, const QPointF& p2);
-    static qreal DistanceSqr(const QPointF& p1, const QPointF& p2);
-    static qreal Length(const QPointF &p);
-    static qreal LengthSqr(const QPointF &p);
+    static qreal Distance(const QPointF& _p1, const QPointF& _p2);
+    static qreal DistanceSqr(const QPointF& _p1, const QPointF& _p2);
+    static qreal Length(const QPointF &_p);
+    static qreal LengthSqr(const QPointF &_p);
+
+    static QString FormatTimeCode(qreal _seconds);
 
     static const QString AppName;
     static const QString CompanyName;

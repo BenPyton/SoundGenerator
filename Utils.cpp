@@ -33,67 +33,67 @@
 const QString Utils::AppName = "Sound Generator";
 const QString Utils::CompanyName = "Benoit Pelletier";
 
-qreal Utils::SmoothDamp(qreal current,
-                 qreal target,
-                 qreal& currentVelocity,
-                 qreal smoothTime,
-                 qreal maxSpeed,
-                 qreal deltaTime)
+qreal Utils::SmoothDamp(qreal _current,
+                 qreal _target,
+                 qreal& _currentVelocity,
+                 qreal _smoothTime,
+                 qreal _maxSpeed,
+                 qreal _deltaTime)
 {
-    smoothTime = qMax(qreal(0.0001), smoothTime);
-    qreal num = 2.0 / smoothTime;
-    qreal num2 = num * deltaTime;
+    _smoothTime = qMax(qreal(0.0001), _smoothTime);
+    qreal num = 2.0 / _smoothTime;
+    qreal num2 = num * _deltaTime;
     qreal num3 = 1.0 / (1.0 + num2 + 0.48 * num2 * num2 + 0.235 * num2 * num2 * num2);
-    qreal dist = current - target;
-    qreal num5 = target;
-    qreal maxDist = maxSpeed * smoothTime;
+    qreal dist = _current - _target;
+    qreal num5 = _target;
+    qreal maxDist = _maxSpeed * _smoothTime;
     dist = Clamp(dist, -maxDist, maxDist);
-    target = current - dist;
-    qreal num7 = (currentVelocity + num * dist) * deltaTime;
-    currentVelocity = (currentVelocity - num * num7) * num3;
-    qreal num8 = target + (dist + num7) * num3;
-    if (num5 - current > 0.0 == num8 > num5)
+    _target = _current - dist;
+    qreal num7 = (_currentVelocity + num * dist) * _deltaTime;
+    _currentVelocity = (_currentVelocity - num * num7) * num3;
+    qreal num8 = _target + (dist + num7) * num3;
+    if (num5 - _current > 0.0 == num8 > num5)
     {
         num8 = num5;
-        currentVelocity = (num8 - num5) / deltaTime;
+        _currentVelocity = (num8 - num5) / _deltaTime;
     }
     return num8;
 }
 
-qreal Utils::MapValue(qreal x, qreal p00, qreal p01, qreal p10, qreal p11)
+qreal Utils::MapValue(qreal _x, qreal _p00, qreal _p01, qreal _p10, qreal _p11)
 {
     qreal newValue = 0.;
-    if (!qFuzzyCompare(p00, p01) && !qFuzzyCompare(p10, p11))
+    if (!qFuzzyCompare(_p00, _p01) && !qFuzzyCompare(_p10, _p11))
     {
-        qreal max0 = p01 - p00;
-        qreal max1 = p11 - p10;
-        newValue = p10 + (x - p00) * (max1 / max0);
+        qreal max0 = _p01 - _p00;
+        qreal max1 = _p11 - _p10;
+        newValue = _p10 + (_x - _p00) * (max1 / max0);
     }
 
     return newValue;
 }
 
-bool Utils::CheckJsonValue(QJsonObject &object, QString name, QJsonValue::Type type, int startErrorCode)
+bool Utils::CheckJsonValue(QJsonObject &_object, QString _name, QJsonValue::Type _type, int _startErrorCode)
 {
     bool success = true;
-    if(!object.contains(name))
+    if(!_object.contains(_name))
     {
-        ErrorMsg(startErrorCode, "No \"" + name + "\" provided");
+        ErrorMsg(_startErrorCode, "No \"" + _name + "\" provided");
         success = false;
     }
 
-    if(object[name].type() != type)
+    if(_object[_name].type() != _type)
     {
-        ErrorMsg(startErrorCode+1, "\"" + name + "\" is not a number");
+        ErrorMsg(_startErrorCode+1, "\"" + _name + "\" is not a number");
         success = false;
     }
     return success;
 }
 
 
-void Utils::ErrorMsg(int code, QString msg)
+void Utils::ErrorMsg(int _code, QString _msg)
 {
-    QMessageBox::critical(qApp->activeWindow(), "Load Error", "[Error #" + QString::number(code) + "] " + msg);
+    QMessageBox::critical(qApp->activeWindow(), "Load Error", "[Error #" + QString::number(_code) + "] " + _msg);
 }
 
 QString Utils::GetAppVersion()
@@ -101,23 +101,32 @@ QString Utils::GetAppVersion()
     return QString::number(MAJOR_VERSION) + "." +  QString::number(MINOR_VERSION) + "." + QString::number(BUGFIX_VERSION);
 }
 
-qreal Utils::Distance(const QPointF &p1, const QPointF &p2)
+qreal Utils::Distance(const QPointF &_p1, const QPointF &_p2)
 {
-    return Length(p2 - p1);
+    return Length(_p2 - _p1);
 }
 
-qreal Utils::DistanceSqr(const QPointF &p1, const QPointF &p2)
+qreal Utils::DistanceSqr(const QPointF &_p1, const QPointF &_p2)
 {
-    return LengthSqr(p2 - p1);
+    return LengthSqr(_p2 - _p1);
 }
 
 
-qreal Utils::Length(const QPointF &p)
+qreal Utils::Length(const QPointF &_p)
 {
-    return qSqrt(LengthSqr(p));
+    return qSqrt(LengthSqr(_p));
 }
 
-qreal Utils::LengthSqr(const QPointF &p)
+qreal Utils::LengthSqr(const QPointF &_p)
 {
-    return p.x() * p.x() + p.y() * p.y();
+    return _p.x() * _p.x() + _p.y() * _p.y();
+}
+
+QString Utils::FormatTimeCode(qreal _seconds)
+{
+    int min = qFloor(_seconds / 60.0);
+    int sec = qFloor(_seconds - min * 60.0);
+    int millisec = qRound((_seconds - min * 60.0 - sec) * 1000);
+
+    return QString("%1:%2:%3").arg(min).arg(sec, 2, 10, QLatin1Char('0')).arg(millisec, 3, 10, QLatin1Char('0'));
 }

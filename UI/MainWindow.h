@@ -77,6 +77,9 @@ public slots:
     void changeAutoGenerate(QAction* _action);
     void onOutputChanged();
 
+    void onWaveFormViewZoomChanged();
+    void onScrollbarValueChanged();
+
 private:
     void createActions();
     void createMenus();

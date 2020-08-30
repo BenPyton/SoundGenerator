@@ -32,23 +32,29 @@ class WaveFormView : public QWidget
 {
     Q_OBJECT
 public:
-    explicit WaveFormView(QWidget *parent = nullptr);
+    explicit WaveFormView(QWidget *_parent = nullptr);
     virtual ~WaveFormView() override;
 
-    void setScrollBar(QScrollBar* scrollBar);
-    void setSignal(Signal* signal);
+    void setSignal(Signal* _signal);
+
+    inline int getSampleOffset() { return m_sampleOffset; }
+    inline int getNbSampleViewed() { return m_nbSampleViewed; }
+    inline int getNbTotalSample() { return m_nbTotalSample; }
 
 public slots:
-    virtual void resizeEvent(QResizeEvent* event) override;
-    virtual void paintEvent(QPaintEvent* event) override;
-    virtual void wheelEvent(QWheelEvent* event) override;
+    virtual void resizeEvent(QResizeEvent* _event) override;
+    virtual void paintEvent(QPaintEvent* _event) override;
+    virtual void wheelEvent(QWheelEvent* _event) override;
 
-    void setSampleOffset(int startIndex);
+    void setSampleOffset(int _startIndex);
     void updateSignal();
+
+signals:
+    void zoomChanged();
 
 protected:
     void updateAllChunks();
-    void updateScrollBar(int _localOffset = 0);
+    void updateZoom(int _localOffset);
 
 private:
     int m_sampleOffset;
@@ -61,8 +67,6 @@ private:
     qreal m_zoomMax;
 
     QList<WaveFormChunk*> m_chunkList;
-
-    QScrollBar* m_scrollBar;
 
     Signal* m_signal;
 

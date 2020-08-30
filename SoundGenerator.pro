@@ -66,7 +66,8 @@ SOURCES += \
     UI/WaveFormChunk.cpp \
     UI/WaveFormView.cpp \
     LoopableBuffer.cpp \
-    ActionCycle.cpp
+    ActionCycle.cpp \
+    UI/TimeRuler.cpp
 
 HEADERS += \
     Components/AddComponent.h \
@@ -108,7 +109,8 @@ HEADERS += \
     UI/WaveFormChunk.h \
     UI/WaveFormView.h \
     LoopableBuffer.h \
-    ActionCycle.h
+    ActionCycle.h \
+    UI/TimeRuler.h
 
 FORMS += \
     UI/mainwindow.ui

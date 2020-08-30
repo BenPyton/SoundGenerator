@@ -24,11 +24,9 @@
 
 const int WaveFormView::chunkSize = 128;
 
-WaveFormView::WaveFormView(QWidget *parent)
-    : QWidget(parent), m_signal(nullptr)
+WaveFormView::WaveFormView(QWidget *_parent)
+    : QWidget(_parent), m_signal(nullptr)
 {
-    //setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    m_scrollBar = nullptr;
     m_sampleOffset = 0;
     m_nbSampleViewed = 2400;
     m_nbTotalSample = 0;
@@ -48,30 +46,14 @@ WaveFormView::~WaveFormView()
     }
 }
 
-void WaveFormView::setScrollBar(QScrollBar *scrollBar)
-{
-    if(nullptr != m_scrollBar)
-    {
-        disconnect(m_scrollBar, SIGNAL(valueChanged(int)), this, SLOT(setSampleOffset(int)));
-    }
-    m_scrollBar = scrollBar;
-    if(nullptr != m_scrollBar)
-    {
-        connect(m_scrollBar, SIGNAL(valueChanged(int)), this, SLOT(setSampleOffset(int)));
-        m_scrollBar->setMinimum(0);
-        m_scrollBar->setMaximum(qMax(m_nbTotalSample - m_nbSampleViewed, m_nbSampleViewed));
-        m_scrollBar->setPageStep(m_nbSampleViewed);
-    }
-}
-
-void WaveFormView::setSignal(Signal *signal)
+void WaveFormView::setSignal(Signal *_signal)
 {
     if(m_signal != nullptr)
     {
         this->disconnect(m_signal);
     }
 
-    m_signal = signal;
+    m_signal = _signal;
     if(m_signal != nullptr)
     {
         connect(m_signal, SIGNAL(signalChanged()), this, SLOT(updateSignal()));
@@ -79,9 +61,9 @@ void WaveFormView::setSignal(Signal *signal)
     }
 }
 
-void WaveFormView::resizeEvent(QResizeEvent *event)
+void WaveFormView::resizeEvent(QResizeEvent *_event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(_event);
 
     int nbChunk = 3 + size().width() / chunkSize;
 
@@ -100,12 +82,12 @@ void WaveFormView::resizeEvent(QResizeEvent *event)
         m_chunkList.pop_back();
     }
 
-    updateScrollBar();
+    updateZoom(0);
 }
 
-void WaveFormView::paintEvent(QPaintEvent *event)
+void WaveFormView::paintEvent(QPaintEvent *_event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(_event);
 
     QPainter painter(this);
 
@@ -122,11 +104,11 @@ void WaveFormView::paintEvent(QPaintEvent *event)
 
 }
 
-void WaveFormView::wheelEvent(QWheelEvent *event)
+void WaveFormView::wheelEvent(QWheelEvent *_event)
 {
 
     // zoom
-    int angle = event->angleDelta().y();
+    int angle = _event->angleDelta().y();
     qreal factor = 1.0 + (angle > 0.0 ? 0.1 : -0.1);
     m_zoom *= factor;
     if(m_zoomMin > 0.0 && m_zoom < m_zoomMin)
@@ -138,21 +120,23 @@ void WaveFormView::wheelEvent(QWheelEvent *event)
         m_zoom = m_zoomMax;
     }
 
-    int localOffset = qRound(m_scrollBar->value() + m_nbSampleViewed * qreal(event->x()) / width());
-    updateScrollBar(localOffset);
+    int localOffset = qRound(m_sampleOffset + m_nbSampleViewed * qreal(_event->x()) / width());
+    updateZoom(localOffset);
 
     updateAllChunks();
     update();
 }
 
-void WaveFormView::setSampleOffset(int startIndex)
+void WaveFormView::setSampleOffset(int _startIndex)
 {
-    m_sampleOffset = startIndex;
+    if(m_sampleOffset == _startIndex)
+        return;
+
+    m_sampleOffset = qMax(0, _startIndex);
 
     int chunkStartIndex = m_chunkList.first()->startIndex();
 
-
-    if(m_sampleOffset - chunkStartIndex >= 2*m_samplePerChunk)
+    if(m_sampleOffset - chunkStartIndex >= 2 * m_samplePerChunk)
     {
         WaveFormChunk* chunk = m_chunkList.first();
         m_chunkList.pop_front();
@@ -169,7 +153,7 @@ void WaveFormView::setSampleOffset(int startIndex)
         m_chunkList.push_front(chunk);
     }
 
-    qDebug() << "Start Offset: " << startIndex << " | " << m_chunkList.first()->startIndex();
+    qDebug() << "Start Offset: " << m_sampleOffset << " | " << m_chunkList.first()->startIndex();
 
     update();
 }
@@ -193,27 +177,19 @@ void WaveFormView::updateAllChunks()
     }
 }
 
-void WaveFormView::updateScrollBar(int _localOffset)
+void WaveFormView::updateZoom(int _localOffset)
 {
     int oldSampleViewed = m_nbSampleViewed;
     m_samplePerChunk = qRound(chunkSize / m_zoom);
     m_nbSampleViewed = qRound(m_samplePerChunk * qreal(width()) / chunkSize);
     qDebug() << "Zoom: " << m_zoom << " | Sample: " << m_nbSampleViewed;
 
-    if(nullptr != m_scrollBar)
-    {
-        m_scrollBar->setMaximum(qMax(m_nbTotalSample - m_nbSampleViewed, 0));
-        m_scrollBar->setPageStep(m_nbSampleViewed);
-        m_scrollBar->setValue(qRound(_localOffset + (m_scrollBar->value() - _localOffset) * qreal(m_nbSampleViewed) / oldSampleViewed));
-    }
-
     if(m_nbSampleViewed > m_nbTotalSample)
     {
         m_chunkList.first()->setIndexRange(0, chunkSize);
         m_sampleOffset = 0;
-        if(nullptr != m_scrollBar)
-        {
-            m_scrollBar->setValue(m_scrollBar->minimum());
-        }
     }
+
+    m_sampleOffset = qMax(0, qRound(_localOffset + (m_sampleOffset - _localOffset) * qreal(m_nbSampleViewed) / oldSampleViewed));
+    emit zoomChanged();
 }

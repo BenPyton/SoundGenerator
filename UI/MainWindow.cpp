@@ -57,8 +57,9 @@ MainWindow::MainWindow(QWidget* _parent)
 
 
     ui->buttonLayout->setAlignment(Qt::Alignment(Qt::AlignTop | Qt::AlignHCenter));
-    ui->waveFormView->setScrollBar(ui->waveFormScrollBar);
     ui->waveFormView->setSignal(&m_signal);
+    connect(ui->waveFormView, &WaveFormView::zoomChanged, this, &MainWindow::onWaveFormViewZoomChanged);
+    connect(ui->waveFormScrollBar, &QScrollBar::valueChanged, this, &MainWindow::onScrollbarValueChanged);
 
     m_scene = new NodalScene(ui->nodalView);
     m_scene->setBackgroundBrush(Qt::black);
@@ -538,6 +539,36 @@ void MainWindow::onOutputChanged()
     {
         m_signal.generate();
     }
+}
+
+void MainWindow::onWaveFormViewZoomChanged()
+{
+    int total = ui->waveFormView->getNbTotalSample();
+    int offset = ui->waveFormView->getSampleOffset();
+    int viewSize = ui->waveFormView->getNbSampleViewed();
+
+    // update scrollbar
+    ui->waveFormScrollBar->setMinimum(0);
+    ui->waveFormScrollBar->setMaximum(qMax(0, total - viewSize));
+    ui->waveFormScrollBar->setPageStep(viewSize);
+    ui->waveFormScrollBar->setValue((viewSize < total) ? offset : 0);
+
+    // update time ruler
+    qreal sampleDuration = 1.0 / static_cast<qreal>(m_signal.getSampleRate());
+    ui->timeRuler->setTimeWindow(offset * sampleDuration, (offset + viewSize) * sampleDuration);
+}
+
+void MainWindow::onScrollbarValueChanged()
+{
+    int offset = ui->waveFormScrollBar->value();
+    int viewSize = ui->waveFormScrollBar->pageStep();
+
+    // update wave form view
+    ui->waveFormView->setSampleOffset(offset);
+
+    // update time ruler
+    qreal sampleDuration = 1.0 / static_cast<qreal>(m_signal.getSampleRate());
+    ui->timeRuler->setTimeWindow(offset * sampleDuration, (offset + viewSize) * sampleDuration);
 }
 
 void MainWindow::createActions()
