@@ -49,7 +49,7 @@ void WaveFormChunk::updateWave(Signal* signal)
         //qDebug() << "There is a signal";
         m_nbTotalSample = signal->sampleCount();
 
-        int mid = qRound(height() / 2.);
+        int mid = qFloor((height()-1) * 0.5);
 
         if(m_nbIndex < width()) // less index than pixel -> draw lines between each index
         {
@@ -57,12 +57,12 @@ void WaveFormChunk::updateWave(Signal* signal)
 
             qreal nbPixelPerIndex = qreal(width()) / m_nbIndex;
 
-            qint32 value = signal->getSample(m_startIndex);
+            qint32 value = -signal->getSample(m_startIndex);
             path.moveTo(0, qRound(value / qreal(INT32_MAX) * mid + mid));
 
             for(int i = 1; i < m_nbIndex + 1; i++)
             {
-                qint32 value = signal->getSample(m_startIndex + i);
+                value = -signal->getSample(m_startIndex + i);
                 path.lineTo(i * nbPixelPerIndex, qRound(value / qreal(INT32_MAX) * mid + mid));
             }
 
@@ -82,7 +82,7 @@ void WaveFormChunk::updateWave(Signal* signal)
 
                 for(int k = 0; k < nbIndexInThisPixel + 1; k++)
                 {
-                    qint32 y = signal->getSample(m_startIndex + prevIndex + k);
+                    qint32 y = -signal->getSample(m_startIndex + prevIndex + k);
                     if(y < min) min = y;
                     if(y > max) max = y;
                 }

@@ -120,7 +120,6 @@ void WaveFormView::paintEvent(QPaintEvent *_event)
 
 void WaveFormView::wheelEvent(QWheelEvent *_event)
 {
-
     // zoom
     int angle = _event->angleDelta().y();
     qreal factor = 1.0 + (angle > 0.0 ? 0.1 : -0.1);
@@ -148,9 +147,7 @@ void WaveFormView::setSampleOffset(int _startIndex)
 
     m_sampleOffset = qMax(0, _startIndex);
 
-    int chunkStartIndex = m_chunkList.first()->startIndex();
-
-    if(m_sampleOffset - chunkStartIndex >= 2 * m_samplePerChunk)
+    while(m_sampleOffset - m_chunkList.first()->startIndex() >= 2 * m_samplePerChunk)
     {
         WaveFormChunk* chunk = m_chunkList.first();
         m_chunkList.pop_front();
@@ -158,7 +155,8 @@ void WaveFormView::setSampleOffset(int _startIndex)
         chunk->updateWave(m_signal);
         m_chunkList.push_back(chunk);
     }
-    else if(m_sampleOffset - chunkStartIndex < 0)
+
+    while(m_sampleOffset - m_chunkList.first()->startIndex() < 0)
     {
         WaveFormChunk* chunk = m_chunkList.last();
         m_chunkList.pop_back();
@@ -204,6 +202,6 @@ void WaveFormView::updateZoom(int _localOffset)
         m_sampleOffset = 0;
     }
 
-    m_sampleOffset = qMax(0, qRound(_localOffset + (m_sampleOffset - _localOffset) * qreal(m_nbSampleViewed) / oldSampleViewed));
+    setSampleOffset(qRound(_localOffset + (m_sampleOffset - _localOffset) * qreal(m_nbSampleViewed) / oldSampleViewed));
     emit zoomChanged();
 }
