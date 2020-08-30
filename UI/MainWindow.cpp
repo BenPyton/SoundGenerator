@@ -60,6 +60,8 @@ MainWindow::MainWindow(QWidget* _parent)
     ui->waveFormView->setSignal(&m_signal);
     connect(ui->waveFormView, &WaveFormView::zoomChanged, this, &MainWindow::onWaveFormViewZoomChanged);
     connect(ui->waveFormScrollBar, &QScrollBar::valueChanged, this, &MainWindow::onScrollbarValueChanged);
+    connect(ui->timeRuler, &TimeRuler::onTimeSelected, ui->waveFormView, &WaveFormView::setCursorTime);
+    connect(ui->timeRuler, &TimeRuler::onTimeSelected, &m_signal, &Signal::setCursorTime);
 
     m_scene = new NodalScene(ui->nodalView);
     m_scene->setBackgroundBrush(Qt::black);

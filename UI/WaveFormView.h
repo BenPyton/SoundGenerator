@@ -36,6 +36,7 @@ public:
     virtual ~WaveFormView() override;
 
     void setSignal(Signal* _signal);
+    void setCursorTime(qreal cursorTime);
 
     inline int getSampleOffset() { return m_sampleOffset; }
     inline int getNbSampleViewed() { return m_nbSampleViewed; }
@@ -61,6 +62,7 @@ private:
     int m_nbSampleViewed;
     int m_nbTotalSample;
     int m_samplePerChunk;
+    int m_cursorSample;
 
     qreal m_zoom;
     qreal m_zoomMin;

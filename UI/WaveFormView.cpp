@@ -21,6 +21,7 @@
 #include "WaveFormView.h"
 #include "WaveFormChunk.h"
 #include <QPainter>
+#include "Utils.h"
 
 const int WaveFormView::chunkSize = 128;
 
@@ -30,6 +31,7 @@ WaveFormView::WaveFormView(QWidget *_parent)
     m_sampleOffset = 0;
     m_nbSampleViewed = 2400;
     m_nbTotalSample = 0;
+    m_cursorSample = 0;
 
     m_samplePerChunk = chunkSize;
 
@@ -59,6 +61,12 @@ void WaveFormView::setSignal(Signal *_signal)
         connect(m_signal, SIGNAL(signalChanged()), this, SLOT(updateSignal()));
         m_nbTotalSample = m_signal->sampleCount();
     }
+}
+
+void WaveFormView::setCursorTime(qreal cursorTime)
+{
+    m_cursorSample = qRound(m_signal->getSampleRate() * cursorTime);
+    update();
 }
 
 void WaveFormView::resizeEvent(QResizeEvent *_event)
@@ -101,6 +109,12 @@ void WaveFormView::paintEvent(QPaintEvent *_event)
                            0, 0,
                            m_chunkList[i]->width(), m_chunkList[i]->height());
     }
+
+    int x = qRound(Utils::MapValue(m_cursorSample - m_sampleOffset, 0, m_nbSampleViewed, 0, size().width()));
+
+    QPen pen(QColor("yellow"));
+    painter.setPen(pen);
+    painter.drawLine(x, 0, x, size().width());
 
 }
 

@@ -39,6 +39,7 @@ Signal::Signal(QObject *_parent)
 
     int totalSample = 1 * m_sampleRate;
     m_samples = new QByteArray(totalSample, NULL);
+    m_cursorSample = 0;
 
     QAudioFormat format;
     // Set up the format, eg.
@@ -131,6 +132,11 @@ qint32 Signal::getSample(int _index)
     return 0;
 }
 
+void Signal::setCursorTime(qreal _cursorTime)
+{
+    m_cursorSample = qRound(_cursorTime * m_sampleRate);
+}
+
 void Signal::generate()
 {
     int totalSample = qRound(m_duration * m_sampleRate);
@@ -205,6 +211,7 @@ void Signal::pause()
 void Signal::toStart()
 {
     m_buffer->reset();
+    m_buffer->seek(m_cursorSample * 4);
 }
 
 void Signal::toEnd()

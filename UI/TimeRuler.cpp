@@ -27,8 +27,6 @@
 TimeRuler::TimeRuler(QWidget *_parent)
     : QWidget(_parent)
 {
-    m_startTime = 0.0;
-    m_endTime = 1.0;
 }
 
 void TimeRuler::setTimeWindow(qreal _startTime, qreal _endTime)
@@ -87,4 +85,62 @@ void TimeRuler::paintEvent(QPaintEvent *_event)
     }
 
     painter.drawLines(lines);
+
+    QBrush brush(Qt::BrushStyle::SolidPattern);
+    brush.setColor(QColor(255, 255, 0));
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setPen(Qt::NoPen);
+
+    int cursorRadius = 2;
+    int height = size().height() - 1;
+    int x = qRound(Utils::MapValue(m_currentTime, m_startTime, m_endTime, 0.0, size().width())) - CURSOR_HALF_WIDTH;
+
+    QPainterPath cursor;
+    cursor.moveTo(x, cursorRadius);
+    cursor.arcTo(x, 0, 2 * cursorRadius, 2 * cursorRadius, 180, -90);
+    cursor.arcTo(x + CURSOR_HALF_WIDTH * 2 - 2 * cursorRadius, 0, 2 * cursorRadius, 2 * cursorRadius, 90, -90);
+    cursor.lineTo(x + 2 * CURSOR_HALF_WIDTH, height - CURSOR_HALF_WIDTH);
+    cursor.lineTo(x + CURSOR_HALF_WIDTH, height);
+    cursor.lineTo(x, height - CURSOR_HALF_WIDTH);
+    cursor.closeSubpath();
+
+    painter.fillPath(cursor, brush);
+}
+
+void TimeRuler::mousePressEvent(QMouseEvent *_event)
+{
+    if(_event->button() == Qt::MouseButton::LeftButton)
+    {
+        m_draggingCursor = true;
+        int cursorPos = qRound(Utils::MapValue(m_currentTime, m_startTime, m_endTime, 0.0, size().width()));
+        int mousePos = _event->pos().x();
+        m_cursorOffset = qAbs(cursorPos - mousePos) < CURSOR_HALF_WIDTH ? cursorPos - mousePos : 0;
+        updateCursor(mousePos);
+    }
+}
+
+void TimeRuler::mouseMoveEvent(QMouseEvent *_event)
+{
+    if(m_draggingCursor)
+    {
+        updateCursor(_event->pos().x());
+    }
+}
+
+void TimeRuler::mouseReleaseEvent(QMouseEvent *_event)
+{
+    Q_UNUSED(_event)
+
+    if(_event->button() == Qt::MouseButton::LeftButton)
+    {
+        m_draggingCursor = false;
+    }
+}
+
+void TimeRuler::updateCursor(int _mousePosX)
+{
+    qreal value = static_cast<qreal>(_mousePosX + m_cursorOffset);
+    m_currentTime = Utils::MapValue(value, 0, static_cast<qreal>(size().width()), m_startTime, m_endTime);
+    update();
+    emit onTimeSelected(m_currentTime);
 }
