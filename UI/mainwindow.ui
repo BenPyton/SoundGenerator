@@ -585,7 +585,7 @@ QMainWindow  QPushButton.component {
 }
 
 /* Scrollbar */
-QScrollBar {
+Q/*ScrollBar {
     background-color: rgb(50, 50, 50);
 	border: 1px solid rgb(100, 100, 100);
 	border-radius: 4px;
@@ -625,7 +625,7 @@ QScrollBar::handle {
 
 QScrollBar::handle:hover {
     background: rgb(80, 80, 80);
-}
+}*/
 
 QScrollBar::handle:pressed {
     background: rgb(200, 200, 200);
@@ -706,12 +706,12 @@ QRadioButton::indicator::checked {
      </widget>
     </item>
     <item>
-     <widget class="QScrollBar" name="waveFormScrollBar">
-      <property name="styleSheet">
-       <string notr="true"/>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+     <widget class="WaveFormScrollBar" name="waveFormScrollBar" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>15</height>
+       </size>
       </property>
      </widget>
     </item>
@@ -849,6 +849,12 @@ QRadioButton::indicator::checked {
    <class>TimeRuler</class>
    <extends>QWidget</extends>
    <header>TimeRuler.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>WaveFormScrollBar</class>
+   <extends>QWidget</extends>
+   <header>WaveFormScrollBar.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

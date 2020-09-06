@@ -79,6 +79,7 @@ public slots:
 
     void onWaveFormViewZoomChanged();
     void onScrollbarValueChanged();
+    void onTimeCursorChanged(qreal _newTime);
 
 private:
     void createActions();

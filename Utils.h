@@ -53,6 +53,7 @@ public:
     }
 
     static qreal MapValue(qreal _x, qreal _p00, qreal _p01, qreal _p10, qreal _p11);
+    static int MapValue(int _x, int _p00, int _p01, int _p10, int _p11);
 
     static bool CheckJsonValue(QJsonObject& _object, QString _name, QJsonValue::Type _type, int _startErrorCode);
 

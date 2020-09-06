@@ -36,11 +36,17 @@ public:
     virtual ~WaveFormView() override;
 
     void setSignal(Signal* _signal);
-    void setCursorTime(qreal cursorTime);
+    void setCursorSample(int _cursorTime);
 
     inline int getSampleOffset() { return m_sampleOffset; }
     inline int getNbSampleViewed() { return m_nbSampleViewed; }
-    inline int getNbTotalSample() { return m_nbTotalSample; }
+    int getNbTotalSample();
+
+    void setNbSampleViewed(int _nbSampleViewed);
+
+    void setZoomMin(qreal _value);
+    void setZoomMax(qreal _value);
+    void setZoom(qreal _value);
 
 public slots:
     virtual void resizeEvent(QResizeEvent* _event) override;
@@ -55,12 +61,13 @@ signals:
 
 protected:
     void updateAllChunks();
-    void updateZoom(int _localOffset);
+    void updateZoom(int _localOffset = 0);
+    void updateView();
+    void updateChunkList();
 
 private:
     int m_sampleOffset;
     int m_nbSampleViewed;
-    int m_nbTotalSample;
     int m_samplePerChunk;
     int m_cursorSample;
 
@@ -71,6 +78,7 @@ private:
     QList<WaveFormChunk*> m_chunkList;
 
     Signal* m_signal;
+    bool m_firstUpdate;
 
     static const int chunkSize;
 };

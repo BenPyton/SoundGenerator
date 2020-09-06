@@ -21,23 +21,24 @@
 #include "WaveFormView.h"
 #include "WaveFormChunk.h"
 #include <QPainter>
+#include <QtMath>
 #include "Utils.h"
 
 const int WaveFormView::chunkSize = 128;
 
 WaveFormView::WaveFormView(QWidget *_parent)
-    : QWidget(_parent), m_signal(nullptr)
+    : QWidget(_parent), m_signal(nullptr), m_firstUpdate(true)
 {
+    // These values will be correctly set by setting a signal
     m_sampleOffset = 0;
-    m_nbSampleViewed = 2400;
-    m_nbTotalSample = 0;
     m_cursorSample = 0;
+    m_nbSampleViewed = 0;
+    m_samplePerChunk = 0;
 
-    m_samplePerChunk = chunkSize;
-
-    m_zoom = 1.0;
-    m_zoomMin = 0.01;
-    m_zoomMax = 6.0;
+    // zoom is the number of sample per pixel
+    m_zoom = 0.0;
+    m_zoomMin = 0.1; // means 1 sample = 10 pixels
+    m_zoomMax = 1.0; // this is just a default value that will be changed later
 }
 
 WaveFormView::~WaveFormView()
@@ -52,45 +53,86 @@ void WaveFormView::setSignal(Signal *_signal)
 {
     if(m_signal != nullptr)
     {
-        this->disconnect(m_signal);
+        disconnect(m_signal);
     }
 
     m_signal = _signal;
     if(m_signal != nullptr)
     {
-        connect(m_signal, SIGNAL(signalChanged()), this, SLOT(updateSignal()));
-        m_nbTotalSample = m_signal->sampleCount();
+        connect(m_signal, &Signal::signalChanged, this, &WaveFormView::updateSignal);
+        m_nbSampleViewed = m_signal->sampleCount();
+        setZoomMax(m_signal->sampleCount() / static_cast<qreal>(size().width()));
+        setZoom(m_zoomMax);
     }
 }
 
-void WaveFormView::setCursorTime(qreal cursorTime)
+void WaveFormView::setCursorSample(int newValue)
 {
-    m_cursorSample = qRound(m_signal->getSampleRate() * cursorTime);
+    m_cursorSample = newValue;
     update();
+}
+
+int WaveFormView::getNbTotalSample()
+{
+    if(m_signal != nullptr)
+    {
+        return m_signal->sampleCount();
+    }
+    return 0;
+}
+
+void WaveFormView::setNbSampleViewed(int _nbSampleViewed)
+{
+    if(m_nbSampleViewed == _nbSampleViewed)
+        return;
+
+    setZoom(_nbSampleViewed / static_cast<qreal>(size().width()));
+}
+
+void WaveFormView::setZoomMin(qreal _value)
+{
+    m_zoomMin = _value;
+    if(m_zoom < m_zoomMin)
+    {
+        setZoom(m_zoomMin);
+    }
+}
+
+void WaveFormView::setZoomMax(qreal _value)
+{
+    m_zoomMax = _value;
+    if(m_zoom > m_zoomMax)
+    {
+        setZoom(m_zoomMax);
+    }
+}
+
+void WaveFormView::setZoom(qreal _value)
+{
+    qreal newZoom = Utils::Clamp(_value, m_zoomMin, m_zoomMax);
+    if(!qFuzzyCompare(newZoom, m_zoom))
+    {
+        m_zoom = newZoom;
+        updateZoom();
+    }
+}
+
+void WaveFormView::setSampleOffset(int _startIndex)
+{
+    if(m_sampleOffset == _startIndex)
+        return;
+
+    m_sampleOffset = qMax(0, _startIndex);
+    qDebug() << "Start Offset: " << m_sampleOffset << " | " << m_chunkList.first()->startIndex();
+    updateView();
 }
 
 void WaveFormView::resizeEvent(QResizeEvent *_event)
 {
-    Q_UNUSED(_event);
+    Q_UNUSED(_event)
 
-    int nbChunk = 3 + size().width() / chunkSize;
-
-    while(nbChunk > m_chunkList.size())
-    {
-        int startIndex = m_chunkList.size() > 0 ? m_chunkList.last()->startIndex() + m_samplePerChunk : 0;
-        m_chunkList.push_back(new WaveFormChunk(chunkSize, 100));
-        m_chunkList.last()->setIndexRange(startIndex, m_samplePerChunk);
-        m_chunkList.last()->updateWave(m_signal);
-        m_chunkList.last()->setColor(QColor(255, 0, 0));
-    }
-
-    while(nbChunk < m_chunkList.size())
-    {
-        delete m_chunkList.last();
-        m_chunkList.pop_back();
-    }
-
-    updateZoom(0);
+    setNbSampleViewed(qRound(m_zoom * size().width()));
+    emit zoomChanged();
 }
 
 void WaveFormView::paintEvent(QPaintEvent *_event)
@@ -99,7 +141,7 @@ void WaveFormView::paintEvent(QPaintEvent *_event)
 
     QPainter painter(this);
 
-    int pixelOffset = qRound((m_chunkList.first()->startIndex() - m_sampleOffset) * m_zoom);
+    int pixelOffset = qRound((m_chunkList.first()->startIndex() - m_sampleOffset) * chunkSize / static_cast<qreal>(m_samplePerChunk));
 
     for(int  i = 0; i < m_chunkList.size(); i++)
     {
@@ -110,7 +152,7 @@ void WaveFormView::paintEvent(QPaintEvent *_event)
                            m_chunkList[i]->width(), m_chunkList[i]->height());
     }
 
-    int x = qRound(Utils::MapValue(m_cursorSample - m_sampleOffset, 0, m_nbSampleViewed, 0, size().width()));
+    int x = Utils::MapValue(m_cursorSample - m_sampleOffset, 0, m_nbSampleViewed, 0, size().width());
 
     QPen pen(QColor("yellow"));
     painter.setPen(pen);
@@ -120,63 +162,30 @@ void WaveFormView::paintEvent(QPaintEvent *_event)
 
 void WaveFormView::wheelEvent(QWheelEvent *_event)
 {
+    int localOffset = m_sampleOffset + qRound(m_zoom * _event->pos().x());
+
     // zoom
     int angle = _event->angleDelta().y();
     qreal factor = 1.0 + (angle > 0.0 ? 0.1 : -0.1);
-    m_zoom *= factor;
-    if(m_zoomMin > 0.0 && m_zoom < m_zoomMin)
-    {
-        m_zoom = m_zoomMin;
-    }
-    else if(m_zoomMax > 0.0 && m_zoom > m_zoomMax)
-    {
-        m_zoom = m_zoomMax;
-    }
-
-    int localOffset = qRound(m_sampleOffset + m_nbSampleViewed * qreal(_event->x()) / width());
+    m_zoom = Utils::Clamp(m_zoom * factor, m_zoomMin, m_zoomMax);
     updateZoom(localOffset);
-
-    updateAllChunks();
-    update();
-}
-
-void WaveFormView::setSampleOffset(int _startIndex)
-{
-    if(m_sampleOffset == _startIndex)
-        return;
-
-    m_sampleOffset = qMax(0, _startIndex);
-
-    while(m_sampleOffset - m_chunkList.first()->startIndex() >= 2 * m_samplePerChunk)
-    {
-        WaveFormChunk* chunk = m_chunkList.first();
-        m_chunkList.pop_front();
-        chunk->setIndexRange(m_chunkList.last()->startIndex() + m_samplePerChunk, m_samplePerChunk);
-        chunk->updateWave(m_signal);
-        m_chunkList.push_back(chunk);
-    }
-
-    while(m_sampleOffset - m_chunkList.first()->startIndex() < 0)
-    {
-        WaveFormChunk* chunk = m_chunkList.last();
-        m_chunkList.pop_back();
-        chunk->setIndexRange(m_chunkList.first()->startIndex() - m_samplePerChunk, m_samplePerChunk);
-        chunk->updateWave(m_signal);
-        m_chunkList.push_front(chunk);
-    }
-
-    qDebug() << "Start Offset: " << m_sampleOffset << " | " << m_chunkList.first()->startIndex();
-
-    update();
 }
 
 void WaveFormView::updateSignal()
 {
     if(m_signal != nullptr)
     {
-        m_nbTotalSample = m_signal->sampleCount();
-        updateAllChunks();
-        update();
+        setZoomMax(m_signal->sampleCount() / static_cast<qreal>(size().width()));
+        if(m_firstUpdate)
+        {
+            setZoom(m_zoomMax);
+            m_firstUpdate = false;
+        }
+        else
+        {
+            updateAllChunks();
+            emit zoomChanged();
+        }
     }
 }
 
@@ -187,21 +196,59 @@ void WaveFormView::updateAllChunks()
         m_chunkList[i]->setIndexRange(m_chunkList.first()->startIndex() + i * m_samplePerChunk, m_samplePerChunk);
         m_chunkList[i]->updateWave(m_signal);
     }
+    update();
 }
 
 void WaveFormView::updateZoom(int _localOffset)
 {
     int oldSampleViewed = m_nbSampleViewed;
-    m_samplePerChunk = qRound(chunkSize / m_zoom);
-    m_nbSampleViewed = qRound(m_samplePerChunk * qreal(width()) / chunkSize);
-    qDebug() << "Zoom: " << m_zoom << " | Sample: " << m_nbSampleViewed;
-
-    if(m_nbSampleViewed > m_nbTotalSample)
+    m_nbSampleViewed = qRound(m_zoom * size().width());
+    if(_localOffset != 0)
     {
-        m_chunkList.first()->setIndexRange(0, chunkSize);
-        m_sampleOffset = 0;
+        m_sampleOffset = Utils::Clamp(
+                    qRound(_localOffset + (m_sampleOffset - _localOffset) * qreal(m_nbSampleViewed) / oldSampleViewed)
+                    , 0, m_signal->sampleCount() - m_nbSampleViewed);
+    }
+    qDebug() << QString("Zoom: %1 | Sample Viewed: %2 | Sample Count: %3 | Sample Offset: %4 | Local Offset %5 | Witdh: %6")
+                .arg(m_zoom)
+                .arg(m_nbSampleViewed)
+                .arg(getNbTotalSample())
+                .arg(m_sampleOffset)
+                .arg(_localOffset)
+                .arg(size().width());
+    updateView();
+    emit zoomChanged();
+}
+
+void WaveFormView::updateView()
+{
+    m_samplePerChunk = qRound(chunkSize * m_zoom);
+    int startIndex = m_samplePerChunk * (m_sampleOffset / m_samplePerChunk);
+
+    // Update the number of chunk depending on the widget width
+    updateChunkList();
+    m_chunkList.first()->setIndexRange(startIndex, m_samplePerChunk);
+
+    // set correct start index and update pixmap of each chunk
+    updateAllChunks();
+}
+
+void WaveFormView::updateChunkList()
+{
+    int nbChunk = 3 + (size().width() / chunkSize);
+
+    while(nbChunk > m_chunkList.size())
+    {
+        int startIndex = m_chunkList.size() > 0 ? m_chunkList.last()->startIndex() + m_samplePerChunk : 0;
+        m_chunkList.push_back(new WaveFormChunk(chunkSize, 100));
+        m_chunkList.last()->setIndexRange(startIndex, m_samplePerChunk);
+        m_chunkList.last()->updateWave(m_signal);
+        m_chunkList.last()->setColor(QColor(255, 0, 255));
     }
 
-    setSampleOffset(qRound(_localOffset + (m_sampleOffset - _localOffset) * qreal(m_nbSampleViewed) / oldSampleViewed));
-    emit zoomChanged();
+    while(nbChunk < m_chunkList.size())
+    {
+        delete m_chunkList.last();
+        m_chunkList.pop_back();
+    }
 }

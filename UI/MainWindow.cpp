@@ -60,8 +60,10 @@ MainWindow::MainWindow(QWidget* _parent)
     ui->waveFormView->setSignal(&m_signal);
     connect(ui->waveFormView, &WaveFormView::zoomChanged, this, &MainWindow::onWaveFormViewZoomChanged);
     connect(ui->waveFormScrollBar, &QScrollBar::valueChanged, this, &MainWindow::onScrollbarValueChanged);
-    connect(ui->timeRuler, &TimeRuler::onTimeSelected, ui->waveFormView, &WaveFormView::setCursorTime);
-    connect(ui->timeRuler, &TimeRuler::onTimeSelected, &m_signal, &Signal::setCursorTime);
+    connect(ui->timeRuler, &TimeRuler::onTimeSelected, this, &MainWindow::onTimeCursorChanged);
+    connect(ui->waveFormScrollBar, &WaveFormScrollBar::pageStepChanged, this, &MainWindow::onScrollbarValueChanged);
+    ui->waveFormScrollBar->setMaximum(5000);
+    ui->waveFormScrollBar->setPageStep(1000);
 
     m_scene = new NodalScene(ui->nodalView);
     m_scene->setBackgroundBrush(Qt::black);
@@ -567,10 +569,20 @@ void MainWindow::onScrollbarValueChanged()
 
     // update wave form view
     ui->waveFormView->setSampleOffset(offset);
+    ui->waveFormView->setNbSampleViewed(viewSize);
 
     // update time ruler
     qreal sampleDuration = 1.0 / static_cast<qreal>(m_signal.getSampleRate());
     ui->timeRuler->setTimeWindow(offset * sampleDuration, (offset + viewSize) * sampleDuration);
+}
+
+void MainWindow::onTimeCursorChanged(qreal _newTime)
+{
+    m_signal.setCursorTime(_newTime);
+
+    int cursorSample = qRound(_newTime * m_signal.getSampleRate());
+    ui->waveFormView->setCursorSample(cursorSample);
+    ui->waveFormScrollBar->setCursorValue(cursorSample);
 }
 
 void MainWindow::createActions()

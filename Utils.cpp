@@ -73,6 +73,19 @@ qreal Utils::MapValue(qreal _x, qreal _p00, qreal _p01, qreal _p10, qreal _p11)
     return newValue;
 }
 
+int Utils::MapValue(int _x, int _p00, int _p01, int _p10, int _p11)
+{
+    int newValue = 0;
+    if (_p00 != _p01 && _p10 != _p11)
+    {
+        int max0 = _p01 - _p00;
+        int max1 = _p11 - _p10;
+        newValue = qRound(_p10 + (_x - _p00) * max1 / static_cast<qreal>(max0));
+    }
+
+    return newValue;
+}
+
 bool Utils::CheckJsonValue(QJsonObject &_object, QString _name, QJsonValue::Type _type, int _startErrorCode)
 {
     bool success = true;
