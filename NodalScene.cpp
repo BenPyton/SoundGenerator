@@ -119,7 +119,7 @@ void NodalScene::load(QString fileName, qreal& duration)
 
     duration = root["duration"].toDouble();
 
-    clearItems(1);
+    reset();
 
     // ============== CREATE COMPONENTS =============
     if(!Utils::CheckJsonValue(root, "components", QJsonValue::Array, 120))
@@ -135,6 +135,7 @@ int NodalScene::clearItems(int from)
     int nbRemoved = 0;
     for(int i = m_nodeList.size()-1; i >= from; --i)
     {
+        m_nodeList[i]->unlink();
         delete m_nodeList[i];
         m_nodeList.remove(i);
         nbRemoved++;
@@ -148,6 +149,7 @@ void NodalScene::reset()
     clearItems(1);
     m_nodeList[0]->setX(0);
     m_nodeList[0]->setY(0);
+    m_nodeList[0]->setSelected(false);
 }
 
 
