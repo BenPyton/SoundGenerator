@@ -1,5 +1,13 @@
 # Changelog
 
+## Alpha 0.0.5
+- Added a time ruler in the waveform view, and a cursor to play the sound from
+- Added a custom scrollbar for the waveform view, to allow easy view resizing
+- Added icons on tool buttons and compoennt buttons
+- Fixed crash when creating new project while the current project had links in it
+- Fixed waveform view update when using the scrollbar
+- Fixed inversed waveform on Y axis
+
 ## Alpha 0.0.4
 - Added Undo/Redo actions with Ctrl+Z/Ctrl+Y
 - Added option in audio menu to loop the sound playback
