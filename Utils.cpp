@@ -28,7 +28,7 @@
 
 #define MAJOR_VERSION 0
 #define MINOR_VERSION 0
-#define BUGFIX_VERSION 4
+#define BUGFIX_VERSION 5
 
 const QString Utils::AppName = "Sound Generator";
 const QString Utils::CompanyName = "Benoit Pelletier";
