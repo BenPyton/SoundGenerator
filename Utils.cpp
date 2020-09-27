@@ -143,3 +143,8 @@ QString Utils::FormatTimeCode(qreal _seconds)
 
     return QString("%1:%2:%3").arg(min).arg(sec, 2, 10, QLatin1Char('0')).arg(millisec, 3, 10, QLatin1Char('0'));
 }
+
+QString Utils::GetComponentIconPath(QString _componentName)
+{
+    return QString(":/icons/components/%1").arg(_componentName.toLower());
+}

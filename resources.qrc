@@ -1,0 +1,26 @@
+<RCC>
+    <qresource prefix="/icons/tools">
+        <file alias="end">Resources/icons/icon_end.png</file>
+        <file alias="export">Resources/icons/icon_export.png</file>
+        <file alias="open">Resources/icons/icon_open.png</file>
+        <file alias="pause">Resources/icons/icon_pause.png</file>
+        <file alias="play">Resources/icons/icon_play.png</file>
+        <file alias="save">Resources/icons/icon_save.png</file>
+        <file alias="start">Resources/icons/icon_start.png</file>
+        <file alias="stop">Resources/icons/icon_stop.png</file>
+        <file alias="generate">Resources/icons/icon_generate.png</file>
+        <file alias="new">Resources/icons/icon_new.png</file>
+    </qresource>
+    <qresource prefix="/icons/components">
+        <file alias="adsr">Resources/icons/icon_component_adsr.png</file>
+        <file alias="delay">Resources/icons/icon_component_delay.png</file>
+        <file alias="random">Resources/icons/icon_component_randomwave.png</file>
+        <file alias="saw tooth">Resources/icons/icon_component_sawtoothwave.png</file>
+        <file alias="sinusoidal">Resources/icons/icon_component_sinuswave.png</file>
+        <file alias="square">Resources/icons/icon_component_squarewave.png</file>
+        <file alias="triangle">Resources/icons/icon_component_trianglewave.png</file>
+        <file alias="add">Resources/icons/icon_component_add.png</file>
+        <file alias="multiply">Resources/icons/icon_component_multiply.png</file>
+        <file alias="repeat">Resources/icons/icon_component_repeat.png</file>
+    </qresource>
+</RCC>

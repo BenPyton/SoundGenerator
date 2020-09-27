@@ -68,6 +68,8 @@ public:
 
     static QString FormatTimeCode(qreal _seconds);
 
+    static QString GetComponentIconPath(QString _componentName);
+
     static const QString AppName;
     static const QString CompanyName;
 };

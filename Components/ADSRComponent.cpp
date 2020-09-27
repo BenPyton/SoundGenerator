@@ -60,11 +60,11 @@ qreal ADSRComponent::getOutput(qreal _time)
     qreal value = 0;
 	if (_time > 0 && _time <= attackTime)
 	{
-        value = Utils::MapValue(_time, 0, attackTime, 0, 1);
+        value = Utils::MapValue(_time, 0., attackTime, 0., 1.);
 	}
 	else if (_time > attackTime && _time <= decayTime)
 	{
-        value = Utils::MapValue(_time, attackTime, decayTime, 1, sustainAmp);
+        value = Utils::MapValue(_time, attackTime, decayTime, 1., sustainAmp);
 	}
 	else if (_time > decayTime && _time <= sustainTime)
 	{
@@ -72,7 +72,7 @@ qreal ADSRComponent::getOutput(qreal _time)
 	}
 	else if (_time > sustainTime && _time <= releaseTime)
 	{
-        value = Utils::MapValue(_time, sustainTime, releaseTime, sustainAmp, 0);
+        value = Utils::MapValue(_time, sustainTime, releaseTime, sustainAmp, 0.);
 	}
 
 	return input * value;

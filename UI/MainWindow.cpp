@@ -55,7 +55,6 @@ MainWindow::MainWindow(QWidget* _parent)
         "ADSR"
     };
 
-
     ui->buttonLayout->setAlignment(Qt::Alignment(Qt::AlignTop | Qt::AlignHCenter));
     ui->waveFormView->setSignal(&m_signal);
     connect(ui->waveFormView, &WaveFormView::zoomChanged, this, &MainWindow::onWaveFormViewZoomChanged);
@@ -117,7 +116,7 @@ MainWindow::MainWindow(QWidget* _parent)
         QAction* action = new QAction(component, this);
         connect(action, &QAction::triggered, [this, component]() { m_scene->createComponent(component); });
 
-        PushOrDragButton* button = new PushOrDragButton(component);
+        PushOrDragButton* button = new PushOrDragButton(QIcon(Utils::GetComponentIconPath(component)), component);
         button->setProperty("class", "component");
         ui->buttonLayout->addWidget(button);
         connect(button, SIGNAL(clicked()), action, SLOT(trigger()));
@@ -127,19 +126,19 @@ MainWindow::MainWindow(QWidget* _parent)
 
     // ===== Audio Menu =====
 
-    QAction* act_generate = new QAction("Generate", this);
+    QAction* act_generate = new QAction(QIcon(":icons/tools/generate"), "Generate", this);
     act_generate->setShortcut(QKeySequence::Refresh);
     connect(act_generate, SIGNAL(triggered()), &m_signal, SLOT(generate()));
 
     ActionCycle* act_play = new ActionCycle(this);
-    act_play->addAction("Play");
-    act_play->addAction("Pause");
+    act_play->addAction("Play", QIcon(":/icons/tools/play"));
+    act_play->addAction("Pause", QIcon(":/icons/tools/pause"));
     act_play->setShortcut(QKeySequence("Space"));
     act_play->reset();
     connect(act_play, SIGNAL(triggered(int)), this, SLOT(playPause(int)));
     connect(&m_signal, SIGNAL(stopped()), act_play, SLOT(reset()));
 
-    QAction* act_stop = new QAction("Stop", this);
+    QAction* act_stop = new QAction(QIcon(":/icons/tools/stop"), "Stop", this);
     connect(act_stop, SIGNAL(triggered()), &m_signal, SLOT(stop()));
 
     QAction* act_loop = new QAction("Loop", this);
@@ -155,11 +154,11 @@ MainWindow::MainWindow(QWidget* _parent)
 
     // ===== File Edit =====
 
-    QAction* act_newFile = new QAction("New", this);
+    QAction* act_newFile = new QAction(QIcon(":/icons/tools/new"), "New", this);
     act_newFile->setShortcut(QKeySequence::New);
     connect(act_newFile, SIGNAL(triggered()), this, SLOT(newFile()));
 
-    QAction* act_openFile = new QAction("Open", this);
+    QAction* act_openFile = new QAction(QIcon(":/icons/tools/open"), "Open", this);
     act_openFile->setShortcut(QKeySequence::Open);
     connect(act_openFile, SIGNAL(triggered()), this, SLOT(open()));
 
@@ -180,7 +179,7 @@ MainWindow::MainWindow(QWidget* _parent)
     menu_openRecentFile->addAction(act_clearRecentFiles);
 
 
-    QAction* act_saveFile = new QAction("Save", this);
+    QAction* act_saveFile = new QAction(QIcon(":/icons/tools/save"), "Save", this);
     act_saveFile->setShortcut(QKeySequence::Save);
     connect(act_saveFile, SIGNAL(triggered()), this, SLOT(save()));
 
@@ -188,7 +187,7 @@ MainWindow::MainWindow(QWidget* _parent)
     act_saveAsFile->setShortcut(QKeySequence("Ctrl+Shift+S"));
     connect(act_saveAsFile, SIGNAL(triggered()), this, SLOT(saveAs()));
 
-    QAction* act_exportWAV = new QAction("Export to WAV", this);
+    QAction* act_exportWAV = new QAction(QIcon(":/icons/tools/export"), "Export to WAV", this);
     act_exportWAV->setShortcut(QKeySequence("Ctrl+E"));
     connect(act_exportWAV, SIGNAL(triggered()), this, SLOT(exportWAV()));
 

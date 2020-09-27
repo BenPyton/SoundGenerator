@@ -580,7 +580,7 @@ QMainWindow QPushButton:pressed {
 
 QMainWindow  QPushButton.component {
 	font-size: 11pt;
-	min-width: 100px;
+	min-width: 120px;
 	padding: 5px, 5px;
 }
 
