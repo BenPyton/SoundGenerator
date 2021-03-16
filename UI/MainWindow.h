@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Benoit Pelletier
+ * Copyright 2019-2021 Benoit Pelletier
  *
  * This file is part of Sound Generator.
  *
@@ -28,6 +28,8 @@
 
 class NodeItem;
 class NodalScene;
+class AudioSettingsDialog;
+class ActionAudioDevice;
 
 namespace Ui {
 class MainWindow;
@@ -70,12 +72,15 @@ public slots:
     void exportWAV();
     void quit();
     void playPause(int _index);
+    void openAudioSettings();
     // other
     void setDirty();
     void changeVolume(int _value);
-    void changeDuration(qreal _value);
     void changeAutoGenerate(QAction* _action);
     void onOutputChanged();
+    void onSignalError(Signal::Error _error);
+    void onAudioSettingsFinished(int _result);
+    void onAudioDeviceChanged(const QAudioDeviceInfo& _info);
 
     void onWaveFormViewZoomChanged();
     void onScrollbarValueChanged();
@@ -108,6 +113,8 @@ private:
     QAction* recentFileActs[maxRecentFile];
     QMenu* menu_openRecentFile;
     QActionGroup* m_act_autoGenerateGroup;
+
+    AudioSettingsDialog* m_audioSettingsDialog;
 };
 
 #endif // MAINWINDOW_H

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Benoit Pelletier
+ * Copyright 2019-2021 Benoit Pelletier
  *
  * This file is part of Sound Generator.
  *
@@ -31,6 +31,9 @@
 #include <QStyle>
 #include "Utils.h"
 #include "ActionCycle.h"
+#include "AudioSettingsDialog.h"
+#include "AudioSettings.h"
+#include "ActionAudioDevice.h"
 
 
 MainWindow::MainWindow(QWidget* _parent)
@@ -75,6 +78,7 @@ MainWindow::MainWindow(QWidget* _parent)
 
     m_signal.setComponent(m_scene->getOutput()->component());
     connect(m_scene->getOutput(), &NodeItem::outputChanged, this, &MainWindow::onOutputChanged);
+    connect(&m_signal, &Signal::handleError, this, &MainWindow::onSignalError);
 
     // ===== Edit Menu =====
 
@@ -152,6 +156,11 @@ MainWindow::MainWindow(QWidget* _parent)
     m_act_autoGenerateGroup->actions()[0]->setChecked(true);
     connect(m_act_autoGenerateGroup, SIGNAL(triggered(QAction*)), this, SLOT(changeAutoGenerate(QAction*)));
 
+    QAction* act_audioSettings = new QAction("Settings", this);
+    connect(act_audioSettings, SIGNAL(triggered()), this, SLOT(openAudioSettings()));
+    m_audioSettingsDialog = new AudioSettingsDialog(this);
+    connect(m_audioSettingsDialog, &AudioSettingsDialog::finished, this, &MainWindow::onAudioSettingsFinished);
+
     // ===== File Edit =====
 
     QAction* act_newFile = new QAction(QIcon(":/icons/tools/new"), "New", this);
@@ -221,6 +230,12 @@ MainWindow::MainWindow(QWidget* _parent)
     QMenu* menu_autoGenerate = ui->menuAudio->addMenu("Auto-Generation");
     menu_autoGenerate->addActions(m_act_autoGenerateGroup->actions());
 
+    ActionAudioDevice* act_audioDevice = new ActionAudioDevice("Output Device", ui->menuAudio);
+    connect(act_audioDevice, &ActionAudioDevice::deviceChanged, this, &MainWindow::onAudioDeviceChanged);
+    ui->menuAudio->addMenu(act_audioDevice);
+
+    ui->menuAudio->addAction(act_audioSettings);
+
     ui->mainToolBar->clear();
     ui->mainToolBar->addAction(act_newFile);
     ui->mainToolBar->addAction(act_openFile);
@@ -233,17 +248,6 @@ MainWindow::MainWindow(QWidget* _parent)
     QWidget* spacer = new QWidget(this);
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     ui->mainToolBar->addWidget(spacer);
-
-
-    QLabel* lbl_duration = new QLabel("Duration", this);
-    lbl_duration->setStyleSheet("margin:5px;");
-    LineEditQReal* edit_duration = new LineEditQReal(this);
-    edit_duration->setMaximumWidth(100);
-    connect(edit_duration, &QLineEdit::editingFinished, this, [this, edit_duration](){ edit_duration->clearFocus(); changeDuration(edit_duration->value()); });
-    edit_duration->setValue(1.);
-    ui->mainToolBar->addSeparator();
-    ui->mainToolBar->addWidget(lbl_duration);
-    ui->mainToolBar->addWidget(edit_duration);
 
     QLabel* lbl_volume = new QLabel("Volume", this);
     lbl_volume->setStyleSheet("margin:5px;");
@@ -516,11 +520,6 @@ void MainWindow::changeVolume(int _value)
    m_signal.setVolume(qreal(_value) / 100.0);
 }
 
-void MainWindow::changeDuration(qreal _value)
-{
-    m_signal.setDuration(_value);
-}
-
 void MainWindow::changeAutoGenerate(QAction* _action)
 {
     int actionIndex = -1;
@@ -544,6 +543,46 @@ void MainWindow::onOutputChanged()
     }
 }
 
+void MainWindow::onSignalError(Signal::Error _error)
+{
+    switch(_error)
+    {
+    case Signal::Error::NO_OUTPUT_DEVICE:
+        QMessageBox::warning(this, "Audio Output Warning", "There is no output device: the sound will not play.");
+        break;
+    case Signal::Error::AUDIO_FORMAT_NOT_SUPPORTED:
+        QMessageBox::warning(this, "Audio Output Warning", "The format of the sound is not suported by the output device: the sound will not play.");
+        break;
+    default:
+        QMessageBox::critical(this, "Audio Output Error", "Unkown error: the sound will not play.");
+        break;
+    }
+}
+
+void MainWindow::openAudioSettings()
+{
+    qDebug() << "Open window";
+    m_audioSettingsDialog->setSettings(m_signal.settings());
+    m_audioSettingsDialog->open();
+}
+
+void MainWindow::onAudioSettingsFinished(int _result)
+{
+    qDebug() << "Close window";
+    if(_result == AudioSettingsDialog::APPLY)
+    {
+        m_audioSettingsDialog->getSettings(m_signal.settings());
+        m_signal.updateAudioOutput(m_signal.deviceInfo());
+        m_signal.generate();
+    }
+}
+
+void MainWindow::onAudioDeviceChanged(const QAudioDeviceInfo& _info)
+{
+    qDebug() << "Device changed!!!";
+    m_signal.updateAudioOutput(_info);
+}
+
 void MainWindow::onWaveFormViewZoomChanged()
 {
     int total = ui->waveFormView->getNbTotalSample();
@@ -557,7 +596,7 @@ void MainWindow::onWaveFormViewZoomChanged()
     ui->waveFormScrollBar->setValue((viewSize < total) ? offset : 0);
 
     // update time ruler
-    qreal sampleDuration = 1.0 / static_cast<qreal>(m_signal.getSampleRate());
+    qreal sampleDuration = 1.0 / static_cast<qreal>(m_signal.settings().sampleRate());
     ui->timeRuler->setTimeWindow(offset * sampleDuration, (offset + viewSize) * sampleDuration);
 }
 
@@ -571,7 +610,7 @@ void MainWindow::onScrollbarValueChanged()
     ui->waveFormView->setNbSampleViewed(viewSize);
 
     // update time ruler
-    qreal sampleDuration = 1.0 / static_cast<qreal>(m_signal.getSampleRate());
+    qreal sampleDuration = 1.0 / static_cast<qreal>(m_signal.settings().sampleRate());
     ui->timeRuler->setTimeWindow(offset * sampleDuration, (offset + viewSize) * sampleDuration);
 }
 
@@ -579,7 +618,7 @@ void MainWindow::onTimeCursorChanged(qreal _newTime)
 {
     m_signal.setCursorTime(_newTime);
 
-    int cursorSample = qRound(_newTime * m_signal.getSampleRate());
+    int cursorSample = qRound(_newTime * m_signal.settings().sampleRate());
     ui->waveFormView->setCursorSample(cursorSample);
     ui->waveFormScrollBar->setCursorValue(cursorSample);
 }
@@ -599,9 +638,8 @@ void MainWindow::openFile(QString _fileName)
     if(QFile::exists(_fileName))
     {
         m_dirtyable = false;
-        qreal duration;
-        m_scene->load(_fileName, duration);
-        m_signal.setDuration(duration);
+        m_scene->load(_fileName, m_signal.settings());
+        m_signal.updateAudioOutput(m_signal.deviceInfo());
         m_dirtyable = true;
         setFileName(_fileName);
     }
@@ -611,7 +649,7 @@ void MainWindow::saveFile(QString _fileName)
 {
     setFileName(_fileName);
     m_dirtyable = false;
-    m_scene->save(_fileName, m_signal.duration());
+    m_scene->save(_fileName, m_signal.settings());
     m_dirtyable = true;
 }
 

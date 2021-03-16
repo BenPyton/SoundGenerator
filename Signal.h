@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Benoit Pelletier
+ * Copyright 2019-2021 Benoit Pelletier
  *
  * This file is part of Sound Generator.
  *
@@ -28,12 +28,19 @@
 
 class Component;
 class LoopableBuffer;
+class AudioSettings;
 
 class Signal : public QObject
 {
     Q_OBJECT
 
 public:
+    enum class Error {
+        NO_OUTPUT_DEVICE,
+        AUDIO_FORMAT_NOT_SUPPORTED,
+        UNKNOWN_ERROR
+    };
+
     Signal(QObject* parent = nullptr);
     virtual ~Signal() override;
 
@@ -43,17 +50,19 @@ public:
     void setVolume(qreal _volume);
     qreal volume();
 
-    inline void setDuration(qreal _duration) { m_duration = _duration; }
-    inline qreal duration() { return m_duration; }
     int sampleCount();
-    qint32 getSample(int _index);
-    inline int getSampleRate() { return m_sampleRate; }
+    qint64 getSample(int _index);
     inline int getCursorSample() { return m_cursorSample; }
     inline void setCursorSample(int _cursorSample) { m_cursorSample = _cursorSample; }
+    inline AudioSettings& settings() { return *m_audioSettings; }
+    inline const QAudioDeviceInfo& deviceInfo() { return m_deviceInfo; }
+
+    void updateAudioOutput(const QAudioDeviceInfo& _info);
 
 signals:
     void signalChanged();
     void stopped();
+    void handleError(Error _code);
 
 public slots:
     void play();
@@ -70,14 +79,16 @@ private slots:
     void handleStateChanged(QAudio::State _newState);
 
 private:
-    int m_sampleRate;
-    qreal m_duration;
+    bool checkOutputDevice();
+
+private:
+    AudioSettings* m_audioSettings;
     QAudioOutput* m_audio;
     QByteArray* m_samples;
     LoopableBuffer* m_buffer;
     Component* m_component;
     int m_cursorSample;
+    QAudioDeviceInfo m_deviceInfo;
 };
-
 
 #endif // SIGNAL_H

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Benoit Pelletier
+ * Copyright 2019-2021 Benoit Pelletier
  *
  * This file is part of Sound Generator.
  *
@@ -26,59 +26,28 @@
 #include <QAudioRecorder>
 #include "WAVFormat.h"
 #include "LoopableBuffer.h"
+#include "AudioSettings.h"
+#include "SampleConverter.h"
 
 Signal::Signal(QObject *_parent)
     : QObject(_parent),
-      m_duration(1.0),
+      m_audioSettings(nullptr),
       m_audio(nullptr),
       m_samples(nullptr),
       m_buffer(nullptr),
       m_component(nullptr)
 {
-    m_sampleRate = 48000;
+    m_audioSettings = new AudioSettings();
+    m_audioSettings->setSampleRate(48000);
+    m_audioSettings->setSampleSize(32);
+    m_audioSettings->setChannelCount(1);
+    m_audioSettings->setDuration(1.0);
 
-    int totalSample = 1 * m_sampleRate;
+    int totalSample = 0;
     m_samples = new QByteArray(totalSample, NULL);
     m_cursorSample = 0;
 
-    QAudioFormat format;
-    // Set up the format, eg.
-    format.setSampleRate(m_sampleRate);
-    format.setChannelCount(1);
-    format.setSampleSize(32);
-    format.setCodec("audio/pcm");
-    format.setByteOrder(QAudioFormat::LittleEndian);
-    format.setSampleType(QAudioFormat::SignedInt);
-
-
-    QList<QAudioDeviceInfo> deviceList = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput);
-    for(QAudioDeviceInfo device : deviceList)
-    {
-        //qDebug() << "Device: " << device.deviceName();
-                 //<< "| samples rates: " << device.supportedSampleRates()
-                 //<< "| samples size: " << device.supportedSampleSizes()
-                 //<< "| codecs: " << device.supportedCodecs();
-                 //<< " | channel count: " << device.supportedChannelCounts()
-                 //<< " | sample types: " << device.supportedSampleTypes()
-                 //<< " | byte orders: " << device.supportedByteOrders();
-    }
-
-    QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
-    /*qDebug() << "Default Device: " << info.deviceName()
-            << "| samples rates: " << info.supportedSampleRates()
-            << " | channel count: " << info.supportedChannelCounts()
-            << "| samples size: " << info.supportedSampleSizes()
-            << "| codecs: " << info.supportedCodecs()
-            << " | byte orders: " << info.supportedByteOrders()
-            << " | sample types: " << info.supportedSampleTypes();*/
-    if (!info.isFormatSupported(format)) {
-        qWarning() << "Raw audio format not supported by backend, cannot play audio.";
-        return;
-    }
-
-    m_audio = new QAudioOutput(format);
-    connect(m_audio, SIGNAL(stateChanged(QAudio::State)), this, SLOT(handleStateChanged(QAudio::State)));
-    m_audio->setVolume(0.2);
+    updateAudioOutput(QAudioDeviceInfo::defaultOutputDevice());
 
     // create the buffer with the audio samples
     m_buffer = new LoopableBuffer(m_samples);
@@ -89,9 +58,13 @@ Signal::~Signal()
 {
     stop();
     m_buffer->close();
-    delete m_audio;
+    if(m_audio != nullptr)
+    {
+        delete m_audio;
+    }
     delete m_buffer;
     delete m_samples;
+    delete m_audioSettings;
 }
 
 void Signal::setVolume(qreal _volume)
@@ -118,28 +91,78 @@ int Signal::sampleCount()
 {
     if(m_samples != nullptr)
     {
-        return m_samples->size() / 4;
+        return m_samples->size() / (m_audioSettings->sampleSize() / 8);
     }
     return 0;
 }
 
-qint32 Signal::getSample(int _index)
+qint64 Signal::getSample(int _index)
 {
-    if(m_samples != nullptr && _index * 4 >= 0 && _index * 4 <= m_samples->size() - 4)
+    return SampleConverter::RecoverSample(m_audioSettings->sampleSize(), m_samples, _index);
+}
+
+void Signal::updateAudioOutput(const QAudioDeviceInfo& _info)
+{
+    bool update = false;
+    QAudioFormat format;
+    qreal volume = 1.0;
+    if(m_audio == nullptr || m_audioSettings->isDirty())
     {
-        return qFromLittleEndian<qint32>(m_samples->constData() + (_index * 4));
+        update = true;
+        m_audioSettings->cleanDirty();
+
+        format.setSampleRate(m_audioSettings->sampleRate());
+        format.setChannelCount(1); // TODO: Manage multiple channels
+        format.setSampleSize(m_audioSettings->sampleSize());
+        format.setCodec("audio/pcm");
+        format.setByteOrder(QAudioFormat::LittleEndian);
+        format.setSampleType(m_audioSettings->sampleType());
     }
-    return 0;
+    else
+    {
+        format = m_audio->format();
+        volume = m_audio->volume();
+    }
+
+    if(_info != m_deviceInfo)
+    {
+        update = true;
+        m_deviceInfo = _info;
+    }
+
+    if(update)
+    {
+        if(m_audio != nullptr)
+        {
+            if(m_audio->state() != QAudio::State::StoppedState)
+            {
+                qDebug() << "Stop previous audio output";
+                m_audio->stop();
+            }
+
+            qDebug() << "Delete previous audio";
+            delete m_audio;
+            m_audio = nullptr;
+        }
+
+        m_audio = new QAudioOutput(m_deviceInfo, format);
+        connect(m_audio, &QAudioOutput::stateChanged, this, &Signal::handleStateChanged);
+        m_audio->setVolume(volume);
+        qDebug() << "Audio Created!";
+
+        checkOutputDevice();
+    }
 }
 
 void Signal::setCursorTime(qreal _cursorTime)
 {
-    m_cursorSample = qRound(_cursorTime * m_sampleRate);
+    m_cursorSample = qRound(_cursorTime * m_audioSettings->sampleRate());
 }
 
 void Signal::generate()
 {
-    int totalSample = qRound(m_duration * m_sampleRate);
+    int sampleRate = m_audioSettings->sampleRate();
+    int totalSample = qRound(m_audioSettings->duration() * sampleRate);
 
     m_samples->clear();
 
@@ -148,18 +171,21 @@ void Signal::generate()
         m_component->init();
     }
 
+    int sampleSize = m_audioSettings->sampleSize();
+    int length = sampleSize/8;
+    char* convertedValue = new char[static_cast<quint64>(length)] {0};
+
+    // TODO: thread this and show a progress bar
     for (int i = 0; i < totalSample; i++)
     {
-        qreal x = qreal(i) / m_sampleRate;
+        qreal x = qreal(i) / sampleRate;
         qreal sample = m_component != nullptr ? Utils::Clamp(m_component->getOutput(x), -1., 1.) : 0.0;
 
-        //qDebug() << "time: " << x << " | value: " << sample;
-        qint32 value = qint32(qRound(INT32_MAX * sample));
-
-        char convertedValue[4] = {0};
-        qToLittleEndian(value, convertedValue);
-        m_samples->append(convertedValue, 4);
+        SampleConverter::ComputeSample(sampleSize, sample, convertedValue);
+        m_samples->append(convertedValue, length);
     }
+
+    delete[] convertedValue;
 
     qDebug() << "Generated!";
 
@@ -168,7 +194,7 @@ void Signal::generate()
 
 void Signal::exportWAV(QString _fileName)
 {
-    WAVFormat wav(1, 1, m_sampleRate, 32);
+    WAVFormat wav(1, m_audioSettings->channelCount(), m_audioSettings->sampleRate(), m_audioSettings->sampleSize());
     wav.writeToFile(_fileName, m_samples);
 }
 
@@ -179,6 +205,9 @@ void Signal::loop(bool _enable)
 
 void Signal::play()
 {
+    if(!checkOutputDevice())
+        return;
+
     if(m_audio->state() == QAudio::SuspendedState)
     {
         m_audio->resume();
@@ -188,11 +217,19 @@ void Signal::play()
         stop();
         toStart();
         m_audio->start(m_buffer);
+        if(m_audio->error() != QAudio::Error::NoError)
+        {
+            qWarning() << "Error when opening audio!!!";
+            emit handleError(Error::UNKNOWN_ERROR);
+        }
     }
 }
 
 void Signal::stop()
 {
+    if(!checkOutputDevice())
+        return;
+
     if(m_audio->state() == QAudio::ActiveState)
     {
         m_audio->stop();
@@ -202,6 +239,9 @@ void Signal::stop()
 
 void Signal::pause()
 {
+    if(!checkOutputDevice())
+        return;
+
     if(m_audio->state() == QAudio::ActiveState)
     {
         m_audio->suspend();
@@ -218,7 +258,6 @@ void Signal::toEnd()
 {
     m_buffer->seek(qMax(qint64(0), m_buffer->size() - 1));
 }
-
 
 void Signal::handleStateChanged(QAudio::State _newState)
 {
@@ -241,4 +280,22 @@ void Signal::handleStateChanged(QAudio::State _newState)
             // ... other cases as appropriate
             break;
     }
+}
+
+bool Signal::checkOutputDevice()
+{
+    if(m_audio == nullptr)
+    {
+        qWarning() << "No audio output device, cannot play audio.";
+        emit handleError(Error::NO_OUTPUT_DEVICE);
+        return false;
+    }
+
+    if(!m_deviceInfo.isFormatSupported(m_audio->format()))
+    {
+        qWarning() << "Audio format not supported by output device, cannot play audio.";
+        emit handleError(Error::AUDIO_FORMAT_NOT_SUPPORTED);
+        return false;
+    }
+    return true;
 }

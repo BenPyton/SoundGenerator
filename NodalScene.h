@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Benoit Pelletier
+ * Copyright 2020-2021 Benoit Pelletier
  *
  * This file is part of Sound Generator.
  *
@@ -25,6 +25,7 @@
 
 class NodeItem;
 class QUndoStack;
+class AudioSettings;
 
 class NodalScene : public QGraphicsScene
 {
@@ -38,8 +39,8 @@ public:
     void addNodeItem(NodeItem *_item);
     void removeNodeItem(NodeItem* _item);
 
-    void save(QString fileName, const qreal duration);
-    void load(QString fileName, qreal& duration);
+    void save(QString fileName, const AudioSettings& settings);
+    void load(QString fileName, AudioSettings& settings);
 
     int clearItems(int from = 0);
     void reset();

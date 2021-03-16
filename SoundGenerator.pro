@@ -68,7 +68,11 @@ SOURCES += \
     LoopableBuffer.cpp \
     ActionCycle.cpp \
     UI/TimeRuler.cpp \
-    UI/WaveFormScrollBar.cpp
+    UI/WaveFormScrollBar.cpp \
+    UI/AudioSettingsDialog.cpp \
+    AudioSettings.cpp \
+    ActionAudioDevice.cpp \
+    SampleConverter.cpp
 
 HEADERS += \
     Components/AddComponent.h \
@@ -112,10 +116,16 @@ HEADERS += \
     LoopableBuffer.h \
     ActionCycle.h \
     UI/TimeRuler.h \
-    UI/WaveFormScrollBar.h
+    UI/WaveFormScrollBar.h \
+    UI/AudioSettingsDialog.h \
+    AudioSettings.h \
+    ActionAudioDevice.h \
+    SampleConverter.h \
+    Exceptions.h
 
 FORMS += \
-    UI/mainwindow.ui
+    UI/mainwindow.ui \
+    UI/audiosettingsdialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

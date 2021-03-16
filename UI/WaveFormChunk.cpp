@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Benoit Pelletier
+ * Copyright 2019-2021 Benoit Pelletier
  *
  * This file is part of Sound Generator.
  *
@@ -23,6 +23,9 @@
 #include <QtMath>
 #include <QtCore>
 #include "Signal.h"
+#include "Utils.h"
+#include "AudioSettings.h"
+#include "SampleConverter.h"
 
 WaveFormChunk::WaveFormChunk()
     : QPixmap()
@@ -51,19 +54,21 @@ void WaveFormChunk::updateWave(Signal* signal)
 
         int mid = qFloor((height()-1) * 0.5);
 
+        qreal maxValue = static_cast<qreal>(SampleConverter::GetMaxValue(signal->settings().sampleSize()));
+
         if(m_nbIndex < width()) // less index than pixel -> draw lines between each index
         {
             QPainterPath path;
 
             qreal nbPixelPerIndex = qreal(width()) / m_nbIndex;
 
-            qint32 value = -signal->getSample(m_startIndex);
-            path.moveTo(0, qRound(value / qreal(INT32_MAX) * mid + mid));
+            qint64 value = -signal->getSample(m_startIndex);
+            path.moveTo(0, qRound((value / maxValue) * mid + mid));
 
             for(int i = 1; i < m_nbIndex + 1; i++)
             {
                 value = -signal->getSample(m_startIndex + i);
-                path.lineTo(i * nbPixelPerIndex, qRound(value / qreal(INT32_MAX) * mid + mid));
+                path.lineTo(i * nbPixelPerIndex, qRound((value / maxValue) * mid + mid));
             }
 
             painter.setPen(QPen(QColor(200, 200, 200), 1));
@@ -77,19 +82,19 @@ void WaveFormChunk::updateWave(Signal* signal)
             for(int i = 0; i < width(); i++)
             {
                 int nbIndexInThisPixel = qRound((i + 1) * nbIndexPerPixel) - prevIndex;
-                qint32 min = INT32_MAX;
-                qint32 max = INT32_MIN;
+                qint64 min = INT64_MAX;
+                qint64 max = INT64_MIN;
 
                 for(int k = 0; k < nbIndexInThisPixel + 1; k++)
                 {
-                    qint32 y = -signal->getSample(m_startIndex + prevIndex + k);
+                    qint64 y = -signal->getSample(m_startIndex + prevIndex + k);
                     if(y < min) min = y;
                     if(y > max) max = y;
                 }
 
                 painter.setPen(QPen(QColor(200, 200, 200), 1));
-                painter.drawLine(i, qRound(min / qreal(INT32_MAX) * mid + mid),
-                                 i, qRound(max / qreal(INT32_MAX) * mid + mid));
+                painter.drawLine(i, qRound((min / maxValue) * mid + mid),
+                                 i, qRound((max / maxValue) * mid + mid));
 
                 prevIndex += nbIndexInThisPixel;
             }

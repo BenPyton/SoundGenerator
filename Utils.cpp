@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Benoit Pelletier
+ * Copyright 2019-2021 Benoit Pelletier
  *
  * This file is part of Sound Generator.
  *
@@ -25,10 +25,10 @@
 #include <QString>
 #include <QJsonArray>
 
-
 #define MAJOR_VERSION 0
 #define MINOR_VERSION 0
 #define BUGFIX_VERSION 5
+#define JSON_VERSION 2
 
 const QString Utils::AppName = "Sound Generator";
 const QString Utils::CompanyName = "Benoit Pelletier";
@@ -86,7 +86,7 @@ int Utils::MapValue(int _x, int _p00, int _p01, int _p10, int _p11)
     return newValue;
 }
 
-bool Utils::CheckJsonValue(QJsonObject &_object, QString _name, QJsonValue::Type _type, int _startErrorCode)
+bool Utils::CheckJsonValue(const QJsonObject &_object, QString _name, QJsonValue::Type _type, int _startErrorCode)
 {
     bool success = true;
     if(!_object.contains(_name))
@@ -112,6 +112,11 @@ void Utils::ErrorMsg(int _code, QString _msg)
 QString Utils::GetAppVersion()
 {
     return QString::number(MAJOR_VERSION) + "." +  QString::number(MINOR_VERSION) + "." + QString::number(BUGFIX_VERSION);
+}
+
+int Utils::GetJSONVersion()
+{
+    return JSON_VERSION;
 }
 
 qreal Utils::Distance(const QPointF &_p1, const QPointF &_p2)

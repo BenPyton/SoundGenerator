@@ -36,9 +36,9 @@ WaveFormView::WaveFormView(QWidget *_parent)
     m_samplePerChunk = 0;
 
     // zoom is the number of sample per pixel
-    m_zoom = 0.0;
     m_zoomMin = 0.1; // means 1 sample = 10 pixels
     m_zoomMax = 1.0; // this is just a default value that will be changed later
+    m_zoom = m_zoomMin;
 }
 
 WaveFormView::~WaveFormView()
@@ -91,7 +91,7 @@ void WaveFormView::setNbSampleViewed(int _nbSampleViewed)
 
 void WaveFormView::setZoomMin(qreal _value)
 {
-    m_zoomMin = _value;
+    m_zoomMin = qMin(_value, m_zoomMax);
     if(m_zoom < m_zoomMin)
     {
         setZoom(m_zoomMin);
@@ -100,7 +100,7 @@ void WaveFormView::setZoomMin(qreal _value)
 
 void WaveFormView::setZoomMax(qreal _value)
 {
-    m_zoomMax = _value;
+    m_zoomMax = qMax(_value, m_zoomMin);
     if(m_zoom > m_zoomMax)
     {
         setZoom(m_zoomMax);
@@ -140,6 +140,9 @@ void WaveFormView::paintEvent(QPaintEvent *_event)
     Q_UNUSED(_event);
 
     QPainter painter(this);
+
+    if(m_chunkList.isEmpty())
+        return;
 
     int pixelOffset = qRound((m_chunkList.first()->startIndex() - m_sampleOffset) * chunkSize / static_cast<qreal>(m_samplePerChunk));
 

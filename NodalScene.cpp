@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Benoit Pelletier
+ * Copyright 2020-2021 Benoit Pelletier
  *
  * This file is part of Sound Generator.
  *
@@ -31,6 +31,15 @@
 #include "UndoCommands/DeleteComponentCommand.h"
 #include "UndoCommands/MoveComponentCommand.h"
 #include "UndoCommands/SelectComponentCommand.h"
+#include "AudioSettings.h"
+
+// JSON keys
+#define VERSION "version"
+#define SETTINGS "settings"
+#define COMPONENTS "components"
+
+// Compatibility
+#define DURATION "duration"
 
 NodalScene::NodalScene(QObject* parent)
     : QGraphicsScene(parent)
@@ -75,14 +84,12 @@ void NodalScene::removeNodeItem(NodeItem *_item)
     m_nodeList.remove(itemIndex);
 }
 
-void NodalScene::save(QString fileName, const qreal duration)
+void NodalScene::save(QString fileName, const AudioSettings& settings)
 {
-    QJsonArray componentArray = NodeItem::NodeArrayToJson(m_nodeList);
-
     QJsonObject root;
-    root["duration"] = duration;
-    root["version"] = 1;
-    root["components"] = componentArray;
+    root[VERSION] = 2;
+    root[COMPONENTS] = NodeItem::NodeArrayToJson(m_nodeList);
+    root[SETTINGS] = settings.toJson();
 
     QJsonDocument json(root);
     QByteArray data = json.toJson();
@@ -93,7 +100,7 @@ void NodalScene::save(QString fileName, const qreal duration)
     file.close();
 }
 
-void NodalScene::load(QString fileName, qreal& duration)
+void NodalScene::load(QString fileName, AudioSettings& settings)
 {
     QFile file(fileName);
     file.open(QIODevice::Text | QIODevice::ReadOnly);
@@ -104,27 +111,36 @@ void NodalScene::load(QString fileName, qreal& duration)
     QJsonObject root = json.object();
 
     // ============== VERSION =============
-    if(!Utils::CheckJsonValue(root, "version", QJsonValue::Double, 100))
+    if(!Utils::CheckJsonValue(root, VERSION, QJsonValue::Double, 100))
         return;
 
-    if(root["version"].toInt() != 1)
+    int version = root[VERSION].toInt();
+    if(version > Utils::GetJSONVersion())
     {
-        Utils::ErrorMsg(102, "Wrong version: project version is " + QString::number(root["version"].toInt()) + " and should be 1");
+        Utils::ErrorMsg(101, "Wrong version: file version is " + QString::number(version) + " and should be " + QString::number(Utils::GetJSONVersion()));
         return;
     }
 
-    // ============== DURATION =============
-    if(!Utils::CheckJsonValue(root, "duration", QJsonValue::Double, 110))
+    // ============== SETTINGS =============
+    if(!Utils::CheckJsonValue(root, SETTINGS, QJsonValue::Object, 115))
         return;
 
-    duration = root["duration"].toDouble();
+    settings.fromJson(root[SETTINGS].toObject(), version);
+
+    if(version <= 1) // compatibility
+    {
+        if(!Utils::CheckJsonValue(root, DURATION, QJsonValue::Double, 110))
+            return;
+
+        settings.setDuration(root[DURATION].toDouble());
+    }
 
     reset();
 
     // ============== CREATE COMPONENTS =============
-    if(!Utils::CheckJsonValue(root, "components", QJsonValue::Array, 120))
+    if(!Utils::CheckJsonValue(root, COMPONENTS, QJsonValue::Array, 120))
         return;
-    QJsonArray componentArray = root["components"].toArray();
+    QJsonArray componentArray = root[COMPONENTS].toArray();
 
     NodeItem::JsonToNodeArray(componentArray, this, QPointF(), m_undoStack);
     m_undoStack->clear();

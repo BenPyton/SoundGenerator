@@ -55,11 +55,12 @@ public:
     static qreal MapValue(qreal _x, qreal _p00, qreal _p01, qreal _p10, qreal _p11);
     static int MapValue(int _x, int _p00, int _p01, int _p10, int _p11);
 
-    static bool CheckJsonValue(QJsonObject& _object, QString _name, QJsonValue::Type _type, int _startErrorCode);
+    static bool CheckJsonValue(const QJsonObject& _object, QString _name, QJsonValue::Type _type, int _startErrorCode);
 
     static void ErrorMsg(int _code, QString _msg);
 
     static QString GetAppVersion();
+    static int GetJSONVersion();
 
     static qreal Distance(const QPointF& _p1, const QPointF& _p2);
     static qreal DistanceSqr(const QPointF& _p1, const QPointF& _p2);
@@ -73,6 +74,5 @@ public:
     static const QString AppName;
     static const QString CompanyName;
 };
-
 
 #endif // UTILS_H
