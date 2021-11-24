@@ -51,6 +51,12 @@ NodalScene::NodalScene(QObject* parent)
     // Create the output, that is a unique and non-removable component
     createNode("Output", 100.0);
     m_undoStack->clear();
+
+    // Disabling BSP to avoid crashing when removing link items in the scene
+    // see: https://forum.qt.io/topic/71316/qgraphicsscenefinditembsptreevisitor-visit-crashes-due-to-an-obsolete-paintevent-after-qgraphicsscene-removeitem/21
+    // (TL;DR: Removing item in the scene doesn't remove properly the item in the BSP tree)
+    // TODO: find a better fix to get better perf with lot of items in the scene
+    setItemIndexMethod(QGraphicsScene::ItemIndexMethod::NoIndex);
 }
 
 NodalScene::~NodalScene()
