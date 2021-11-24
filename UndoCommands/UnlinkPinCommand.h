@@ -31,7 +31,7 @@ class UnlinkPinCommand : public QUndoCommand
 {
 public:
     UnlinkPinCommand(QGraphicsScene* _scene, PinItem* _pinA, PinItem* _pinB, QUndoCommand* _parent = nullptr);
-    ~UnlinkPinCommand();
+    virtual ~UnlinkPinCommand() override;
 
     void undo() override;
     void redo() override;

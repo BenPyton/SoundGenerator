@@ -21,6 +21,8 @@
 #include "LinkItem.h"
 #include "NodalView.h"
 #include "PinItem.h"
+#include "NodeItem.h"
+#include "PinOutputItem.h"
 #include <QtMath>
 
 QVector<LinkItem*> LinkItem::s_linkList;
@@ -35,16 +37,18 @@ LinkItem::LinkItem(QGraphicsItem *parent)
 
     m_mousePos = QPointF(0, 0);
 
-    setZValue(10000);
+    setZValue(-10000);
 
-    s_linkList.append(this);
+    qDebug() << "Create LinkItem";
 }
 
 LinkItem::~LinkItem()
 {
-    int index = s_linkList.indexOf(this);
-    Q_ASSERT(index >= 0);
-    s_linkList.removeAt(index);
+    qDebug() << "Destroy LinkItem";
+    if (isRegistered(this))
+    {
+        unregisterLink(this);
+    }
 }
 
 void LinkItem::setMousePos(QPointF mousePos)
@@ -64,6 +68,36 @@ void LinkItem::prepareChange()
     prepareGeometryChange();
 }
 
+void LinkItem::check()
+{
+    qDebug() << "Check Link Item";
+    Q_ASSERT(scene() == nullptr);
+    Q_ASSERT(m_pinA == nullptr && m_pinB == nullptr);
+}
+
+void LinkItem::registerLink(LinkItem*_link)
+{
+    Q_ASSERT(_link != nullptr);
+    if(!isRegistered(_link))
+    {
+        s_linkList.append(_link);
+    }
+}
+
+void LinkItem::unregisterLink(LinkItem*_link)
+{
+    Q_ASSERT(_link != nullptr);
+    int index = s_linkList.indexOf(_link);
+    Q_ASSERT(index >= 0);
+    s_linkList.removeAt(index);
+}
+
+bool LinkItem::isRegistered(LinkItem *_link)
+{
+    Q_ASSERT(_link != nullptr);
+    return s_linkList.indexOf(_link) >= 0;
+}
+
 LinkItem *LinkItem::getLinkBetween(PinItem *_pinA, PinItem *_pinB)
 {
     LinkItem* link = nullptr;
@@ -75,6 +109,19 @@ LinkItem *LinkItem::getLinkBetween(PinItem *_pinA, PinItem *_pinB)
         }
     }
     return link;
+}
+
+QList<LinkItem*> LinkItem::getLinksWithPin(PinItem* _pin)
+{
+    QList<LinkItem*> links;
+    for(int i = 0; i < s_linkList.size(); ++i)
+    {
+        if(s_linkList[i]->m_pinA == _pin || s_linkList[i]->m_pinB == _pin)
+        {
+            links.append(s_linkList[i]);
+        }
+    }
+    return links;
 }
 
 PinItem *LinkItem::getPinThatIsNot(PinItem *pin)
@@ -97,15 +144,18 @@ void LinkItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    QPen pen(QColor(200, 200, 200));
-    pen.setWidth(1);
-    pen.setCosmetic(true);
+    if(m_pinA != nullptr || m_pinB != nullptr)
+    {
+        bool isCompSelected = (m_pinA != nullptr && m_pinA->parentNode()->isSelected())
+            || (m_pinB != nullptr && m_pinB->parentNode()->isSelected());
 
-    QPointF firstPoint = (m_pinA != nullptr) ? m_pinA->scenePos() : m_mousePos;
-    QPointF secondPoint = (m_pinB != nullptr) ? m_pinB->scenePos() : m_mousePos;
+        QPen pen(QColor(200, 200, 200));
+        pen.setWidth(isCompSelected ? 3 : 1);
+        pen.setCosmetic(true);
 
-    painter->setPen(pen);
-    painter->drawLine(firstPoint, secondPoint);
+        painter->setPen(pen);
+        painter->drawPath(getLinePath());
+    }
 }
 
 QRectF LinkItem::boundingRect() const
@@ -124,21 +174,32 @@ QRectF LinkItem::boundingRect() const
 
 QPainterPath LinkItem::shape() const
 {
-    qreal width = 1.;
-    qreal pinRadius = 10.;
+    qreal width = 10.;
+    QPainterPathStroker pathStroker;
+    pathStroker.setWidth(width);
+    return pathStroker.createStroke(getLinePath());
+}
+
+QPainterPath LinkItem::getLinePath() const
+{
     QPointF firstPoint = (m_pinA != nullptr) ? m_pinA->scenePos() : m_mousePos;
     QPointF secondPoint = (m_pinB != nullptr) ? m_pinB->scenePos() : m_mousePos;
 
-    QPointF delta = secondPoint - firstPoint;
-    qreal length = qSqrt(delta.x() * delta.x() + delta.y() * delta.y());
-    QPointF dir = delta / length;
-    QPointF ortho(-dir.y(), dir.x());
+    qreal firstPointSign = 1.0;
+    if(m_pinA != nullptr)
+    {
+        firstPointSign = qgraphicsitem_cast<PinOutputItem*>(m_pinA) != nullptr ? 1.0 : -1.0 ;
+    }
+    qreal secondPointSign = -firstPointSign;
+
+    qreal minDist = 200.0;
+    qreal alpha = 0.6;
+    qreal dist = qMax(abs(firstPoint.x() - secondPoint.x()), minDist);
+    QPointF ctrlPoint1(firstPoint.x() + firstPointSign * dist * alpha, firstPoint.y());
+    QPointF ctrlPoint2(secondPoint.x() + secondPointSign * dist * alpha, secondPoint.y());
 
     QPainterPath path;
-    path.moveTo(firstPoint + dir * pinRadius + ortho * width);
-    path.lineTo(secondPoint - dir * pinRadius + ortho * width);
-    path.lineTo(secondPoint - dir * pinRadius - ortho * width);
-    path.lineTo(firstPoint + dir * pinRadius - ortho * width);
-    path.closeSubpath();
+    path.moveTo(firstPoint);
+    path.cubicTo(ctrlPoint1, ctrlPoint2, secondPoint);
     return path;
 }

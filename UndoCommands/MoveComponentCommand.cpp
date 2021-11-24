@@ -23,7 +23,7 @@
 #include "NodalScene.h"
 
 MoveComponentCommand::MoveComponentCommand(NodeItem* _item, QPointF _oldPosition, QUndoCommand* _parent)
-    : QUndoCommand (_parent), m_item(_item), m_oldPosition(_oldPosition)
+    : QUndoCommand ("Move Component", _parent), m_item(_item), m_oldPosition(_oldPosition)
 {
     Q_ASSERT(m_item != nullptr);
     m_newPosition = m_item->pos();

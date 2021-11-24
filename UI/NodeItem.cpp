@@ -57,6 +57,12 @@ NodeItem::NodeItem(QGraphicsItem* _parent)
 
 NodeItem::~NodeItem()
 {
+    for(PinInputItem* pin : m_inputPins)
+    {
+        disconnect(pin, &PinInputItem::outputChanged, this, &NodeItem::setOutputChanged);
+        disconnect(pin, SIGNAL(dirtyChanged()), this, SLOT(setDirty()));
+    }
+    disconnect(m_outputPin, SIGNAL(dirtyChanged()), this, SLOT(setDirty()));
     if(m_component != nullptr)
         delete m_component;
 }
@@ -129,13 +135,24 @@ PinInputItem *NodeItem::getInput(int _index)
 
 void NodeItem::unlink()
 {
-    undoStack()->beginMacro("Unlink Component");
+    undoStack()->beginMacro("Break Component Links");
     for(PinInputItem* input : m_inputPins)
     {
         input->unlinkAll();
     }
     m_outputPin->unlinkAll();
     undoStack()->endMacro();
+}
+
+void NodeItem::check()
+{
+    qDebug() << "Check Pin Item";
+    Q_ASSERT(scene() == nullptr);
+    for(PinInputItem* input : m_inputPins)
+    {
+        input->check();
+    }
+    m_outputPin->check();
 }
 
 void NodeItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -216,6 +233,28 @@ QVariant NodeItem::itemChange(GraphicsItemChange _change, const QVariant& _value
 
         setDirty();
     }
+    else if (_change == ItemSelectedHasChanged)
+    {
+        if (m_outputPin != nullptr)
+        {
+            QList<LinkItem*> links = LinkItem::getLinksWithPin(m_outputPin);
+            for(LinkItem* link : links)
+            {
+                link->update();
+            }
+        }
+        for (PinItem* inputPin : m_inputPins)
+        {
+            if (inputPin != nullptr)
+            {
+                QList<LinkItem*> links = LinkItem::getLinksWithPin(inputPin);
+                for(LinkItem* link : links)
+                {
+                    link->update();
+                }
+            }
+        }
+    }
 
     return toReturn;
 }
@@ -225,6 +264,7 @@ void NodeItem::clearInputs()
     for(PinInputItem* pin : m_inputPins)
     {
         disconnect(pin, &PinInputItem::outputChanged, this, &NodeItem::setOutputChanged);
+        disconnect(pin, SIGNAL(dirtyChanged()), this, SLOT(setDirty()));
         delete pin;
     }
     m_inputPins.clear();

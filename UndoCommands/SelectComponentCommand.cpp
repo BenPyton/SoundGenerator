@@ -22,7 +22,7 @@
 #include <QGraphicsItem>
 
 SelectComponentCommand::SelectComponentCommand(QGraphicsItem* _item, bool _selected, QUndoCommand* _parent)
-    : QUndoCommand (_parent)
+    : QUndoCommand ("Select Component", _parent)
     , m_item(_item)
     , m_selected(_selected)
 {

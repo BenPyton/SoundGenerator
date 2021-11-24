@@ -53,6 +53,7 @@ public:
     inline void setWidth(qreal _width) { m_width = _width; }
 
     void unlink();
+    void check();
 
     void setUndoStack(QUndoStack* _undoStack);
 

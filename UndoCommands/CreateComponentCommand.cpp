@@ -24,7 +24,7 @@
 #include "Components.h"
 
 CreateComponentCommand::CreateComponentCommand(NodalScene* _scene, QString _componentName, QPointF _initialPos, qreal _width, QUndoCommand* _parent)
-    : QUndoCommand (_parent), m_scene(_scene), m_initialPos(_initialPos), m_isOwner(false)
+    : QUndoCommand ("Create Component", _parent), m_scene(_scene), m_initialPos(_initialPos), m_isOwner(false)
 {
     Q_ASSERT(m_scene != nullptr);
     Component* component = ComponentFactory::CreateComponent(_componentName);
@@ -35,8 +35,10 @@ CreateComponentCommand::CreateComponentCommand(NodalScene* _scene, QString _comp
 
 CreateComponentCommand::~CreateComponentCommand()
 {
+    qDebug() << "Destroy CreateComponent (is owner: " << m_isOwner << ")";
     if(m_isOwner)
     {
+        m_item->check();
         delete m_item;
     }
 }

@@ -24,7 +24,7 @@
 #include "PinOutputItem.h"
 
 UnlinkPinCommand::UnlinkPinCommand(QGraphicsScene* _scene, PinItem* _pinA, PinItem* _pinB, QUndoCommand* _parent)
-    : QUndoCommand (_parent)
+    : QUndoCommand ("Unlink Pin", _parent)
     , m_scene(_scene)
     , m_pinA(_pinA)
     , m_pinB(_pinB)
@@ -36,12 +36,16 @@ UnlinkPinCommand::UnlinkPinCommand(QGraphicsScene* _scene, PinItem* _pinA, PinIt
 
     m_item = LinkItem::getLinkBetween(m_pinA, m_pinB);
     Q_ASSERT(nullptr != m_item);
+
+    qDebug() << "Create UnlinkPin";
 }
 
 UnlinkPinCommand::~UnlinkPinCommand()
 {
+    qDebug() << "Destroy UnlinkPin (is owner: " << m_isOwner << ")";
     if(m_isOwner)
     {
+        m_item->check();
         delete m_item;
     }
 }
@@ -51,9 +55,12 @@ void UnlinkPinCommand::undo()
     QUndoCommand::undo();
     m_scene->addItem(m_item);
     m_item->setPins(m_pinA, m_pinB);
+    LinkItem::registerLink(m_item);
     m_pinA->_connect(m_pinB);
     m_pinB->_connect(m_pinA);
     m_isOwner = false;
+
+    qDebug() << "Undo UnlinkPin";
 }
 
 void UnlinkPinCommand::redo()
@@ -62,6 +69,9 @@ void UnlinkPinCommand::redo()
     m_pinA->_disconnect(m_pinB);
     m_pinB->_disconnect(m_pinA);
     m_item->setPins(nullptr, nullptr);
+    LinkItem::unregisterLink(m_item);
     m_scene->removeItem(m_item);
     m_isOwner = true;
+
+    qDebug() << "Redo UnlinkPin";
 }

@@ -56,9 +56,22 @@ bool PinItem::link(PinItem* _pin)
     return linked;
 }
 
+bool PinItem::unlink(PinItem* _pin)
+{
+    bool unlinked = false;
+    if(_pin != nullptr && _pin != this
+       && isLinkedWith(_pin))
+    {
+        unlinked = true;
+        undoStack()->push(new UnlinkPinCommand(scene(), this, _pin));
+        setDirty();
+    }
+    return unlinked;
+}
+
 void PinItem::unlinkAll()
 {
-    undoStack()->beginMacro("Unlink pin");
+    undoStack()->beginMacro("Break All Pin Links");
     for(PinItem* linkedPin : m_linkedPins)
     {
         undoStack()->push(new UnlinkPinCommand(scene(), this, linkedPin));
@@ -71,6 +84,13 @@ void PinItem::unlinkAll()
 bool PinItem::isLinkedWith(PinItem* _pin)
 {
     return m_linkedPins.indexOf(_pin) >= 0;
+}
+
+void PinItem::check()
+{
+    qDebug() << "Check Pin Item";
+    Q_ASSERT(m_linkedPins.count() <= 0);
+    Q_ASSERT(scene() == nullptr);
 }
 
 NodeItem* PinItem::parentNode()

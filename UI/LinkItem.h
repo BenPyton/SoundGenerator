@@ -34,7 +34,7 @@ public:
     int type() const override { return Type; }
 
     LinkItem(QGraphicsItem *parent = nullptr);
-    ~LinkItem();
+    virtual ~LinkItem() override;
 
     void setPenStyle(Qt::PenStyle penStyle) { m_penStyle = penStyle; }
     void setPenSize(int size) { m_size = size; }
@@ -51,7 +51,13 @@ public:
 
     void prepareChange();
 
-    static LinkItem *getLinkBetween(PinItem* _pinA, PinItem* _pinB);
+    void check();
+
+    static void registerLink(LinkItem* _link);
+    static void unregisterLink(LinkItem* _link);
+    static bool isRegistered(LinkItem* _link);
+    static LinkItem* getLinkBetween(PinItem* _pinA, PinItem* _pinB);
+    static QList<LinkItem*> getLinksWithPin(PinItem* _pin);
 
 protected:
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget* widget) override;
@@ -59,6 +65,8 @@ protected:
     virtual QPainterPath shape() const override;
 
 private:
+    QPainterPath getLinePath() const;
+
     int m_size;
     Qt::PenStyle m_penStyle;
     PinItem* m_pinA;

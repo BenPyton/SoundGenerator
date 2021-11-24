@@ -100,6 +100,15 @@ void NodalScene::save(QString fileName, const AudioSettings& settings)
     file.close();
 }
 
+void CheckCommand(const QUndoCommand* _command, int _depth = 0)
+{
+    qDebug() << "[DEBUG]" + QString("  ").repeated(_depth) + " - Command:" << _command->text();
+    for(int i = 0; i < _command->childCount(); ++i)
+    {
+        CheckCommand(_command->child(i), _depth + 1);
+    }
+}
+
 void NodalScene::load(QString fileName, AudioSettings& settings)
 {
     QFile file(fileName);
@@ -135,15 +144,62 @@ void NodalScene::load(QString fileName, AudioSettings& settings)
         settings.setDuration(root[DURATION].toDouble());
     }
 
-    reset();
 
     // ============== CREATE COMPONENTS =============
     if(!Utils::CheckJsonValue(root, COMPONENTS, QJsonValue::Array, 120))
         return;
     QJsonArray componentArray = root[COMPONENTS].toArray();
 
-    NodeItem::JsonToNodeArray(componentArray, this, QPointF(), m_undoStack);
+    qDebug() << "[DEBUG] Check UndoStack";
+    for(int i = 0; i < m_undoStack->count(); ++i)
+    {
+        CheckCommand(m_undoStack->command(i));
+    }
+
+    qDebug() << "[DEBUG] Clear UndoStack";
     m_undoStack->clear();
+
+    qDebug() << "[DEBUG] Check UndoStack";
+    for(int i = 0; i < m_undoStack->count(); ++i)
+    {
+        CheckCommand(m_undoStack->command(i));
+    }
+
+    qDebug() << "[DEBUG] Reset";
+    reset();
+
+    qDebug() << "[DEBUG] Check UndoStack";
+    for(int i = 0; i < m_undoStack->count(); ++i)
+    {
+        CheckCommand(m_undoStack->command(i));
+    }
+
+    qDebug() << "[DEBUG] Clear UndoStack";
+    m_undoStack->clear();
+
+    qDebug() << "[DEBUG] Check UndoStack";
+    for(int i = 0; i < m_undoStack->count(); ++i)
+    {
+        CheckCommand(m_undoStack->command(i));
+    }
+
+    qDebug() << "[DEBUG] Create Conponents";
+    NodeItem::JsonToNodeArray(componentArray, this, QPointF(), m_undoStack);
+
+    qDebug() << "[DEBUG] Check UndoStack";
+    for(int i = 0; i < m_undoStack->count(); ++i)
+    {
+        CheckCommand(m_undoStack->command(i));
+    }
+
+    qDebug() << "[DEBUG] Clear UndoStack";
+    m_undoStack->clear();
+
+    qDebug() << "[DEBUG] Check UndoStack";
+    for(int i = 0; i < m_undoStack->count(); ++i)
+    {
+        CheckCommand(m_undoStack->command(i));
+    }
 }
 
 int NodalScene::clearItems(int from)
@@ -152,8 +208,12 @@ int NodalScene::clearItems(int from)
     for(int i = m_nodeList.size()-1; i >= from; --i)
     {
         m_nodeList[i]->unlink();
+        m_undoStack->push(new DeleteComponentCommand(this, m_nodeList[i], m_nodeList[i]->pos()));
+
+        /*m_nodeList[i]->unlink();
+        removeItem(m_nodeList[i]);
         delete m_nodeList[i];
-        m_nodeList.remove(i);
+        m_nodeList.remove(i);*/
         nbRemoved++;
     }
 

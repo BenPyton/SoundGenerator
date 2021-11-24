@@ -345,7 +345,8 @@ void NodalView::showCustomContextMenu(const QPoint& _pos)
     // for QAbstractScrollArea and derived classes you would use:
     // QPoint globalPos = myWidget->viewport()->mapToGlobal(pos);
 
-    QAction act_breakLink("Break link(s)");
+    QAction act_breakAllLinks("Break all link(s)");
+    QAction act_breakLink("Break link");
     QAction act_removeComponents("Remove Component(s)");
 
     QMenu myMenu;
@@ -361,12 +362,11 @@ void NodalView::showCustomContextMenu(const QPoint& _pos)
     LinkItem* link = dynamic_cast<LinkItem*>(item);
     if(link != nullptr)
     {
-        //myMenu.addAction(&act_breakLink);
-        qDebug() << "Link !";
+        myMenu.addAction(&act_breakLink);
     }
     else if(pin != nullptr && pin->isLinked())
     {
-        myMenu.addAction(&act_breakLink);
+        myMenu.addAction(&act_breakAllLinks);
     }
     if(scene()->selectedItems().size() > 0)
     {
@@ -380,10 +380,14 @@ void NodalView::showCustomContextMenu(const QPoint& _pos)
     QAction* selectedAction = myMenu.exec(globalPos);
     if (selectedAction == &act_breakLink)
     {
+        link->firstPin()->unlink(link->secondPin());
+    }
+    if (selectedAction == &act_breakAllLinks)
+    {
         qDebug() << "break links";
         pin->unlinkAll();
     }
-    else if(selectedAction == &act_removeComponents)
+    else if (selectedAction == &act_removeComponents)
     {
         // something was chosen, do stuff
         getScene()->deleteSelection();

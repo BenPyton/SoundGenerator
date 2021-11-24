@@ -24,7 +24,7 @@
 #include <QtCore>
 
 DeleteComponentCommand::DeleteComponentCommand(NodalScene* _scene, NodeItem* _item, QPointF _position, QUndoCommand* _parent)
-    : QUndoCommand (_parent), m_scene(_scene), m_item(_item), m_position(_position), m_isOwner(false)
+    : QUndoCommand ("Delete Component", _parent), m_scene(_scene), m_item(_item), m_position(_position), m_isOwner(false)
 {
     Q_ASSERT(m_scene != nullptr);
     Q_ASSERT(m_item != nullptr);
@@ -32,8 +32,10 @@ DeleteComponentCommand::DeleteComponentCommand(NodalScene* _scene, NodeItem* _it
 
 DeleteComponentCommand::~DeleteComponentCommand()
 {
+    qDebug() << "Destroy DeleteComponent (is owner: " << m_isOwner << ")";
     if(m_isOwner)
     {
+        m_item->check();
         delete m_item;
     }
 }

@@ -23,7 +23,7 @@
 #include "Components/Component.h"
 
 ChangeInputValueCommand::ChangeInputValueCommand(PinInputItem* input, qreal value, QUndoCommand* _parent)
-    : QUndoCommand (_parent), m_input(input)
+    : QUndoCommand ("Change Input Value", _parent), m_input(input)
 {
     Q_ASSERT(m_input != nullptr);
     m_oldValue = m_input->input()->getDefaultValue();

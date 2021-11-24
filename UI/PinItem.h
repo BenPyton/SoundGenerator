@@ -53,8 +53,10 @@ public:
     inline int maxLink() { return m_maxLink; }
     bool hasMaxLink() { return m_maxLink >= 0 && m_linkedPins.size() >= m_maxLink; }
     bool link(PinItem* _pin);
+    bool unlink(PinItem* _pin);
     void unlinkAll();
     bool isLinkedWith(PinItem* _pin);
+    void check();
 
     void setUndoStack(QUndoStack* _undoStack) { m_undoStack = _undoStack; }
 
