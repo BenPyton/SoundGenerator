@@ -141,8 +141,8 @@ bool LinkItem::hasPins(PinItem *_pinA, PinItem *_pinB)
 
 void LinkItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
+    Q_UNUSED(option)
+    Q_UNUSED(widget)
 
     if(m_pinA != nullptr || m_pinB != nullptr)
     {
@@ -192,9 +192,8 @@ QPainterPath LinkItem::getLinePath() const
     }
     qreal secondPointSign = -firstPointSign;
 
-    qreal minDist = 200.0;
     qreal alpha = 0.6;
-    qreal dist = qMax(abs(firstPoint.x() - secondPoint.x()), minDist);
+    qreal dist = qMax(abs(firstPoint.x() - secondPoint.x()), abs(firstPoint.y() - secondPoint.y()));
     QPointF ctrlPoint1(firstPoint.x() + firstPointSign * dist * alpha, firstPoint.y());
     QPointF ctrlPoint2(secondPoint.x() + secondPointSign * dist * alpha, secondPoint.y());
 
