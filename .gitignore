@@ -6,6 +6,7 @@ Installer/x86/*
 Installer/installs/*
 *.psd
 /debug/
+/release/
 
 ### Qt ###
 # C++ objects and libs
