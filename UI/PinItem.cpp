@@ -185,19 +185,18 @@ void PinItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* _event)
         if(m_dragging)
         {
             qDebug() << "Pin Release!";
-
             QList<QGraphicsItem*> items = scene()->items(_event->scenePos());
 
-            PinItem* pin = nullptr;
-            for(int i = 0; i < items.size() && pin == nullptr; i++)
+            bool found = false;
+            for(int i = 0; !found && i < items.size(); ++i)
             {
-                pin = dynamic_cast<PinItem*>(items[i]);
-            }
-
-            if(link(pin))
-            {
-                qDebug() << "Pin connected!";
-                pin->update();
+                PinItem* pin = dynamic_cast<PinItem*>(items[i]);
+                if(link(pin))
+                {
+                    qDebug() << "Pin connected!";
+                    pin->update();
+                    found = true;
+                }
             }
 
             m_dragging = false;
