@@ -27,7 +27,7 @@
 
 #define MAJOR_VERSION 0
 #define MINOR_VERSION 0
-#define BUGFIX_VERSION 5
+#define BUGFIX_VERSION 6
 #define JSON_VERSION 2
 
 const QString Utils::AppName = "Sound Generator";
