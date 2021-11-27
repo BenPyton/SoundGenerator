@@ -47,6 +47,7 @@ public:
 
     bool isPinVisible() { return m_pinVisible; }
     void setPinVisible(bool _visible) { m_pinVisible = _visible; }
+    inline qreal radius() const { return m_radius; }
 
     inline bool isLinked() { return m_linkedPins.size() > 0; }
     void setMaxLink(int _maxLink) { m_maxLink = _maxLink; }

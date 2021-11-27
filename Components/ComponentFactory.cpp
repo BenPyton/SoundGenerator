@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Benoit Pelletier
+ * Copyright 2019-2021 Benoit Pelletier
  *
  * This file is part of Sound Generator.
  *
@@ -21,6 +21,7 @@
 #include "ComponentFactory.h"
 #include "../Components.h"
 
+// TODO: Change those components into data-driven (difficult part is the algorithms and variables for generators)
 Component * ComponentFactory::CreateComponent(const QString & _compName)
 {
 	Component* pComp = nullptr;
@@ -28,6 +29,10 @@ Component * ComponentFactory::CreateComponent(const QString & _compName)
     if (_compName == "Output")
     {
         pComp = new OutputComponent();
+    }
+    else if (_compName == "PassThrough")
+    {
+        pComp = new PassThroughComponent();
     }
     else if (_compName == "Sinusoidal")
 	{

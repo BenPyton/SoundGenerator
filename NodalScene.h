@@ -24,6 +24,7 @@
 #include <QGraphicsScene>
 
 class NodeItem;
+class LinkItem;
 class QUndoStack;
 class AudioSettings;
 
@@ -36,6 +37,7 @@ public:
     virtual ~NodalScene() override;
 
     NodeItem* createComponent(QString _componentName, qreal _width = 200.0);
+    NodeItem* createPassThrough(LinkItem* _link);
     void addNodeItem(NodeItem *_item);
     void removeNodeItem(NodeItem* _item);
 

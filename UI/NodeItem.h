@@ -42,7 +42,7 @@ public:
     virtual ~NodeItem() override;
 
     void setComponent(Component* comp);
-    Component* component() { return m_component; }
+    inline Component* component() const { return m_component; }
 
     PinOutputItem* getOutput() { return m_outputPin; }
     PinInputItem* getInput(QString _name);
@@ -50,7 +50,7 @@ public:
     int getInputCount() { return m_inputPins.size(); }
 
     qreal width() { return m_width; }
-    inline void setWidth(qreal _width) { m_width = _width; }
+    void setWidth(qreal _width);
 
     void unlink();
     void check();
@@ -71,6 +71,7 @@ protected:
 
     void clearInputs();
     inline QUndoStack* undoStack() { return m_undoStack; }
+    qreal getPinOffset() const;
 
 protected slots:
     void setDirty() { emit dirtyChanged(); }

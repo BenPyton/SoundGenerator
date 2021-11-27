@@ -185,13 +185,13 @@ void NodalView::dropEvent(QDropEvent* _event)
 // must be implemented
 void NodalView::dragMoveEvent(QDragMoveEvent* _event)
 {
-    Q_UNUSED(_event);
+    Q_UNUSED(_event)
 }
 
 // must be implemented
 void NodalView::dragLeaveEvent(QDragLeaveEvent* _event)
 {
-    Q_UNUSED(_event);
+    Q_UNUSED(_event)
 }
 
 void NodalView::drawBackground(QPainter* _painter, const QRectF& _rect)
@@ -348,6 +348,7 @@ void NodalView::showCustomContextMenu(const QPoint& _pos)
     QAction act_breakAllLinks("Break all link(s)");
     QAction act_breakLink("Break link");
     QAction act_removeComponents("Remove Component(s)");
+    QAction act_createPassThrough("Add passthrough");
 
     QMenu myMenu;
 
@@ -363,6 +364,7 @@ void NodalView::showCustomContextMenu(const QPoint& _pos)
     if(link != nullptr)
     {
         myMenu.addAction(&act_breakLink);
+        myMenu.addAction(&act_createPassThrough);
     }
     else if(pin != nullptr && pin->isLinked())
     {
@@ -389,8 +391,11 @@ void NodalView::showCustomContextMenu(const QPoint& _pos)
     }
     else if (selectedAction == &act_removeComponents)
     {
-        // something was chosen, do stuff
         getScene()->deleteSelection();
+    }
+    else if (selectedAction == &act_createPassThrough)
+    {
+        getScene()->createPassThrough(link);
     }
     else
     {

@@ -36,6 +36,9 @@ protected:
     QString m_name;
 	bool m_hasOutput = true;
     bool m_removable = true;
+    bool m_showTitle = true;
+    bool m_showBackground = true;
+    bool m_canDragPins = true;
 
 public:
     Component();
@@ -45,6 +48,9 @@ public:
 
     bool isRemovable() const { return m_removable; }
     bool hasOutput() const { return m_hasOutput; }
+    bool showTitle() const { return m_showTitle; }
+    bool showBackground() const { return m_showBackground; }
+    bool canDragPins() const { return m_canDragPins; }
     virtual qreal getOutput(qreal _time) = 0;
 
     ComponentInput* getInput(int _index);

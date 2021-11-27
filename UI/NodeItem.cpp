@@ -44,7 +44,7 @@ NodeItem::NodeItem(QGraphicsItem* _parent)
     setFlag(QGraphicsItem::ItemSendsGeometryChanges);
 
     m_outputPin = new PinOutputItem(this);
-    m_outputPin->setX(190);
+    m_outputPin->setX(200);
     m_outputPin->setY(50);
     m_outputPin->setUndoStack(undoStack());
     connect(m_outputPin, SIGNAL(dirtyChanged()), this, SLOT(setDirty()));
@@ -77,18 +77,32 @@ void NodeItem::setComponent(Component *comp)
 
     clearInputs();
 
-    qreal heightSum = 35;
+    qreal heightSum = 0;
+    qreal titleHeight = 0;
     if (comp != nullptr)
     {
-        m_label->setPlainText(comp->getName());
+        if(comp->showTitle())
+        {
+            m_label->setPlainText(comp->getName());
+            titleHeight = 20;
+            heightSum += titleHeight;
+        }
+        else
+        {
+            m_label->setVisible(false);
+        }
 
+
+        qreal pinOffset = getPinOffset();
+
+        qreal lineSep = 5;
         for (int i = 0; i < comp->getInputCount(); i++)
         {
             PinInputItem* pin = new PinInputItem(this);
 
             pin->setInput(comp->getInput(i));
-            pin->setX(10);
-            pin->setY(heightSum);
+            pin->setX(pinOffset);
+            pin->setY(heightSum + pin->radius() + lineSep);
             connect(pin, SIGNAL(dirtyChanged()), this, SLOT(setDirty()));
 
             m_inputPins.append(pin);
@@ -105,7 +119,7 @@ void NodeItem::setComponent(Component *comp)
     }
     m_height = heightSum;
     // recenter the output pin
-    m_outputPin->setY(0.5*(m_height-20)+20);
+    m_outputPin->setY(0.5*(m_height-titleHeight)+titleHeight);
 }
 
 PinInputItem *NodeItem::getInput(QString _name)
@@ -133,6 +147,12 @@ PinInputItem *NodeItem::getInput(int _index)
     return input;
 }
 
+void NodeItem::setWidth(qreal _width)
+{
+    m_width = _width;
+    m_outputPin->setX(m_width - getPinOffset());
+}
+
 void NodeItem::unlink()
 {
     undoStack()->beginMacro("Break Component Links");
@@ -157,7 +177,7 @@ void NodeItem::check()
 
 void NodeItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    Q_UNUSED(option);
+    Q_UNUSED(option)
     Q_UNUSED(widget)
 
     QBrush brush(QColor(80, 80, 80), Qt::BrushStyle::SolidPattern);
@@ -165,25 +185,29 @@ void NodeItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
 
     int radius = 5;
 
-    painter->setPen(pen);
-    painter->setBrush(brush);
-    painter->drawRoundedRect(0, 0, qRound(m_width), qRound(m_height), 5, 5);
-
+    if(component() == nullptr || component()->showBackground())
+    {
+        painter->setPen(pen);
+        painter->setBrush(brush);
+        painter->drawRoundedRect(0, 0, qRound(m_width), qRound(m_height), radius, radius);
+    }
     brush.setColor(QColor(60, 60, 60));
     painter->setBrush(brush);
 
-    int titleHeight = 20;
+    if(component() == nullptr || component()->showTitle())
+    {
+        int titleHeight = 20;
 
-    QPainterPath path;
-    path.moveTo(0, 2*radius);
-    path.arcTo(0, 0, 2*radius, 2*radius, 180, -90);
-    path.lineTo(qRound(m_width) - 2*radius, 0);
-    path.arcTo(qRound(m_width) - 2*radius, 0, 2*radius, 2*radius, 90, -90);
-    path.lineTo(qRound(m_width), titleHeight);
-    path.lineTo(0, titleHeight);
-    path.closeSubpath();
-
-    painter->drawPath(path);
+        QPainterPath path;
+        path.moveTo(0, 2*radius);
+        path.arcTo(0, 0, 2*radius, 2*radius, 180, -90);
+        path.lineTo(qRound(m_width) - 2*radius, 0);
+        path.arcTo(qRound(m_width) - 2*radius, 0, 2*radius, 2*radius, 90, -90);
+        path.lineTo(qRound(m_width), titleHeight);
+        path.lineTo(0, titleHeight);
+        path.closeSubpath();
+        painter->drawPath(path);
+    }
 
     pen.setColor(QColor(200, 200, 200));
     brush.setColor(QColor(0, 0, 0, 0));
@@ -197,9 +221,12 @@ void NodeItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
         pen.setWidth(3);
     }
 
-    painter->setPen(pen);
-    painter->setBrush(brush);
-    painter->drawRoundedRect(0, 0, qRound(m_width), qRound(m_height), 5, 5);
+    if(component() == nullptr || component()->showBackground())
+    {
+        painter->setPen(pen);
+        painter->setBrush(brush);
+        painter->drawRoundedRect(0, 0, qRound(m_width), qRound(m_height), radius, radius);
+    }
 }
 
 QRectF NodeItem::boundingRect() const
@@ -268,6 +295,14 @@ void NodeItem::clearInputs()
         delete pin;
     }
     m_inputPins.clear();
+}
+
+qreal NodeItem::getPinOffset() const
+{
+    qreal offset = 0;
+    if (component() != nullptr && !component()->canDragPins())
+        offset = 10.0;
+    return offset;
 }
 
 
@@ -343,14 +378,18 @@ QVector<NodeItem*> NodeItem::JsonToNodeArray(
             if(Utils::CheckJsonValue(component, "y", QJsonValue::Double, 150))
                 position.setY(component["y"].toDouble() + _positionOffset.y());
 
-            if(component["name"].toString() == "Output")
+            QString nodeName = component["name"].toString();
+            if(nodeName == "Output")
             {
                 node = _scene->getOutput();
                 node->setPos(position);
             }
             else
             {
-                CreateComponentCommand *command = new CreateComponentCommand(_scene, component["name"].toString(), position, 200.f);
+                qreal nodeSize = 200.0;
+                if(nodeName == "PassThrough")
+                    nodeSize = 20.0;
+                CreateComponentCommand *command = new CreateComponentCommand(_scene, nodeName, position, nodeSize);
                 _commandStack->push(command);
                 node = command->getItem();
                 node->setUndoStack(_commandStack);

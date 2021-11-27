@@ -14,6 +14,7 @@
 #include "Components/RepeatComponent.h"
 #include "Components/ADSRComponent.h"
 #include "Components/OutputComponent.h"
+#include "Components/PassThroughComponent.h"
 
 #endif // COMPONENTS_H
 

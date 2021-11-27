@@ -27,6 +27,7 @@ INCLUDEPATH += UI
 CONFIG += c++11
 
 SOURCES += \
+    Components/PassThroughComponent.cpp \
     NodalScene.cpp \
     UndoCommands/ChangeInputValueCommand.cpp \
     UndoCommands/CreateComponentCommand.cpp \
@@ -83,6 +84,7 @@ HEADERS += \
     Components/GeneratorComponent.h \
     Components/MultiplyComponent.h \
     Components/OutputComponent.h \
+    Components/PassThroughComponent.h \
     Components/RandomComponent.h \
     Components/RepeatComponent.h \
     Components/SawToothComponent.h \

@@ -31,6 +31,8 @@
 #include "UndoCommands/DeleteComponentCommand.h"
 #include "UndoCommands/MoveComponentCommand.h"
 #include "UndoCommands/SelectComponentCommand.h"
+#include "UndoCommands/LinkPinCommand.h"
+#include "UndoCommands/UnlinkPinCommand.h"
 #include "AudioSettings.h"
 
 // JSON keys
@@ -69,10 +71,53 @@ NodeItem* NodalScene::createComponent(QString _componentName, qreal _width)
     {
         m_creationPosition = m_contextPosition;
     }
-    qDebug() << "Create Component";
+    qDebug() << "Create Component: " << _componentName;
     NodeItem* item = createNode(_componentName, _width);
     m_creationPosition += QPoint(20, 20);
     setDirty();
+    return item;
+}
+
+NodeItem* NodalScene::createPassThrough(LinkItem* _link)
+{
+    Q_ASSERT(_link->firstPin() != nullptr && _link->secondPin() != nullptr);
+
+    PinInputItem* pinIn = nullptr;
+    PinOutputItem* pinOut = nullptr;
+    if (qgraphicsitem_cast<PinInputItem*>(_link->firstPin()) != nullptr)
+    {
+       pinIn = qgraphicsitem_cast<PinInputItem*>(_link->firstPin());
+       pinOut = qgraphicsitem_cast<PinOutputItem*>(_link->secondPin());
+    }
+    else
+    {
+        pinIn = qgraphicsitem_cast<PinInputItem*>(_link->secondPin());
+        pinOut = qgraphicsitem_cast<PinOutputItem*>(_link->firstPin());
+    }
+
+    Q_ASSERT(pinIn != nullptr && pinOut != nullptr);
+
+    QPointF tmp = m_creationPosition;
+    if(m_isContextMenu)
+    {
+        m_creationPosition = m_contextPosition;
+    }
+    else
+    {
+        m_creationPosition = 0.5 * (pinIn->pos() + pinOut->pos());
+    }
+
+    qDebug() << "Create PassThrough";
+
+    m_undoStack->beginMacro("Create PassThrough");
+    NodeItem* item = createNode("PassThrough", 20);
+    m_undoStack->push(new UnlinkPinCommand(this, pinOut, pinIn));
+    m_undoStack->push(new LinkPinCommand(this, pinOut, item->getInput(0)));
+    m_undoStack->push(new LinkPinCommand(this, item->getOutput(), pinIn));
+    m_undoStack->endMacro();
+    setDirty();
+
+    m_creationPosition = tmp;
     return item;
 }
 
@@ -234,7 +279,6 @@ void NodalScene::reset()
     m_nodeList[0]->setSelected(false);
 }
 
-
 int NodalScene::deleteSelection()
 {
     int nbRemoved = 0;
@@ -386,7 +430,6 @@ void NodalScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
         }
     }
 }
-
 
 void NodalScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {

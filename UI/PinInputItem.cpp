@@ -38,8 +38,8 @@ PinInputItem::PinInputItem(QGraphicsItem* _parent)
     m_label->setFont(QFont("consolas", 10));
     m_label->setDefaultTextColor(QColor(200, 200, 200));
     m_label->setPlainText("No input");
-    m_label->setX(15);
-    m_label->setY(-m_label->boundingRect().height() * 0.5 - 2);
+    m_label->setX(radius() + 10);
+    m_label->setY(-m_label->boundingRect().height() * 0.5 - 2); // why 2 ? (I don't remember it)
 
     m_inputDefaultValue = new LineEditQReal();
     QObject::connect(m_inputDefaultValue, &QLineEdit::editingFinished, this, &PinInputItem::updateInput);
@@ -48,7 +48,7 @@ PinInputItem::PinInputItem(QGraphicsItem* _parent)
 
     m_proxyLineEdit = new QGraphicsProxyWidget(this);
     m_proxyLineEdit->setWidget(m_inputDefaultValue);
-    m_proxyLineEdit->setGeometry(QRectF(15, 10, 50, 10));
+    m_proxyLineEdit->setGeometry(QRectF(radius() + 10, 10, 50, 10));
 
     m_maxLink = 1;
 }
@@ -70,8 +70,8 @@ void PinInputItem::setInput(ComponentInput* _input)
         m_label->setPlainText("NULL");
         m_label->setY(-m_label->boundingRect().height() * 0.5);
         m_inputDefaultValue->setValue(0.);
-        m_proxyLineEdit->setVisible(true);
-        setPinVisible(true);
+        m_proxyLineEdit->setVisible(false);
+        setPinVisible(false);
     }
 }
 

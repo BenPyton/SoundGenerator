@@ -27,6 +27,7 @@
 #include "UndoCommands/LinkPinCommand.h"
 #include "UndoCommands/UnlinkPinCommand.h"
 #include "NodeItem.h"
+#include "Components/Component.h"
 
 LinkItem* PinItem::s_linkPreview = new LinkItem();
 
@@ -100,14 +101,23 @@ NodeItem* PinItem::parentNode()
 
 void PinItem::paint(QPainter* _painter, const QStyleOptionGraphicsItem* _option, QWidget* _widget)
 {
-    Q_UNUSED(_option);
-    Q_UNUSED(_widget);
+    Q_UNUSED(_option)
+    Q_UNUSED(_widget)
 
     if(m_pinVisible)
     {
+        bool isSelected = false;
+        if (parentNode() != nullptr
+            && parentNode()->component() != nullptr
+            && parentNode()->isSelected()
+            && !parentNode()->component()->showBackground())
+        {
+            isSelected = true;
+        }
+
         QBrush brush(QColor(80, 80, 80), Qt::BrushStyle::SolidPattern);
-        QPen pen(QColor(200, 200, 200));
-        pen.setWidth(m_hovered ? 3 : 1);
+        QPen pen(isSelected ? QColor(200, 180, 0) : QColor(200, 200, 200));
+        pen.setWidth(m_hovered || isSelected ? 3 : 1);
         pen.setCosmetic(true);
 
         if(isLinked())
@@ -132,18 +142,39 @@ void PinItem::mousePressEvent(QGraphicsSceneMouseEvent* _event)
     {
         if(_event->button() == Qt::MouseButton::LeftButton && !hasMaxLink())
         {
-            qDebug() << "Pin Clicked!";
-            m_dragging = true;
-            s_linkPreview->setMousePos(_event->scenePos());
-            _showLinkPreview(true);
-            update();
+            if (parentNode() == nullptr
+                || (parentNode()->component() != nullptr
+                && parentNode()->component()->canDragPins()))
+            {
+                qDebug() << "Pin left click: accept event";
+                m_dragging = true;
+                s_linkPreview->setMousePos(_event->scenePos());
+                _showLinkPreview(true);
+                update();
+                _event->accept();
+            }
+            else
+            {
+                qDebug() << "Pin left click: ignore event (pin drag disabled)";
+                _event->ignore();
+            }
         }
         else if(_event->button() == Qt::MouseButton::MiddleButton)
         {
-            qDebug() << "Pin Reset!";
+            qDebug() << "Pin middle click: accept event";
             unlinkAll();
             update();
         }
+        else
+        {
+            qDebug() << "Pin click: Unhandled event";
+            _event->ignore();
+        }
+    }
+    else
+    {
+        qDebug() << "Pin not visible: ignore mouse events";
+        _event->ignore();
     }
 }
 
@@ -182,7 +213,7 @@ void PinItem::mouseMoveEvent(QGraphicsSceneMouseEvent* _event)
     {
         s_linkPreview->setMousePos(_event->scenePos());
         scene()->update();
-        qDebug() << "Mouse move!";
+        //qDebug() << "Mouse move!";
     }
 }
 
