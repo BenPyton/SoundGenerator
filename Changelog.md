@@ -1,5 +1,13 @@
 # Changelog
 
+## Alpha 0.0.6
+- Added sound settings (sample frequency and depth) and moved duration setting in it
+- Added sound output settings to be able to choose on which device the sound preview outputs
+- Added PassThrough component to allow making complexe paths between components (right click on links to add it)
+- Added breaking a link by right clicking on it
+- Changed links to be curves instead of straight lines
+- Workaround fix for crashs when undo links and doing something else after (however this quick fix decreases performances with big projects)
+
 ## Alpha 0.0.5
 - Added a time ruler in the waveform view, and a cursor to play the sound from
 - Added a custom scrollbar for the waveform view, to allow easy view resizing
