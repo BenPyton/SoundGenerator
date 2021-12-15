@@ -20,6 +20,11 @@
 
 #include "ComponentFactory.h"
 #include "../Components.h"
+#include "SuperComponentDataManager.h"
+#include "SuperComponent.h"
+#include <QtDebug>
+
+SuperComponentDataManager* ComponentFactory::s_dataManager = nullptr;
 
 // TODO: Change those components into data-driven (difficult part is the algorithms and variables for generators)
 Component * ComponentFactory::CreateComponent(const QString & _compName)
@@ -74,6 +79,27 @@ Component * ComponentFactory::CreateComponent(const QString & _compName)
 	{
 		pComp = new ADSRComponent();
 	}
+    else // Try to create Super Componenet if if _compName is the uuid string
+    {
+        QUuid compId(_compName);
+        if(compId.isNull())
+        {
+            qDebug() << "Can't create component with name: " << _compName;
+        }
+        else
+        {
+            Q_ASSERT(s_dataManager != nullptr);
+            SuperComponentData* data = s_dataManager->getData(compId);
+            if(data == nullptr)
+            {
+                qFatal("[ERROR] Data with id %s doesn't exists.", compId.toString().constData());
+            }
+            else
+            {
+                pComp = new SuperComponent(data);
+            }
+        }
+    }
 
-	return pComp;
+    return pComp;
 }

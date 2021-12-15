@@ -34,8 +34,8 @@ Signal::Signal(QObject *_parent)
       m_audioSettings(nullptr),
       m_audio(nullptr),
       m_samples(nullptr),
-      m_buffer(nullptr),
-      m_component(nullptr)
+      m_buffer(nullptr)
+      //m_component(nullptr)
 {
     m_audioSettings = new AudioSettings();
     m_audioSettings->setSampleRate(48000);
@@ -159,27 +159,27 @@ void Signal::setCursorTime(qreal _cursorTime)
     m_cursorSample = qRound(_cursorTime * m_audioSettings->sampleRate());
 }
 
-void Signal::generate()
+void Signal::generate(Component* _component)
 {
     int sampleRate = m_audioSettings->sampleRate();
     int totalSample = qRound(m_audioSettings->duration() * sampleRate);
 
     m_samples->clear();
 
-    if(m_component != nullptr)
+    if(_component != nullptr)
     {
-        m_component->init();
+        _component->init();
     }
 
     int sampleSize = m_audioSettings->sampleSize();
     int length = sampleSize/8;
-    char* convertedValue = new char[static_cast<quint64>(length)] {0};
+    char* convertedValue = new char[static_cast<quint32>(length)] {0};
 
     // TODO: thread this and show a progress bar
     for (int i = 0; i < totalSample; i++)
     {
         qreal x = qreal(i) / sampleRate;
-        qreal sample = m_component != nullptr ? Utils::Clamp(m_component->getOutput(x), -1., 1.) : 0.0;
+        qreal sample = _component != nullptr ? Utils::Clamp(_component->getOutput(x), -1., 1.) : 0.0;
 
         SampleConverter::ComputeSample(sampleSize, sample, convertedValue);
         m_samples->append(convertedValue, length);

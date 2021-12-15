@@ -41,8 +41,8 @@ public:
     void addNodeItem(NodeItem *_item);
     void removeNodeItem(NodeItem* _item);
 
-    void save(QString fileName, const AudioSettings& settings);
-    void load(QString fileName, AudioSettings& settings);
+    QJsonArray toJson();
+    void fromJson(QJsonArray json);
 
     int clearItems(int from = 0);
     void reset();
@@ -70,7 +70,7 @@ protected:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
-    NodeItem *createNode(QString componentName, qreal width = 200.0);
+    NodeItem *createNode(QString _componentName, qreal _width = 200.0);
 
 private:
     QPointF m_creationPosition;

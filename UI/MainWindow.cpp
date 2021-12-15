@@ -29,12 +29,26 @@
 #include "PushOrDragButton.h"
 #include "NodalScene.h"
 #include <QStyle>
+#include <QTabBar>
 #include "Utils.h"
 #include "ActionCycle.h"
 #include "AudioSettingsDialog.h"
 #include "AudioSettings.h"
 #include "ActionAudioDevice.h"
+#include "Components/SuperComponentData.h"
+#include "SuperComponentButton.h"
+#include "SuperCompTabBar.h"
+#include "SuperComponentDataManager.h"
+#include "Components/ComponentFactory.h"
 
+// JSON keys
+#define VERSION "version"
+#define SETTINGS "settings"
+#define COMPONENTS "components"
+#define SUPERCOMPONENTS "super-component-data"
+
+// Compatibility
+#define DURATION "duration"
 
 MainWindow::MainWindow(QWidget* _parent)
     : QMainWindow(_parent)
@@ -45,6 +59,10 @@ MainWindow::MainWindow(QWidget* _parent)
 {
     ui->setupUi(this);
 
+    m_superCompManager = new SuperComponentDataManager(this);
+    ComponentFactory::SetDataManager(m_superCompManager);
+
+    // TODO: make components data-driven and load them from files instead of that hard coded list
     QString componentList[] = {
         "Sinusoidal",
         "Square",
@@ -71,12 +89,23 @@ MainWindow::MainWindow(QWidget* _parent)
     m_scene->setBackgroundBrush(Qt::black);
     connect(m_scene, &NodalScene::dirtyChanged, this, &MainWindow::setDirty);
 
+    ui->sceneTabs->setMovable(true);
+    ui->sceneTabs->setTabsClosable(true);
+    ui->sceneTabs->setExpanding(false);
+    ui->sceneTabs->setDrawBase(false);
+    ui->sceneTabs->setElideMode(Qt::ElideRight);
+    ui->sceneTabs->setSelectionBehaviorOnRemove(QTabBar::SelectPreviousTab);
+    connect(ui->sceneTabs, &QTabBar::currentChanged, this, &MainWindow::showSuperComponentScene);
+    connect(m_superCompManager, &SuperComponentDataManager::dataDeleted, ui->sceneTabs, &SuperCompTabBar::deleteTab);
+
     ui->nodalView->setScene(m_scene);
     ui->nodalView->setZoomLimits(0.1, 5.0);
     ui->nodalView->init();
     ui->nodalView->show();
 
-    m_signal.setComponent(m_scene->getOutput()->component());
+    connect(ui->newSuperCompButton, &QPushButton::clicked, this, &MainWindow::createSuperComponentData);
+
+    //m_signal.setComponent(m_scene->getOutput()->component());
     connect(m_scene->getOutput(), &NodeItem::outputChanged, this, &MainWindow::onOutputChanged);
     connect(&m_signal, &Signal::handleError, this, &MainWindow::onSignalError);
 
@@ -95,7 +124,7 @@ MainWindow::MainWindow(QWidget* _parent)
     connect(act_paste, &QAction::triggered, m_scene, &NodalScene::pasteComponents);
 
     QAction* act_undo = new QAction("Undo", this);
-    act_undo ->setShortcut(QKeySequence::Undo);
+    act_undo->setShortcut(QKeySequence::Undo);
     connect(act_undo, &QAction::triggered, m_scene, &NodalScene::undoCommand);
 
     QAction* act_redo = new QAction("Redo", this);
@@ -118,12 +147,12 @@ MainWindow::MainWindow(QWidget* _parent)
     for(QString component : componentList)
     {
         QAction* action = new QAction(component, this);
-        connect(action, &QAction::triggered, [this, component]() { m_scene->createComponent(component); });
+        connect(action, &QAction::triggered, [this, component]() { currentScene()->createComponent(component); });
 
         PushOrDragButton* button = new PushOrDragButton(QIcon(Utils::GetComponentIconPath(component)), component);
         button->setProperty("class", "component");
         ui->buttonLayout->addWidget(button);
-        connect(button, SIGNAL(clicked()), action, SLOT(trigger()));
+        connect(button, &QPushButton::clicked, action, &QAction::trigger);
 
         menu_Add->addAction(action);
     }
@@ -132,7 +161,7 @@ MainWindow::MainWindow(QWidget* _parent)
 
     QAction* act_generate = new QAction(QIcon(":icons/tools/generate"), "Generate", this);
     act_generate->setShortcut(QKeySequence::Refresh);
-    connect(act_generate, SIGNAL(triggered()), &m_signal, SLOT(generate()));
+    connect(act_generate, &QAction::triggered, this, &MainWindow::generate);
 
     ActionCycle* act_play = new ActionCycle(this);
     act_play->addAction("Play", QIcon(":/icons/tools/play"));
@@ -345,6 +374,11 @@ void MainWindow::readSettings()
     restoreState(settings.value("windowState").toByteArray());
 }
 
+NodalScene* MainWindow::currentScene()
+{
+    return dynamic_cast<NodalScene*>(ui->nodalView->scene());
+}
+
 void MainWindow::mousePressEvent(QMouseEvent* _event)
 {
     QWidget* focusedWidget = qApp->focusWidget();
@@ -489,7 +523,7 @@ void MainWindow::playPause(int _index)
 {
     if(m_autoGenerateMode == GENERATE_ON_PLAY)
     {
-        m_signal.generate();
+        m_signal.generate(m_scene->getOutput()->component());
     }
 
     switch(_index)
@@ -539,7 +573,7 @@ void MainWindow::onOutputChanged()
 {
     if(m_autoGenerateMode == GENERATE_ON_CHANGE)
     {
-        m_signal.generate();
+        m_signal.generate(m_scene->getOutput()->component());
     }
 }
 
@@ -566,6 +600,11 @@ void MainWindow::openAudioSettings()
     m_audioSettingsDialog->open();
 }
 
+void MainWindow::generate()
+{
+    m_signal.generate(m_scene->getOutput()->component());
+}
+
 void MainWindow::onAudioSettingsFinished(int _result)
 {
     qDebug() << "Close window";
@@ -573,7 +612,7 @@ void MainWindow::onAudioSettingsFinished(int _result)
     {
         m_audioSettingsDialog->getSettings(m_signal.settings());
         m_signal.updateAudioOutput(m_signal.deviceInfo());
-        m_signal.generate();
+        m_signal.generate(m_scene->getOutput()->component());
     }
 }
 
@@ -623,6 +662,64 @@ void MainWindow::onTimeCursorChanged(qreal _newTime)
     ui->waveFormScrollBar->setCursorValue(cursorSample);
 }
 
+void MainWindow::createSuperComponentData()
+{
+    qDebug() << "Create Super Comp Data!";
+
+    SuperComponentData* data = m_superCompManager->createData();
+    connect(data, &SuperComponentData::onNameEdited, ui->sceneTabs, &SuperCompTabBar::renameTab);
+
+    // Create super commponent button and its action
+    QAction* action = new QAction(data->name(), this);
+    connect(action, &QAction::triggered, [this, data]() { currentScene()->createComponent(data->uuid().toString()); });
+
+    SuperComponentButton* button = new SuperComponentButton(data, data->name(), this);
+    button->setProperty("class", "component");
+    ui->superCompLayout->addWidget(button);
+    connect(button, &QPushButton::clicked, action, &QAction::trigger);
+    connect(button, &SuperComponentButton::onEditCalled, this, &MainWindow::onEditSuperComponent);
+    connect(button, &SuperComponentButton::onDeleteCalled, this, &MainWindow::onDeleteSuperComponent);
+}
+
+void MainWindow::onDeleteSuperComponent(SuperComponentButton *_button)
+{
+    qDebug() << "Delete SuperComponent: " << _button->data()->name();
+    m_superCompManager->deleteData(_button->data()->uuid());
+    _button->deleteLater();
+}
+
+void MainWindow::onEditSuperComponent(SuperComponentData* _data)
+{
+    Q_ASSERT(_data != nullptr);
+
+    qDebug() << "Edit SuperComponent: " << _data->name();
+    ui->sceneTabs->editTab(_data);
+    ui->nodalView->setScene(_data->scene());
+}
+
+void MainWindow::showSuperComponentScene(int _tabIndex)
+{
+    qDebug() << "Index Changed: " << _tabIndex;
+    if(_tabIndex < 0)
+    {
+        ui->nodalView->setScene(m_scene);
+    }
+    else
+    {
+        QUuid uuid = ui->sceneTabs->getTabDataUuid(_tabIndex);
+        SuperComponentData* data = m_superCompManager->getData(uuid);
+        if(data != nullptr)
+        {
+            qDebug() << "Data found: " << data->name();
+            ui->nodalView->setScene(data->scene());
+        }
+        else
+        {
+            qDebug() << "No data found...";
+        }
+    }
+}
+
 void MainWindow::createActions()
 {
 
@@ -638,7 +735,54 @@ void MainWindow::openFile(QString _fileName)
     if(QFile::exists(_fileName))
     {
         m_dirtyable = false;
-        m_scene->load(_fileName, m_signal.settings());
+
+        QFile file(_fileName);
+        file.open(QIODevice::Text | QIODevice::ReadOnly);
+        QByteArray data = file.readAll();
+        file.close();
+
+        QJsonDocument json = QJsonDocument::fromJson(data);
+        QJsonObject root = json.object();
+
+        // ============== VERSION =============
+        if(!Utils::CheckJsonValue(root, VERSION, QJsonValue::Double, 100))
+            return;
+
+        int version = root[VERSION].toInt();
+        if(version > Utils::GetJSONVersion())
+        {
+            Utils::ErrorMsg(101, "Wrong version: file version is " + QString::number(version) + " and should be " + QString::number(Utils::GetJSONVersion()));
+            return;
+        }
+
+        // ============== SETTINGS =============
+        if(!Utils::CheckJsonValue(root, SETTINGS, QJsonValue::Object, 115))
+            return;
+
+        m_signal.settings().fromJson(root[SETTINGS].toObject(), version);
+
+        if(version <= 1) // compatibility
+        {
+            if(!Utils::CheckJsonValue(root, DURATION, QJsonValue::Double, 110))
+                return;
+
+            m_signal.settings().setDuration(root[DURATION].toDouble());
+        }
+
+        // ============== SUPER COMPONENTS =============
+        if(!Utils::CheckJsonValue(root, SUPERCOMPONENTS, QJsonValue::Array, 125))
+            return;
+
+        QJsonArray superCompArray = root[COMPONENTS].toArray();
+        m_superCompManager->fromJson(superCompArray);
+
+        // ============== COMPONENTS =============
+        if(!Utils::CheckJsonValue(root, COMPONENTS, QJsonValue::Array, 120))
+            return;
+
+        QJsonArray componentArray = root[COMPONENTS].toArray();
+        m_scene->fromJson(componentArray);
+
         m_signal.updateAudioOutput(m_signal.deviceInfo());
         m_dirtyable = true;
         setFileName(_fileName);
@@ -649,7 +793,21 @@ void MainWindow::saveFile(QString _fileName)
 {
     setFileName(_fileName);
     m_dirtyable = false;
-    m_scene->save(_fileName, m_signal.settings());
+
+    QJsonObject root;
+    root[VERSION] = Utils::GetJSONVersion();
+    root[COMPONENTS] = m_scene->toJson();
+    root[SETTINGS] = m_signal.settings().toJson();
+    root[SUPERCOMPONENTS] = m_superCompManager->toJson();
+
+    QJsonDocument json(root);
+    QByteArray data = json.toJson();
+
+    QFile file(_fileName);
+    file.open(QIODevice::Text | QIODevice::WriteOnly | QIODevice::Truncate);
+    file.write(data);
+    file.close();
+
     m_dirtyable = true;
 }
 

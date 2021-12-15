@@ -77,24 +77,21 @@ void NodeItem::setComponent(Component *comp)
 
     clearInputs();
 
-    qreal heightSum = 0;
     qreal titleHeight = 0;
+    qreal bodyHeight = 0;
     if (comp != nullptr)
     {
         if(comp->showTitle())
         {
             m_label->setPlainText(comp->getName());
-            titleHeight = 20;
-            heightSum += titleHeight;
+            titleHeight = 20.0;
         }
         else
         {
             m_label->setVisible(false);
         }
 
-
         qreal pinOffset = getPinOffset();
-
         qreal lineSep = 5;
         for (int i = 0; i < comp->getInputCount(); i++)
         {
@@ -102,11 +99,11 @@ void NodeItem::setComponent(Component *comp)
 
             pin->setInput(comp->getInput(i));
             pin->setX(pinOffset);
-            pin->setY(heightSum + pin->radius() + lineSep);
+            pin->setY(titleHeight + bodyHeight + pin->radius() + lineSep);
             connect(pin, SIGNAL(dirtyChanged()), this, SLOT(setDirty()));
 
             m_inputPins.append(pin);
-            heightSum += (comp->getInput(i)->getName().isEmpty() ? 20 : 40);
+            bodyHeight += (comp->getInput(i)->getName().isEmpty() ? 20.0 : 40.0);
 
             connect(pin, &PinInputItem::outputChanged, this, &NodeItem::setOutputChanged);
         }
@@ -117,24 +114,11 @@ void NodeItem::setComponent(Component *comp)
     {
         m_label->setPlainText("NULL");
     }
-    m_height = heightSum;
+
+    bodyHeight = fmax(bodyHeight, 20.0);
+    m_height = titleHeight + bodyHeight;
     // recenter the output pin
-    m_outputPin->setY(0.5*(m_height-titleHeight)+titleHeight);
-}
-
-PinInputItem *NodeItem::getInput(QString _name)
-{
-    PinInputItem* input = nullptr;
-
-    for (int i = 0; i < m_inputPins.size() && input == nullptr; i++)
-    {
-        if (m_inputPins[i]->input()->getName() == _name)
-        {
-            input = m_inputPins[i];
-        }
-    }
-
-    return input;
+    m_outputPin->setY(titleHeight + 0.5 * bodyHeight);
 }
 
 PinInputItem *NodeItem::getInput(int _index)

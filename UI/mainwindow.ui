@@ -150,10 +150,10 @@
      </colorrole>
      <colorrole role="PlaceholderText">
       <brush brushstyle="SolidPattern">
-       <color alpha="128">
-        <red>198</red>
-        <green>198</green>
-        <blue>198</blue>
+       <color alpha="255">
+        <red>200</red>
+        <green>200</green>
+        <blue>200</blue>
        </color>
       </brush>
      </colorrole>
@@ -296,10 +296,10 @@
      </colorrole>
      <colorrole role="PlaceholderText">
       <brush brushstyle="SolidPattern">
-       <color alpha="128">
-        <red>198</red>
-        <green>198</green>
-        <blue>198</blue>
+       <color alpha="255">
+        <red>200</red>
+        <green>200</green>
+        <blue>200</blue>
        </color>
       </brush>
      </colorrole>
@@ -442,10 +442,10 @@
      </colorrole>
      <colorrole role="PlaceholderText">
       <brush brushstyle="SolidPattern">
-       <color alpha="128">
-        <red>255</red>
-        <green>255</green>
-        <blue>255</blue>
+       <color alpha="255">
+        <red>200</red>
+        <green>200</green>
+        <blue>200</blue>
        </color>
       </brush>
      </colorrole>
@@ -718,45 +718,66 @@ QRadioButton::indicator::checked {
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <layout class="QVBoxLayout" name="buttonLayout">
-        <property name="sizeConstraint">
-         <enum>QLayout::SetDefaultConstraint</enum>
-        </property>
+       <layout class="QVBoxLayout" name="componentLayout" stretch="0,1,0">
         <property name="rightMargin">
          <number>10</number>
         </property>
+        <item>
+         <layout class="QVBoxLayout" name="buttonLayout">
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="superCompLayout"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="newSuperCompButton">
+          <property name="text">
+           <string>New Super Component</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
       <item>
-       <widget class="NodalView" name="nodalView">
-        <property name="contextMenuPolicy">
-         <enum>Qt::CustomContextMenu</enum>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="spacing">
+         <number>0</number>
         </property>
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <property name="verticalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
-        </property>
-        <property name="horizontalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
-        </property>
-        <property name="renderHints">
-         <set>QPainter::Antialiasing|QPainter::HighQualityAntialiasing|QPainter::SmoothPixmapTransform|QPainter::TextAntialiasing</set>
-        </property>
-        <property name="dragMode">
-         <enum>QGraphicsView::RubberBandDrag</enum>
-        </property>
-        <property name="transformationAnchor">
-         <enum>QGraphicsView::AnchorUnderMouse</enum>
-        </property>
-        <property name="resizeAnchor">
-         <enum>QGraphicsView::AnchorViewCenter</enum>
-        </property>
-        <property name="viewportUpdateMode">
-         <enum>QGraphicsView::MinimalViewportUpdate</enum>
-        </property>
-       </widget>
+        <item>
+         <widget class="SuperCompTabBar" name="sceneTabs" native="true"/>
+        </item>
+        <item>
+         <widget class="NodalView" name="nodalView">
+          <property name="contextMenuPolicy">
+           <enum>Qt::CustomContextMenu</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="dragMode">
+           <enum>QGraphicsView::RubberBandDrag</enum>
+          </property>
+          <property name="transformationAnchor">
+           <enum>QGraphicsView::AnchorUnderMouse</enum>
+          </property>
+          <property name="resizeAnchor">
+           <enum>QGraphicsView::AnchorViewCenter</enum>
+          </property>
+          <property name="viewportUpdateMode">
+           <enum>QGraphicsView::MinimalViewportUpdate</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>
@@ -768,7 +789,7 @@ QRadioButton::indicator::checked {
      <x>0</x>
      <y>0</y>
      <width>1054</width>
-     <height>19</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -855,6 +876,12 @@ QRadioButton::indicator::checked {
    <class>WaveFormScrollBar</class>
    <extends>QWidget</extends>
    <header>WaveFormScrollBar.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SuperCompTabBar</class>
+   <extends>QWidget</extends>
+   <header location="global">supercomptabbar.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

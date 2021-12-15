@@ -15,6 +15,8 @@
 #include "Components/ADSRComponent.h"
 #include "Components/OutputComponent.h"
 #include "Components/PassThroughComponent.h"
+#include "Components/SuperComponent.h"
+#include "Components/InputComponent.h"
 
 #endif // COMPONENTS_H
 

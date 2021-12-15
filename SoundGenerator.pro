@@ -27,14 +27,17 @@ INCLUDEPATH += UI
 CONFIG += c++11
 
 SOURCES += \
+    Components/InputComponent.cpp \
     Components/PassThroughComponent.cpp \
     NodalScene.cpp \
+    SuperComponentDataManager.cpp \
     UndoCommands/ChangeInputValueCommand.cpp \
     UndoCommands/CreateComponentCommand.cpp \
     UndoCommands/DeleteComponentCommand.cpp \
     UndoCommands/LinkPinCommand.cpp \
     UndoCommands/MoveComponentCommand.cpp \
     UndoCommands/UnlinkPinCommand.cpp \
+    UndoCommands/SelectComponentCommand.cpp \
     Utils.cpp \
     WAVFormat.cpp \
     main.cpp \
@@ -51,10 +54,11 @@ SOURCES += \
     Components/SawToothComponent.cpp \
     Components/SinusComponent.cpp \
     Components/SquareComponent.cpp \
+    Components/SuperComponent.cpp \
+    Components/SuperComponentData.cpp \
     Components/TriangleComponent.cpp \
     Random.cpp \
     Signal.cpp \
-    UndoCommands/SelectComponentCommand.cpp \
     UI/LineEditQReal.cpp \
     UI/LinkItem.cpp \
     UI/MainWindow.cpp \
@@ -64,24 +68,28 @@ SOURCES += \
     UI/PinItem.cpp \
     UI/PinOutputItem.cpp \
     UI/PushOrDragButton.cpp \
+    UI/SuperComponentButton.cpp \
+    UI/SuperCompTabBar.cpp \
     UI/WaveFormChunk.cpp \
     UI/WaveFormView.cpp \
-    LoopableBuffer.cpp \
-    ActionCycle.cpp \
     UI/TimeRuler.cpp \
     UI/WaveFormScrollBar.cpp \
     UI/AudioSettingsDialog.cpp \
     AudioSettings.cpp \
     ActionAudioDevice.cpp \
+    LoopableBuffer.cpp \
+    ActionCycle.cpp \
     SampleConverter.cpp
 
 HEADERS += \
+    Components.h \
     Components/AddComponent.h \
     Components/ADSRComponent.h \
     Components/Component.h \
     Components/ComponentFactory.h \
     Components/DelayComponent.h \
     Components/GeneratorComponent.h \
+    Components/InputComponent.h \
     Components/MultiplyComponent.h \
     Components/OutputComponent.h \
     Components/PassThroughComponent.h \
@@ -91,19 +99,23 @@ HEADERS += \
     Components/SinusComponent.h \
     Components/SquareComponent.h \
     Components/TriangleComponent.h \
+    Components/SuperComponent.h \
+    Components/SuperComponentData.h \
     NodalScene.h \
+    SuperComponentDataManager.h \
     Types.h \
     Random.h \
     Signal.h \
+    UI/SuperCompTabBar.h \
     UndoCommands/ChangeInputValueCommand.h \
     UndoCommands/CreateComponentCommand.h \
     UndoCommands/DeleteComponentCommand.h \
     UndoCommands/LinkPinCommand.h \
     UndoCommands/MoveComponentCommand.h \
     UndoCommands/UnlinkPinCommand.h \
+    UndoCommands/SelectComponentCommand.h \
     Utils.h \
     WAVFormat.h \
-    UndoCommands/SelectComponentCommand.h \
     UI/LineEditQReal.h \
     UI/LinkItem.h \
     UI/MainWindow.h \
@@ -115,11 +127,13 @@ HEADERS += \
     UI/PushOrDragButton.h \
     UI/WaveFormChunk.h \
     UI/WaveFormView.h \
-    LoopableBuffer.h \
-    ActionCycle.h \
+    UI/SuperComponentButton.h \
+    UI/SuperCompTabBar.h \
     UI/TimeRuler.h \
     UI/WaveFormScrollBar.h \
     UI/AudioSettingsDialog.h \
+    LoopableBuffer.h \
+    ActionCycle.h \
     AudioSettings.h \
     ActionAudioDevice.h \
     SampleConverter.h \

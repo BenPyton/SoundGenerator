@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Benoit Pelletier
+ * Copyright 2019-2021 Benoit Pelletier
  *
  * This file is part of Sound Generator.
  *
@@ -22,6 +22,10 @@
 #define COMPONENTFACTORY_H
 
 #include <QString>
+#include <QUuid>
+
+class Component;
+class SuperComponentDataManager;
 
 class ComponentFactory
 {
@@ -31,7 +35,12 @@ private:
 public:
 	// Create a component from it's name
 	// Return nullptr if _compName doesn't corresponding to any component name
-    static class Component* CreateComponent(const QString& _compName);
+    static Component* CreateComponent(const QString& _compName);
+
+    inline static void SetDataManager(SuperComponentDataManager* _dataManager) { s_dataManager = _dataManager; }
+
+private:
+    static SuperComponentDataManager* s_dataManager;
 };
 
 #endif // COMPONENTFACTORY_H

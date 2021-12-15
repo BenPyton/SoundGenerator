@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Benoit Pelletier
+ * Copyright 2019-2021 Benoit Pelletier
  *
  * This file is part of Sound Generator.
  *
@@ -61,10 +61,15 @@ void PushOrDragButton::mouseMoveEvent(QMouseEvent *event)
     QDrag *drag = new QDrag(this);
     QMimeData *mimeData = new QMimeData();
 
-    mimeData->setData("add/component", text().toUtf8());
+    mimeData->setData("add/component", dragData());
     drag->setMimeData(mimeData);
 
     drag->exec(Qt::MoveAction);
 
     setDown(false);
+}
+
+QByteArray PushOrDragButton::dragData()
+{
+    return text().toUtf8();
 }

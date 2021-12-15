@@ -30,6 +30,9 @@ class NodeItem;
 class NodalScene;
 class AudioSettingsDialog;
 class ActionAudioDevice;
+class SuperComponentData;
+class SuperComponentButton;
+class SuperComponentDataManager;
 
 namespace Ui {
 class MainWindow;
@@ -55,6 +58,7 @@ public:
     QString fileName() { return m_fileName; }
     void setFileName(QString _fileName);
     void readSettings();
+    NodalScene* currentScene();
 
 protected:
     virtual void closeEvent(QCloseEvent* _event) override;
@@ -73,6 +77,7 @@ public slots:
     void quit();
     void playPause(int _index);
     void openAudioSettings();
+    void generate();
     // other
     void setDirty();
     void changeVolume(int _value);
@@ -85,6 +90,12 @@ public slots:
     void onWaveFormViewZoomChanged();
     void onScrollbarValueChanged();
     void onTimeCursorChanged(qreal _newTime);
+
+    // super components
+    void createSuperComponentData();
+    void onDeleteSuperComponent(SuperComponentButton* _button);
+    void onEditSuperComponent(SuperComponentData* _data);
+    void showSuperComponentScene(int _tabIndex);
 
 private:
     void createActions();
@@ -115,6 +126,7 @@ private:
     QActionGroup* m_act_autoGenerateGroup;
 
     AudioSettingsDialog* m_audioSettingsDialog;
+    SuperComponentDataManager* m_superCompManager;
 };
 
 #endif // MAINWINDOW_H

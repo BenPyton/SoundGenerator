@@ -81,8 +81,6 @@ private:
 
     QMenu* m_menuAdd;
 
-    NodalScene* m_scene;
-
 public:
     static const int gridUnit;
 };

@@ -44,8 +44,8 @@ public:
     Signal(QObject* parent = nullptr);
     virtual ~Signal() override;
 
-    inline void setComponent(Component* _component) { m_component = _component; }
-    inline Component* component() { return m_component; }
+    //inline void setComponent(Component* _component) { m_component = _component; }
+    //inline Component* component() { return m_component; }
 
     void setVolume(qreal _volume);
     qreal volume();
@@ -70,7 +70,7 @@ public slots:
     void pause();
     void toStart();
     void toEnd();
-    void generate();
+    void generate(Component* _component);
     void exportWAV(QString _fileName);
     void loop(bool _enable);
     void setCursorTime(qreal _cursorTime);
@@ -86,7 +86,7 @@ private:
     QAudioOutput* m_audio;
     QByteArray* m_samples;
     LoopableBuffer* m_buffer;
-    Component* m_component;
+    //Component* m_component;
     int m_cursorSample;
     QAudioDeviceInfo m_deviceInfo;
 };

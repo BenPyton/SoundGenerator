@@ -32,7 +32,6 @@ NodalView::NodalView(QWidget* _parent)
     , m_dragging(false)
     , m_rightClickPressed(false)
     , m_zoom(1.0)
-    , m_scene(nullptr)
 {
     setAcceptDrops(true);
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -176,10 +175,14 @@ void NodalView::dropEvent(QDropEvent* _event)
 {
     _event->acceptProposedAction();
 
-    QString componentName = QString::fromUtf8(_event->mimeData()->data("add/component"));
+    NodalScene* scene = getScene();
+    scene->setCreationPosition(mapToScene(_event->pos()));
 
-    getScene()->setCreationPosition(mapToScene(_event->pos()));
-    getScene()->createComponent(componentName);
+    if(_event->mimeData()->hasFormat("add/component"))
+    {
+        QString componentName = QString::fromUtf8(_event->mimeData()->data("add/component"));
+        scene->createComponent(componentName);
+    }
 }
 
 // must be implemented
@@ -268,12 +271,9 @@ void NodalView::drawBackground(QPainter* _painter, const QRectF& _rect)
 
 NodalScene *NodalView::getScene()
 {
-    if(m_scene == nullptr)
-    {
-        m_scene = dynamic_cast<NodalScene*>(scene());
-        Q_ASSERT(m_scene != nullptr);
-    }
-    return m_scene;
+    NodalScene* pScene = dynamic_cast<NodalScene*>(scene());
+    Q_ASSERT(pScene != nullptr);
+    return pScene;
 }
 
 void NodalView::updateZoomView()
@@ -337,11 +337,12 @@ void NodalView::updateZoomView()
 
 void NodalView::showCustomContextMenu(const QPoint& _pos)
 {
-    getScene()->isContextMenu(true);
+    NodalScene* scene = getScene();
+    scene->isContextMenu(true);
 
     // for most widgets
     QPoint globalPos = mapToGlobal(_pos);
-    getScene()->setContextPosition(mapToScene(_pos));
+    scene->setContextPosition(mapToScene(_pos));
     // for QAbstractScrollArea and derived classes you would use:
     // QPoint globalPos = myWidget->viewport()->mapToGlobal(pos);
 
@@ -358,7 +359,7 @@ void NodalView::showCustomContextMenu(const QPoint& _pos)
         qDebug() << "Add menu in context";
     }
 
-    QGraphicsItem* item = scene()->itemAt(mapToScene(_pos), QTransform());
+    QGraphicsItem* item = scene->itemAt(mapToScene(_pos), QTransform());
     PinItem* pin = dynamic_cast<PinItem*>(item);
     LinkItem* link = dynamic_cast<LinkItem*>(item);
     if(link != nullptr)
@@ -370,7 +371,7 @@ void NodalView::showCustomContextMenu(const QPoint& _pos)
     {
         myMenu.addAction(&act_breakAllLinks);
     }
-    if(scene()->selectedItems().size() > 0)
+    if(scene->selectedItems().size() > 0)
     {
         myMenu.addAction(&act_removeComponents);
     }
@@ -391,17 +392,17 @@ void NodalView::showCustomContextMenu(const QPoint& _pos)
     }
     else if (selectedAction == &act_removeComponents)
     {
-        getScene()->deleteSelection();
+        scene->deleteSelection();
     }
     else if (selectedAction == &act_createPassThrough)
     {
-        getScene()->createPassThrough(link);
+        scene->createPassThrough(link);
     }
     else
     {
         // nothing was chosen
     }
-    getScene()->isContextMenu(false);
+    scene->isContextMenu(false);
 }
 
 

@@ -35,14 +35,6 @@
 #include "UndoCommands/UnlinkPinCommand.h"
 #include "AudioSettings.h"
 
-// JSON keys
-#define VERSION "version"
-#define SETTINGS "settings"
-#define COMPONENTS "components"
-
-// Compatibility
-#define DURATION "duration"
-
 NodalScene::NodalScene(QObject* parent)
     : QGraphicsScene(parent)
     , m_creationPosition(0, 0)
@@ -135,7 +127,21 @@ void NodalScene::removeNodeItem(NodeItem *_item)
     m_nodeList.remove(itemIndex);
 }
 
-void NodalScene::save(QString fileName, const AudioSettings& settings)
+QJsonArray NodalScene::toJson()
+{
+    return NodeItem::NodeArrayToJson(m_nodeList);
+}
+
+void NodalScene::fromJson(QJsonArray json)
+{
+    m_undoStack->clear();
+    reset();
+    m_undoStack->clear();
+    NodeItem::JsonToNodeArray(json, this, QPointF(), m_undoStack);
+    m_undoStack->clear();
+}
+
+/*void NodalScene::save(QString fileName, const AudioSettings& settings)
 {
     QJsonObject root;
     root[VERSION] = 2;
@@ -149,7 +155,7 @@ void NodalScene::save(QString fileName, const AudioSettings& settings)
     file.open(QIODevice::Text | QIODevice::WriteOnly | QIODevice::Truncate);
     file.write(data);
     file.close();
-}
+}*/
 
 void CheckCommand(const QUndoCommand* _command, int _depth = 0)
 {
@@ -160,7 +166,7 @@ void CheckCommand(const QUndoCommand* _command, int _depth = 0)
     }
 }
 
-void NodalScene::load(QString fileName, AudioSettings& settings)
+/*void NodalScene::load(QString fileName, AudioSettings& settings)
 {
     QFile file(fileName);
     file.open(QIODevice::Text | QIODevice::ReadOnly);
@@ -195,63 +201,17 @@ void NodalScene::load(QString fileName, AudioSettings& settings)
         settings.setDuration(root[DURATION].toDouble());
     }
 
-
     // ============== CREATE COMPONENTS =============
     if(!Utils::CheckJsonValue(root, COMPONENTS, QJsonValue::Array, 120))
         return;
     QJsonArray componentArray = root[COMPONENTS].toArray();
 
-    qDebug() << "[DEBUG] Check UndoStack";
-    for(int i = 0; i < m_undoStack->count(); ++i)
-    {
-        CheckCommand(m_undoStack->command(i));
-    }
-
-    qDebug() << "[DEBUG] Clear UndoStack";
     m_undoStack->clear();
-
-    qDebug() << "[DEBUG] Check UndoStack";
-    for(int i = 0; i < m_undoStack->count(); ++i)
-    {
-        CheckCommand(m_undoStack->command(i));
-    }
-
-    qDebug() << "[DEBUG] Reset";
     reset();
-
-    qDebug() << "[DEBUG] Check UndoStack";
-    for(int i = 0; i < m_undoStack->count(); ++i)
-    {
-        CheckCommand(m_undoStack->command(i));
-    }
-
-    qDebug() << "[DEBUG] Clear UndoStack";
     m_undoStack->clear();
-
-    qDebug() << "[DEBUG] Check UndoStack";
-    for(int i = 0; i < m_undoStack->count(); ++i)
-    {
-        CheckCommand(m_undoStack->command(i));
-    }
-
-    qDebug() << "[DEBUG] Create Conponents";
     NodeItem::JsonToNodeArray(componentArray, this, QPointF(), m_undoStack);
-
-    qDebug() << "[DEBUG] Check UndoStack";
-    for(int i = 0; i < m_undoStack->count(); ++i)
-    {
-        CheckCommand(m_undoStack->command(i));
-    }
-
-    qDebug() << "[DEBUG] Clear UndoStack";
     m_undoStack->clear();
-
-    qDebug() << "[DEBUG] Check UndoStack";
-    for(int i = 0; i < m_undoStack->count(); ++i)
-    {
-        CheckCommand(m_undoStack->command(i));
-    }
-}
+}*/
 
 int NodalScene::clearItems(int from)
 {
@@ -495,9 +455,9 @@ void NodalScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
-NodeItem *NodalScene::createNode(QString componentName, qreal width)
+NodeItem *NodalScene::createNode(QString _componentName, qreal _width)
 {
-    CreateComponentCommand* command = new CreateComponentCommand(this, componentName, m_creationPosition, width);
+    CreateComponentCommand* command = new CreateComponentCommand(this, _componentName, m_creationPosition, _width);
     m_undoStack->push(command);
     command->getItem()->setUndoStack(m_undoStack);
     return command->getItem();

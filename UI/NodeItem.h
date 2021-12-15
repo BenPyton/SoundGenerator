@@ -45,7 +45,6 @@ public:
     inline Component* component() const { return m_component; }
 
     PinOutputItem* getOutput() { return m_outputPin; }
-    PinInputItem* getInput(QString _name);
     PinInputItem* getInput(int _index);
     int getInputCount() { return m_inputPins.size(); }
 
