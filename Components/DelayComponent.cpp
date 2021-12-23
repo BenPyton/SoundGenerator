@@ -19,23 +19,24 @@
  */
 
 #include "DelayComponent.h"
+#include "ComponentInput.h"
 
 DelayComponent::DelayComponent()
 {
 	m_name = "Delay";
 
-	m_inputs.push_back(ComponentInput("Signal", this));
-	m_inputs.push_back(ComponentInput("Delay", this));
+    addInput(new ComponentInput("Signal", this));
+    addInput(new ComponentInput("Delay", this));
 
-    m_inputs[0].setDefaultValue(0.0);
-    m_inputs[1].setDefaultValue(0.0);
-    m_inputs[1].setLinkable(false);
+    getInput(0)->setDefaultValue(0.0);
+    getInput(1)->setDefaultValue(0.0);
+    getInput(1)->setLinkable(false);
 }
 
 qreal DelayComponent::getOutput(qreal _time)
 {
-    qreal delay = m_inputs[1].getValue(_time);
+    qreal delay = getInput(1)->getValue(_time);
     qreal t = _time - delay;
-    qreal value = (t < 0) ? 0 : m_inputs[0].getValue(t);
+    qreal value = (t < 0) ? 0 : getInput(0)->getValue(t);
 	return value;
 }

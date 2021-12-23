@@ -31,6 +31,9 @@
 #include "LinkItem.h"
 #include "UndoCommands/CreateComponentCommand.h"
 #include "UndoCommands/MoveComponentCommand.h"
+#include "Components/ComponentInput.h"
+#include "Components/SuperComponent.h"
+#include "RenameDialog.h"
 
 
 NodeItem::NodeItem(QGraphicsItem* _parent)
@@ -63,27 +66,39 @@ NodeItem::~NodeItem()
         disconnect(pin, SIGNAL(dirtyChanged()), this, SLOT(setDirty()));
     }
     disconnect(m_outputPin, SIGNAL(dirtyChanged()), this, SLOT(setDirty()));
-    if(m_component != nullptr)
+    if(nullptr != m_component)
         delete m_component;
 }
 
 void NodeItem::setComponent(Component *comp)
 {
-    if(m_component != nullptr)
+    if(nullptr != m_component)
         delete m_component;
 
     m_component = comp;
     m_outputPin->setComponent(comp);
 
+    updateComponent();
+}
+
+void NodeItem::updateComponent()
+{
+    SuperComponent* superComp = dynamic_cast<SuperComponent*>(m_component);
+    if(nullptr != superComp)
+    {
+        superComp->updateInputs();
+        qDebug() << "Super Component Updated!!!";
+    }
+
     clearInputs();
 
     qreal titleHeight = 0;
     qreal bodyHeight = 0;
-    if (comp != nullptr)
+    if (nullptr != m_component)
     {
-        if(comp->showTitle())
+        if(m_component->showTitle())
         {
-            m_label->setPlainText(comp->getName());
+            m_label->setPlainText(m_component->getName());
             titleHeight = 20.0;
         }
         else
@@ -93,22 +108,22 @@ void NodeItem::setComponent(Component *comp)
 
         qreal pinOffset = getPinOffset();
         qreal lineSep = 5;
-        for (int i = 0; i < comp->getInputCount(); i++)
+        for (int i = 0; i < m_component->getInputCount(); i++)
         {
             PinInputItem* pin = new PinInputItem(this);
 
-            pin->setInput(comp->getInput(i));
+            pin->setInput(m_component->getInput(i));
             pin->setX(pinOffset);
             pin->setY(titleHeight + bodyHeight + pin->radius() + lineSep);
-            connect(pin, SIGNAL(dirtyChanged()), this, SLOT(setDirty()));
+            connect(pin, &PinItem::dirtyChanged, this, &NodeItem::setDirty);
 
             m_inputPins.append(pin);
-            bodyHeight += (comp->getInput(i)->getName().isEmpty() ? 20.0 : 40.0);
+            bodyHeight += (m_component->getInput(i)->getName().isEmpty() ? 20.0 : 40.0);
 
             connect(pin, &PinInputItem::outputChanged, this, &NodeItem::setOutputChanged);
         }
 
-        m_outputPin->setVisible(comp->hasOutput());
+        m_outputPin->setVisible(m_component->hasOutput());
     }
     else
     {
@@ -289,7 +304,6 @@ qreal NodeItem::getPinOffset() const
     return offset;
 }
 
-
 QJsonArray NodeItem::NodeArrayToJson(const QVector<NodeItem*>& _nodeArray)
 {
     // create a json array with all selected components
@@ -433,4 +447,21 @@ void NodeItem::setUndoStack(QUndoStack *_undoStack)
     {
         input->setUndoStack(m_undoStack);
     }
+}
+
+void NodeItem::rename()
+{
+    Q_ASSERT(nullptr != m_component);
+
+    RenameDialog* dialog = new RenameDialog(m_component->getName());
+
+    int result = dialog->exec();
+    if(result == RenameDialog::APPLY)
+    {
+        QString newName = dialog->getNewName();
+        m_component->setName(newName);
+        m_label->setPlainText(newName);
+    }
+
+    delete dialog;
 }

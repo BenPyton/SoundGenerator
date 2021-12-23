@@ -19,21 +19,22 @@
  */
 
 #include "OutputComponent.h"
+#include "ComponentInput.h"
 
 OutputComponent::OutputComponent()
 	: Component()
 {
 	m_name = "Output";
 
-	m_inputs.push_back(ComponentInput("", this));
+    addInput(new ComponentInput("", this));
 
     m_hasOutput = false;
     m_removable = false;
-    m_inputs[0].setDefaultValue(0.0);
-    m_inputs[0].setEditable(false);
+    getInput(0)->setDefaultValue(0.0);
+    getInput(0)->setEditable(false);
 }
 
 qreal OutputComponent::getOutput(qreal _time)
 {
-	return m_inputs[0].getValue(_time);
+    return getInput(0)->getValue(_time);
 }

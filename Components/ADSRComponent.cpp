@@ -19,6 +19,7 @@
  */
 
 #include "ADSRComponent.h"
+#include "ComponentInput.h"
 #include "Utils.h"
 
 // https://en.wikipedia.org/wiki/File:ADSR_parameter.svg
@@ -28,34 +29,34 @@ ADSRComponent::ADSRComponent()
 {
 	m_name = "ADSR";
 
-	m_inputs.push_back(ComponentInput("Signal", this));
-	m_inputs.push_back(ComponentInput("Attack Time", this));
-	m_inputs.push_back(ComponentInput("Decay Time", this));
-	m_inputs.push_back(ComponentInput("Sustain Time", this));
-	m_inputs.push_back(ComponentInput("Sustain Amp", this));
-	m_inputs.push_back(ComponentInput("Release Time", this));
+    addInput(new ComponentInput("Signal", this));
+    addInput(new ComponentInput("Attack Time", this));
+    addInput(new ComponentInput("Decay Time", this));
+    addInput(new ComponentInput("Sustain Time", this));
+    addInput(new ComponentInput("Sustain Amp", this));
+    addInput(new ComponentInput("Release Time", this));
 
-    m_inputs[0].setDefaultValue(0.0);
-    m_inputs[1].setDefaultValue(0.1);
-    m_inputs[1].setLinkable(false);
-    m_inputs[2].setDefaultValue(0.1);
-    m_inputs[2].setLinkable(false);
-    m_inputs[3].setDefaultValue(0.7);
-    m_inputs[3].setLinkable(false);
-    m_inputs[4].setDefaultValue(0.5);
-    m_inputs[4].setLinkable(false);
-    m_inputs[5].setDefaultValue(0.1);
-    m_inputs[5].setLinkable(false);
+    getInput(0)->setDefaultValue(0.0);
+    getInput(1)->setDefaultValue(0.1);
+    getInput(1)->setLinkable(false);
+    getInput(2)->setDefaultValue(0.1);
+    getInput(2)->setLinkable(false);
+    getInput(3)->setDefaultValue(0.7);
+    getInput(3)->setLinkable(false);
+    getInput(4)->setDefaultValue(0.5);
+    getInput(4)->setLinkable(false);
+    getInput(5)->setDefaultValue(0.1);
+    getInput(5)->setLinkable(false);
 }
 
 qreal ADSRComponent::getOutput(qreal _time)
 {
-    qreal input = m_inputs[0].getValue(_time);
-    qreal attackTime = m_inputs[1].getValue(_time);
-    qreal decayTime = attackTime + m_inputs[2].getValue(_time);
-    qreal sustainTime = decayTime + m_inputs[3].getValue(_time);
-    qreal sustainAmp = m_inputs[4].getValue(_time);
-    qreal releaseTime = sustainTime + m_inputs[5].getValue(_time);
+    qreal input = getInput(0)->getValue(_time);
+    qreal attackTime = getInput(1)->getValue(_time);
+    qreal decayTime = attackTime + getInput(2)->getValue(_time);
+    qreal sustainTime = decayTime + getInput(3)->getValue(_time);
+    qreal sustainAmp = getInput(4)->getValue(_time);
+    qreal releaseTime = sustainTime + getInput(5)->getValue(_time);
 
     qreal value = 0;
 	if (_time > 0 && _time <= attackTime)

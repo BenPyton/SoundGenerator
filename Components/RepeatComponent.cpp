@@ -19,22 +19,23 @@
  */
 
 #include "RepeatComponent.h"
+#include "ComponentInput.h"
 
 RepeatComponent::RepeatComponent()
 {
 	m_name = "Repeat";
 
-	m_inputs.push_back(ComponentInput("Signal", this));
-	m_inputs.push_back(ComponentInput("Duration", this));
+    addInput(new ComponentInput("Signal", this));
+    addInput(new ComponentInput("Duration", this));
 
-    m_inputs[0].setDefaultValue(0.0);
-    m_inputs[1].setDefaultValue(1.0);
-    m_inputs[1].setLinkable(false);
+    getInput(0)->setDefaultValue(0.0);
+    getInput(1)->setDefaultValue(1.0);
+    getInput(1)->setLinkable(false);
 }
 
 qreal RepeatComponent::getOutput(qreal _time)
 {
-    qreal t = fmod(_time, m_inputs[1].getValue(_time));
-    qreal value = m_inputs[0].getValue(t);
+    qreal t = fmod(_time, getInput(1)->getValue(_time));
+    qreal value = getInput(0)->getValue(t);
 	return value;
 }

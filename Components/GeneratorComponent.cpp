@@ -19,16 +19,17 @@
  */
 
 #include "GeneratorComponent.h"
+#include "ComponentInput.h"
 
 GeneratorComponent::GeneratorComponent()
 {
-	m_inputs.push_back(ComponentInput("Frequency", this));
-	m_inputs.push_back(ComponentInput("Amplitude", this));
-	m_inputs.push_back(ComponentInput("Offset", this));
+    addInput(new ComponentInput("Frequency", this));
+    addInput(new ComponentInput("Amplitude", this));
+    addInput(new ComponentInput("Offset", this));
 
-    m_inputs[0].setDefaultValue(400.0);
-    m_inputs[1].setDefaultValue(1.0);
-    m_inputs[2].setDefaultValue(0.0);
+    getInput(0)->setDefaultValue(400.0);
+    getInput(1)->setDefaultValue(1.0);
+    getInput(2)->setDefaultValue(0.0);
 }
 
 void GeneratorComponent::init()

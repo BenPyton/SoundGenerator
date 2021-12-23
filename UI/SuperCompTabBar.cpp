@@ -25,7 +25,7 @@
 SuperCompTabBar::SuperCompTabBar(QWidget *_parent)
     : QTabBar(_parent)
 {
-    connect(this, &QTabBar::tabCloseRequested, this, &QTabBar::removeTab);
+    connect(this, &QTabBar::tabCloseRequested, this, &SuperCompTabBar::closeTabAt);
 }
 
 int SuperCompTabBar::getTabIndex(SuperComponentData *_data)
@@ -53,6 +53,13 @@ QUuid SuperCompTabBar::getTabDataUuid(int _index)
     return uuid;
 }
 
+void SuperCompTabBar::closeTabAt(int _index)
+{
+    QUuid uuid = tabData(_index).toUuid();
+    QTabBar::removeTab(_index);
+    emit tabClosed(&uuid);
+}
+
 void SuperCompTabBar::editTab(SuperComponentData* _data)
 {
     Q_ASSERT(_data != nullptr);
@@ -78,14 +85,14 @@ void SuperCompTabBar::renameTab(SuperComponentData* _data)
     }
 }
 
-void SuperCompTabBar::deleteTab(SuperComponentData* _data)
+void SuperCompTabBar::closeTab(SuperComponentData* _data)
 {
     Q_ASSERT(_data != nullptr);
 
     int tabIndex = getTabIndex(_data);
     if(tabIndex >= 0)
     {
-        QTabBar::removeTab(tabIndex);
+        closeTabAt(tabIndex);
     }
 }
 

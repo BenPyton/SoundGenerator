@@ -34,6 +34,7 @@
 #include "UndoCommands/LinkPinCommand.h"
 #include "UndoCommands/UnlinkPinCommand.h"
 #include "AudioSettings.h"
+#include "Components/SuperComponentData.h"
 
 NodalScene::NodalScene(QObject* parent)
     : QGraphicsScene(parent)
@@ -113,13 +114,13 @@ NodeItem* NodalScene::createPassThrough(LinkItem* _link)
     return item;
 }
 
-void NodalScene::addNodeItem(NodeItem *_item)
+void NodalScene::addNodeItem(NodeItem* _item)
 {
     addItem(_item);
     m_nodeList.append(_item);
 }
 
-void NodalScene::removeNodeItem(NodeItem *_item)
+void NodalScene::removeNodeItem(NodeItem* _item)
 {
     removeItem(_item);
     int itemIndex = m_nodeList.indexOf(_item);
@@ -239,6 +240,79 @@ void NodalScene::reset()
     m_nodeList[0]->setSelected(false);
 }
 
+QVector<NodeItem*> NodalScene::getInputs()
+{
+    QVector<NodeItem*> inputs;
+    QList<QGraphicsItem*> allItems = items();
+    for(auto it = allItems.begin(); it != allItems.end(); ++it)
+    {
+        NodeItem* item = qgraphicsitem_cast<NodeItem*>(*it);
+        if(item != nullptr)
+        {
+            InputComponent* component = dynamic_cast<InputComponent*>(item->component());
+            if(component != nullptr)
+            {
+                inputs.push_back(item);
+            }
+        }
+    }
+
+    return inputs;
+}
+
+QVector<NodeItem *> NodalScene::getSuperComponents(QUuid _uuid)
+{
+    QVector<NodeItem*> foundComp;
+    QList<QGraphicsItem*> allItems = items();
+    for(auto it = allItems.begin(); it != allItems.end(); ++it)
+    {
+        NodeItem* item = qgraphicsitem_cast<NodeItem*>(*it);
+        if(item != nullptr)
+        {
+            SuperComponent* component = dynamic_cast<SuperComponent*>(item->component());
+            if(component != nullptr && component->data()->uuid() == _uuid)
+            {
+                foundComp.push_back(item);
+            }
+        }
+    }
+
+    return foundComp;
+}
+
+bool NodalScene::deleteNode(NodeItem *_node)
+{
+    bool removed = false;
+    if(_node != nullptr && (_node->component() == nullptr || _node->component()->isRemovable()))
+    {
+        m_undoStack->beginMacro("Delete Node");
+        _node->unlink();
+        m_undoStack->push(new DeleteComponentCommand(this, _node, _node->pos()));
+        m_undoStack->endMacro();
+        removed = true;
+    }
+    return removed;
+}
+
+int NodalScene::deleteNodes(QVector<NodeItem*> _nodes)
+{
+    int nbRemoved = 0;
+
+    m_undoStack->beginMacro("Delete Nodes");
+    for(NodeItem* node : _nodes)
+    {
+        nbRemoved += deleteNode(node) ? 1 : 0;
+    }
+
+    if(nbRemoved > 0)
+    {
+        setDirty();
+    }
+
+    m_undoStack->endMacro();
+    return nbRemoved;
+}
+
 int NodalScene::deleteSelection()
 {
     int nbRemoved = 0;
@@ -247,12 +321,7 @@ int NodalScene::deleteSelection()
     for(QGraphicsItem* item : selectedItems())
     {
         NodeItem* node = qgraphicsitem_cast<NodeItem*>(item);
-        if(node != nullptr && (node->component() == nullptr || node->component()->isRemovable()))
-        {
-            node->unlink();
-            m_undoStack->push(new DeleteComponentCommand(this, node, node->pos()));
-            nbRemoved++;
-        }
+        nbRemoved += deleteNode(node) ? 1 : 0;
     }
 
     if(nbRemoved > 0)

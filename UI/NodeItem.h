@@ -43,6 +43,7 @@ public:
 
     void setComponent(Component* comp);
     inline Component* component() const { return m_component; }
+    void updateComponent();
 
     PinOutputItem* getOutput() { return m_outputPin; }
     PinInputItem* getInput(int _index);
@@ -55,6 +56,8 @@ public:
     void check();
 
     void setUndoStack(QUndoStack* _undoStack);
+
+    void rename();
 
     static QJsonArray NodeArrayToJson(const QVector<NodeItem*>& _nodeArray);
     static QVector<NodeItem*> JsonToNodeArray(
@@ -71,6 +74,8 @@ protected:
     void clearInputs();
     inline QUndoStack* undoStack() { return m_undoStack; }
     qreal getPinOffset() const;
+
+    void updatePins();
 
 protected slots:
     void setDirty() { emit dirtyChanged(); }

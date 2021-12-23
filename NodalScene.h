@@ -22,11 +22,13 @@
 #define NODALSCENE_H
 
 #include <QGraphicsScene>
+#include <QGraphicsItem>
 
 class NodeItem;
 class LinkItem;
 class QUndoStack;
 class AudioSettings;
+class Component;
 
 class NodalScene : public QGraphicsScene
 {
@@ -52,7 +54,12 @@ public:
     inline void setContextPosition(QPointF position) { m_contextPosition = position; }
     inline void isContextMenu(bool value) { m_isContextMenu = value; }
 
+    QVector<NodeItem*> getInputs();
+    QVector<NodeItem*> getSuperComponents(QUuid _uuid);
+
 public slots:
+    bool deleteNode(NodeItem* _node);
+    int deleteNodes(QVector<NodeItem*> _nodes);
     int deleteSelection();
     void selectAll();
     void deselectAll();
@@ -61,6 +68,7 @@ public slots:
     void undoCommand();
     void redoCommand();
     void setDirty() { emit dirtyChanged(); }
+
 
 signals:
     void dirtyChanged();

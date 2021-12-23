@@ -1,15 +1,25 @@
 /*
-* @author PELLETIER Benoit
-*
-* @file Component.cpp
-*
-* @date 16/01/2019
-*
-* @brief Define a component that modify a signal
-*
-*/
+ * Copyright 2019, 2021 Benoit Pelletier
+ *
+ * This file is part of Sound Generator.
+ *
+ * Sound Generator is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Sound Generator is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Sound Generator.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
 #include "Component.h"
+#include "ComponentInput.h"
 
 Component::Component()
 {
@@ -18,13 +28,17 @@ Component::Component()
 
 Component::~Component()
 {
+    for(QVector<ComponentInput*>::iterator it = m_inputs.begin(); it != m_inputs.end(); ++it)
+    {
+        delete *it;
+    }
 }
 
 void Component::init()
 {
-	for (ComponentInput input : m_inputs)
+    for (QVector<ComponentInput*>::iterator it = m_inputs.begin(); it != m_inputs.end(); ++it)
 	{
-		Component* c = input.getComponent();
+        Component* c = (*it)->getComponent();
 		if (nullptr != c)
 		{
 			c->init();
@@ -32,62 +46,41 @@ void Component::init()
 	}
 }
 
-ComponentInput * Component::getInput(int _index)
+ComponentInput* Component::getInput(int _index)
 {
-    if (_index >= 0 &&_index < m_inputs.size())
+    if (_index >= 0 && _index < m_inputs.size())
 	{
-		return &m_inputs[_index];
+        return m_inputs[_index];
 	}
-	return nullptr;
+    return nullptr;
 }
 
-ComponentInput * Component::getInput(QString _name)
+void Component::setName(QString _name)
 {
-	ComponentInput* input = nullptr;
-    for (QVector<ComponentInput>::iterator it = m_inputs.begin(); it != m_inputs.end(); ++it)
-	{
-		if ((*it).getName() == _name)
-		{
-			input = &(*it);
-			break;
-		}
-	}
-	return input;
+    Q_ASSERT(m_renamable);
+    m_name = _name;
 }
 
-ComponentInput::ComponentInput()
-    : ComponentInput("DEFAULT", nullptr)
+void Component::addInput(ComponentInput* _input)
 {
+    m_inputs.push_back(_input);
 }
 
-ComponentInput::ComponentInput(QString _name, Component* _parent)
-    : m_pParent(_parent), m_name(_name), m_editable(true), m_linkable(true)
+void Component::swapInputArrays(QVector<ComponentInput*>& _other)
 {
+    m_inputs.swap(_other);
 }
 
-bool ComponentInput::canSetComponent(Component * _comp)
+bool Component::_hasAlreadyInput(Component* _comp)
 {
-    return _comp != nullptr && !_comp->_hasAlreadyInput(m_pParent);
-}
-
-qreal ComponentInput::getValue(qreal _time)
-{
-	if (m_pComponent != nullptr)
-	{
-		return m_pComponent->getOutput(_time);
-	}
-	return m_defaultValue;
-}
-
-bool Component::_hasAlreadyInput(Component * _comp)
-{
-	bool hasComp = false;
-	if (_comp != nullptr)
-	{
-        for (QVector<ComponentInput>::iterator it = m_inputs.begin(); it != m_inputs.end(); ++it)
-		{
-			hasComp |= (it->m_pComponent != nullptr) && ((it->m_pComponent == _comp) || it->m_pComponent->_hasAlreadyInput(_comp));
-		}
-	}
-	return hasComp;
+    bool hasComp = false;
+    if (nullptr != _comp)
+    {
+        for (QVector<ComponentInput*>::iterator it = m_inputs.begin(); it != m_inputs.end(); ++it)
+        {
+            Component* comp = (*it)->getComponent();
+            hasComp |= (nullptr != comp) && ((comp == _comp) || comp->_hasAlreadyInput(_comp));
+        }
+    }
+    return hasComp;
 }

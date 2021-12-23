@@ -38,7 +38,11 @@ public:
 public slots:
     void editTab(SuperComponentData* _data);
     void renameTab(SuperComponentData* _data);
-    void deleteTab(SuperComponentData* _data);
+    void closeTab(SuperComponentData* _data);
+    void closeTabAt(int _index);
+
+signals:
+    void tabClosed(QUuid* _uuid);
 };
 
 #endif // SUPERCOMPTABBAR_H

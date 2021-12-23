@@ -85,7 +85,7 @@ MainWindow::MainWindow(QWidget* _parent)
     ui->waveFormScrollBar->setMaximum(5000);
     ui->waveFormScrollBar->setPageStep(1000);
 
-    m_scene = new NodalScene(ui->nodalView);
+    m_scene = new NodalScene(this);
     m_scene->setBackgroundBrush(Qt::black);
     connect(m_scene, &NodalScene::dirtyChanged, this, &MainWindow::setDirty);
 
@@ -95,13 +95,9 @@ MainWindow::MainWindow(QWidget* _parent)
     ui->sceneTabs->setDrawBase(false);
     ui->sceneTabs->setElideMode(Qt::ElideRight);
     ui->sceneTabs->setSelectionBehaviorOnRemove(QTabBar::SelectPreviousTab);
-    connect(ui->sceneTabs, &QTabBar::currentChanged, this, &MainWindow::showSuperComponentScene);
-    connect(m_superCompManager, &SuperComponentDataManager::dataDeleted, ui->sceneTabs, &SuperCompTabBar::deleteTab);
-
-    ui->nodalView->setScene(m_scene);
-    ui->nodalView->setZoomLimits(0.1, 5.0);
-    ui->nodalView->init();
-    ui->nodalView->show();
+    connect(ui->sceneTabs, &QTabBar::currentChanged, this, &MainWindow::displayScene);
+    connect(ui->sceneTabs, &SuperCompTabBar::tabClosed, this, &MainWindow::tabClosed);
+    connect(m_superCompManager, &SuperComponentDataManager::dataDeleted, ui->sceneTabs, &SuperCompTabBar::closeTab);
 
     connect(ui->newSuperCompButton, &QPushButton::clicked, this, &MainWindow::createSuperComponentData);
 
@@ -156,6 +152,11 @@ MainWindow::MainWindow(QWidget* _parent)
 
         menu_Add->addAction(action);
     }
+
+    // Create the "Add Input Component" action (it is visible only when editing Super Components)
+    m_act_createInputComponent = new QAction("Input", this);
+    connect(m_act_createInputComponent, &QAction::triggered, [this]() { currentScene()->createComponent("Input"); });
+    menu_Add->addAction(m_act_createInputComponent);
 
     // ===== Audio Menu =====
 
@@ -292,6 +293,12 @@ MainWindow::MainWindow(QWidget* _parent)
     ui->mainToolBar->addWidget(lbl_volume);
     ui->mainToolBar->addWidget(slider_volume);
     ui->mainToolBar->addWidget(lbl_volumePercent);
+
+    // Initialize nodal view
+    displayScene(-1); // show the main scene, and initialize all correctly
+    ui->nodalView->setZoomLimits(0.1, 5.0);
+    ui->nodalView->init();
+    ui->nodalView->show();
 
     // need to be done here for line edits in graphics scene
     qApp->setStyleSheet("\
@@ -684,6 +691,9 @@ void MainWindow::createSuperComponentData()
 void MainWindow::onDeleteSuperComponent(SuperComponentButton *_button)
 {
     qDebug() << "Delete SuperComponent: " << _button->data()->name();
+    QVector<NodeItem*> items = m_scene->getSuperComponents(_button->data()->uuid());
+    m_scene->deleteNodes(items);
+
     m_superCompManager->deleteData(_button->data()->uuid());
     _button->deleteLater();
 }
@@ -697,12 +707,13 @@ void MainWindow::onEditSuperComponent(SuperComponentData* _data)
     ui->nodalView->setScene(_data->scene());
 }
 
-void MainWindow::showSuperComponentScene(int _tabIndex)
+void MainWindow::displayScene(int _tabIndex)
 {
     qDebug() << "Index Changed: " << _tabIndex;
     if(_tabIndex < 0)
     {
         ui->nodalView->setScene(m_scene);
+        m_act_createInputComponent->setVisible(false);
     }
     else
     {
@@ -716,6 +727,20 @@ void MainWindow::showSuperComponentScene(int _tabIndex)
         else
         {
             qDebug() << "No data found...";
+        }
+        m_act_createInputComponent->setVisible(true);
+    }
+}
+
+void MainWindow::tabClosed(QUuid* _uuid)
+{
+    // Check if it is not triggered by data deletion
+    if(nullptr != m_superCompManager->getData(*_uuid))
+    {
+        QVector<NodeItem*> items = m_scene->getSuperComponents(*_uuid);
+        for(int i = 0; i < items.count(); ++i)
+        {
+            items[i]->updateComponent();
         }
     }
 }

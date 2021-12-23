@@ -19,6 +19,7 @@
  */
 
 #include "TriangleComponent.h"
+#include "ComponentInput.h"
 
 TriangleComponent::TriangleComponent()
 {
@@ -27,9 +28,9 @@ TriangleComponent::TriangleComponent()
 
 qreal TriangleComponent::getOutput(qreal _time)
 {
-    qreal frequency = m_inputs[0].getValue(_time);
-    qreal amplitude = m_inputs[1].getValue(_time);
-    qreal offset = m_inputs[2].getValue(_time);
+    qreal frequency = getInput(0)->getValue(_time);
+    qreal amplitude = getInput(1)->getValue(_time);
+    qreal offset = getInput(2)->getValue(_time);
 
 	m_temp += (_time - m_prevTime) * frequency;
 	m_prevTime = _time;

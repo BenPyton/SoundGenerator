@@ -22,8 +22,10 @@
 #define SUPERCOMPONENT_H
 
 #include "Component.h"
+#include <QUuid>
 
 class SuperComponentData;
+class SuperComponentInput;
 
 class SuperComponent : public Component
 {
@@ -37,9 +39,9 @@ public:
     inline SuperComponentData* data() { return m_data; }
 
     void updateInputs();
-    
+
 private:
     SuperComponentData* m_data;
 };
 
-#endif // OUTPUTCOMPONENT_H
+#endif // SUPERCOMPONENT_H

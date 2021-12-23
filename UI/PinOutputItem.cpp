@@ -20,6 +20,7 @@
 
 #include "PinOutputItem.h"
 #include "PinInputItem.h"
+#include "Components/ComponentInput.h"
 
 PinOutputItem::PinOutputItem(QGraphicsItem *parent)
     : PinItem(parent)

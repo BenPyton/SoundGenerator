@@ -19,21 +19,22 @@
  */
 
 #include "RandomComponent.h"
+#include "ComponentInput.h"
 #include "Random.h"
 
 RandomComponent::RandomComponent()
 {
 	m_name = "Random";
-	m_inputs.push_back(ComponentInput("Amplitude", this));
-	m_inputs.push_back(ComponentInput("Offset", this));
+    addInput(new ComponentInput("Amplitude", this));
+    addInput(new ComponentInput("Offset", this));
 
-    m_inputs[0].setDefaultValue(1.0);
-    m_inputs[1].setDefaultValue(0.0);
+    getInput(0)->setDefaultValue(1.0);
+    getInput(1)->setDefaultValue(0.0);
 }
 
 qreal RandomComponent::getOutput(qreal _time)
 {
-    qreal amplitude = m_inputs[0].getValue(_time);
-    qreal offset = m_inputs[1].getValue(_time);
+    qreal amplitude = getInput(0)->getValue(_time);
+    qreal offset = getInput(1)->getValue(_time);
     return amplitude * (2 * (Random::Range(0, INT16_MAX) / static_cast<qreal>(INT16_MAX)) - 1) + offset;
 }

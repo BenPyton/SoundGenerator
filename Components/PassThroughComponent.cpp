@@ -19,22 +19,23 @@
  */
 
 #include "PassThroughComponent.h"
+#include "ComponentInput.h"
 
 PassThroughComponent::PassThroughComponent()
 	: Component()
 {
     m_name = "PassThrough";
 
-	m_inputs.push_back(ComponentInput("", this));
+    addInput(new ComponentInput("", this));
 
     m_showTitle = false;
     m_showBackground = false;
     m_canDragPins = false;
-    m_inputs[0].setDefaultValue(0.0);
-    m_inputs[0].setEditable(false);
+    getInput(0)->setDefaultValue(0.0);
+    getInput(0)->setEditable(false);
 }
 
 qreal PassThroughComponent::getOutput(qreal _time)
 {
-	return m_inputs[0].getValue(_time);
+    return getInput(0)->getValue(_time);
 }

@@ -35,6 +35,10 @@ Component * ComponentFactory::CreateComponent(const QString & _compName)
     {
         pComp = new OutputComponent();
     }
+    else if (_compName == "Input")
+    {
+        pComp = new InputComponent();
+    }
     else if (_compName == "PassThrough")
     {
         pComp = new PassThroughComponent();

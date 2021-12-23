@@ -24,6 +24,7 @@
 #include "NodalScene.h"
 #include "LinkItem.h"
 #include "PinItem.h"
+#include "Components/Component.h"
 
 const int NodalView::gridUnit = 20;
 
@@ -350,6 +351,7 @@ void NodalView::showCustomContextMenu(const QPoint& _pos)
     QAction act_breakLink("Break link");
     QAction act_removeComponents("Remove Component(s)");
     QAction act_createPassThrough("Add passthrough");
+    QAction act_renameComponent("Rename Component");
 
     QMenu myMenu;
 
@@ -360,24 +362,30 @@ void NodalView::showCustomContextMenu(const QPoint& _pos)
     }
 
     QGraphicsItem* item = scene->itemAt(mapToScene(_pos), QTransform());
-    PinItem* pin = dynamic_cast<PinItem*>(item);
-    LinkItem* link = dynamic_cast<LinkItem*>(item);
-    if(link != nullptr)
+    PinItem* pin = qgraphicsitem_cast<PinItem*>(item);
+    LinkItem* link = qgraphicsitem_cast<LinkItem*>(item);
+    NodeItem* node = qgraphicsitem_cast<NodeItem*>(item);
+    if (link != nullptr)
     {
         myMenu.addAction(&act_breakLink);
         myMenu.addAction(&act_createPassThrough);
     }
-    else if(pin != nullptr && pin->isLinked())
+    else if (pin != nullptr && pin->isLinked())
     {
         myMenu.addAction(&act_breakAllLinks);
     }
-    if(scene->selectedItems().size() > 0)
+    else if (node != nullptr && node->component()->isRenamable())
+    {
+        myMenu.addAction(&act_renameComponent);
+    }
+
+    if (scene->selectedItems().size() > 0)
     {
         myMenu.addAction(&act_removeComponents);
     }
 
     // don't show menu if no action inside
-    if(myMenu.isEmpty())
+    if (myMenu.isEmpty())
         return;
 
     QAction* selectedAction = myMenu.exec(globalPos);
@@ -397,6 +405,10 @@ void NodalView::showCustomContextMenu(const QPoint& _pos)
     else if (selectedAction == &act_createPassThrough)
     {
         scene->createPassThrough(link);
+    }
+    else if (selectedAction == &act_renameComponent)
+    {
+        node->rename();
     }
     else
     {

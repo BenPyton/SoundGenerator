@@ -27,6 +27,7 @@
 #include <qvalidator.h>
 #include "PinOutputItem.h"
 #include "Components/Component.h"
+#include "Components/ComponentInput.h"
 #include "UndoCommands/ChangeInputValueCommand.h"
 #include "NodeItem.h"
 

@@ -21,6 +21,7 @@
 #include "ChangeInputValueCommand.h"
 #include "PinInputItem.h"
 #include "Components/Component.h"
+#include "Components/ComponentInput.h"
 
 ChangeInputValueCommand::ChangeInputValueCommand(PinInputItem* input, qreal value, QUndoCommand* _parent)
     : QUndoCommand ("Change Input Value", _parent), m_input(input)

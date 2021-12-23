@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Benoit Pelletier
+ * Copyright 2019, 2021 Benoit Pelletier
  *
  * This file is part of Sound Generator.
  *
@@ -23,22 +23,13 @@
 
 #include <QVector>
 #include <QString>
-#include <QtCore>
+#include <QDebug>
 
 class ComponentInput;
 
 class Component
 {
-	friend ComponentInput;
-
-protected:
-    QVector<ComponentInput> m_inputs;
-    QString m_name;
-	bool m_hasOutput = true;
-    bool m_removable = true;
-    bool m_showTitle = true;
-    bool m_showBackground = true;
-    bool m_canDragPins = true;
+    friend ComponentInput;
 
 public:
     Component();
@@ -46,55 +37,37 @@ public:
 
 	virtual void init();
 
-    bool isRemovable() const { return m_removable; }
-    bool hasOutput() const { return m_hasOutput; }
-    bool showTitle() const { return m_showTitle; }
-    bool showBackground() const { return m_showBackground; }
-    bool canDragPins() const { return m_canDragPins; }
+    inline bool isRemovable() const { return m_removable; }
+    inline bool isRenamable() const { return m_renamable; }
+    inline bool hasOutput() const { return m_hasOutput; }
+    inline bool showTitle() const { return m_showTitle; }
+    inline bool showBackground() const { return m_showBackground; }
+    inline bool canDragPins() const { return m_canDragPins; }
     virtual qreal getOutput(qreal _time) = 0;
 
     ComponentInput* getInput(int _index);
-    ComponentInput* getInput(QString _name);
     int getInputCount() const { return m_inputs.size(); }
 
     QString getName() const { return m_name; }
+    void setName(QString _name);
+
+protected:
+    // Takes the ownership of the input
+    void addInput(ComponentInput* _input);
+    void swapInputArrays(QVector<ComponentInput*>& _array);
 
 private:
-	bool _hasAlreadyInput(Component* _comp);
-};
+    bool _hasAlreadyInput(Component* _comp);
 
-class ComponentInput
-{
-	friend Component;
-
-private:
-	Component* m_pParent = nullptr;
-	Component* m_pComponent = nullptr;
-    qreal m_defaultValue;
+protected:
+    QVector<ComponentInput*> m_inputs;
     QString m_name;
-    bool m_editable;
-    bool m_linkable;
-
-public:
-    ComponentInput();
-    ComponentInput(QString _name, Component* _parent = nullptr);
-
-    Component* getParent() const { return m_pParent; }
-    QString getName() const { return m_name; }
-    qreal getValue(qreal _time);
-
-    bool canSetComponent(Component* _comp);
-    void setComponent(Component* _comp) { m_pComponent = _comp; }
-    Component* getComponent() const { return m_pComponent; }
-
-    void setDefaultValue(qreal _value) { m_defaultValue = _value; }
-    qreal getDefaultValue() const { return m_defaultValue; }
-
-    void setEditable(bool _editable) { m_editable = _editable; }
-    bool getEditable() const { return m_editable; }
-
-    void setLinkable(bool _linkable) { m_linkable = _linkable; }
-    bool getLinkable() const { return m_linkable; }
+    bool m_hasOutput = true;
+    bool m_removable = true;
+    bool m_showTitle = true;
+    bool m_showBackground = true;
+    bool m_canDragPins = true;
+    bool m_renamable = false;
 };
 
 #endif // COMPONENT_H

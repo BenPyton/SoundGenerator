@@ -19,21 +19,22 @@
  */
 
 #include "MultiplyComponent.h"
+#include "ComponentInput.h"
 
 MultiplyComponent::MultiplyComponent()
 {
 	m_name = "Multiply";
 
-	m_inputs.push_back(ComponentInput("Signal A", this));
-	m_inputs.push_back(ComponentInput("Signal B", this));
+    addInput(new ComponentInput("Signal A", this));
+    addInput(new ComponentInput("Signal B", this));
 
-    m_inputs[0].setDefaultValue(0.0);
-    m_inputs[1].setDefaultValue(0.0);
+    getInput(0)->setDefaultValue(0.0);
+    getInput(1)->setDefaultValue(0.0);
 }
 
 qreal MultiplyComponent::getOutput(qreal _time)
 {
-    qreal signalA = m_inputs[0].getValue(_time);
-    qreal signalB = m_inputs[1].getValue(_time);
+    qreal signalA = getInput(0)->getValue(_time);
+    qreal signalB = getInput(1)->getValue(_time);
 	return signalA * signalB;
 }

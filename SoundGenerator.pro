@@ -27,8 +27,10 @@ INCLUDEPATH += UI
 CONFIG += c++11
 
 SOURCES += \
+    Components/ComponentInput.cpp \
     Components/InputComponent.cpp \
     Components/PassThroughComponent.cpp \
+    Components/SuperComponentInput.cpp \
     NodalScene.cpp \
     SuperComponentDataManager.cpp \
     UndoCommands/ChangeInputValueCommand.cpp \
@@ -79,7 +81,8 @@ SOURCES += \
     ActionAudioDevice.cpp \
     LoopableBuffer.cpp \
     ActionCycle.cpp \
-    SampleConverter.cpp
+    SampleConverter.cpp \
+    UI/RenameDialog.cpp
 
 HEADERS += \
     Components.h \
@@ -87,6 +90,7 @@ HEADERS += \
     Components/ADSRComponent.h \
     Components/Component.h \
     Components/ComponentFactory.h \
+    Components/ComponentInput.h \
     Components/DelayComponent.h \
     Components/GeneratorComponent.h \
     Components/InputComponent.h \
@@ -98,6 +102,7 @@ HEADERS += \
     Components/SawToothComponent.h \
     Components/SinusComponent.h \
     Components/SquareComponent.h \
+    Components/SuperComponentInput.h \
     Components/TriangleComponent.h \
     Components/SuperComponent.h \
     Components/SuperComponentData.h \
@@ -137,11 +142,13 @@ HEADERS += \
     AudioSettings.h \
     ActionAudioDevice.h \
     SampleConverter.h \
-    Exceptions.h
+    Exceptions.h \
+    UI/RenameDialog.h
 
 FORMS += \
     UI/mainwindow.ui \
-    UI/audiosettingsdialog.ui
+    UI/audiosettingsdialog.ui \
+    UI/renamedialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

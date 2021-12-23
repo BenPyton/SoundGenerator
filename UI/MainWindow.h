@@ -95,7 +95,8 @@ public slots:
     void createSuperComponentData();
     void onDeleteSuperComponent(SuperComponentButton* _button);
     void onEditSuperComponent(SuperComponentData* _data);
-    void showSuperComponentScene(int _tabIndex);
+    void displayScene(int _tabIndex);
+    void tabClosed(QUuid* _uuid);
 
 private:
     void createActions();
@@ -127,6 +128,7 @@ private:
 
     AudioSettingsDialog* m_audioSettingsDialog;
     SuperComponentDataManager* m_superCompManager;
+    QAction* m_act_createInputComponent;
 };
 
 #endif // MAINWINDOW_H
