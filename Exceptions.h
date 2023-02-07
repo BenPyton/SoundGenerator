@@ -29,7 +29,7 @@ class NotImplementedException : public QException
 public:
     virtual void raise() const override { throw *this; }
     virtual NotImplementedException* clone() const override { return new NotImplementedException(*this); }
-    virtual const char* what() const override { return "Function is not implemented"; }
+    virtual const char* what() const noexcept override { return "Function is not implemented"; }
 };
 
 // Used to announce an error in one of the arguments passed to a function
@@ -41,7 +41,7 @@ public:
 
     virtual void raise() const override { throw *this; }
     virtual ArgumentException* clone() const override { return new ArgumentException(*this); }
-    virtual const char* what() const override { return m_message.c_str(); }
+    virtual const char* what() const noexcept override { return m_message.c_str(); }
 private:
     std::string m_message;
 };
