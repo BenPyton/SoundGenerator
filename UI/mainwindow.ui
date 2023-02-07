@@ -837,12 +837,12 @@ QRadioButton::indicator::checked {
   <customwidget>
    <class>NodalView</class>
    <extends>QGraphicsView</extends>
-   <header>nodalview.h</header>
+   <header>NodalView.h</header>
   </customwidget>
   <customwidget>
    <class>WaveFormView</class>
    <extends>QWidget</extends>
-   <header>waveformview.h</header>
+   <header>WaveFormView.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
