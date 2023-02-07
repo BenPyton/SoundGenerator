@@ -20,6 +20,7 @@
 
 #include "WaveFormChunk.h"
 #include <QPainter>
+#include <QPainterPath>
 #include <QtMath>
 #include <QtCore>
 #include "Signal.h"
