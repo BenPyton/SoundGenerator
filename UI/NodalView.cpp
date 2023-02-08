@@ -35,8 +35,12 @@ NodalView::NodalView(QWidget* _parent)
     , m_scene(nullptr)
 {
     setAcceptDrops(true);
+#if defined(Q_OS_WIN32)
     setContextMenuPolicy(Qt::CustomContextMenu);
     this->connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), SLOT(showCustomContextMenu(const QPoint&)));
+#else
+    setContextMenuPolicy(Qt::NoContextMenu);
+#endif
 
     // fix all graphic issue, but is less performant
     setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
@@ -129,12 +133,18 @@ void NodalView::mouseReleaseEvent(QMouseEvent* _event)
         m_rightClickPressed = false;
         if(m_dragging)
         {
+#if defined(Q_OS_WIN32)
             setContextMenuPolicy(Qt::NoContextMenu);
+#endif
             m_dragging = false;
         }
         else
         {
+#if defined(Q_OS_WIN32)
             setContextMenuPolicy(Qt::CustomContextMenu);
+#else
+            showCustomContextMenu(_event->pos());
+#endif
         }
     }
 
