@@ -59,6 +59,9 @@ public:
 
     void rename();
 
+    QJsonObject toJson();
+    void fromJson(const QJsonObject& json);
+
     static QJsonArray NodeArrayToJson(const QVector<NodeItem*>& _nodeArray);
     static QVector<NodeItem*> JsonToNodeArray(
             const QJsonArray& _jsonArray,

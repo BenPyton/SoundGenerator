@@ -35,6 +35,14 @@
 #include "Components/SuperComponent.h"
 #include "RenameDialog.h"
 
+#define COMP_ID "id"
+#define COMP_NAME "name"
+#define POS_X "x"
+#define POS_Y "y"
+#define INPUTS "inputs"
+#define INPUT_NAME "name"
+#define DEFAULT_VALUE "value"
+#define LINK_ID "link"
 
 NodeItem::NodeItem(QGraphicsItem* _parent)
     : QGraphicsItem(_parent)
@@ -329,19 +337,19 @@ QJsonArray NodeItem::NodeArrayToJson(const QVector<NodeItem*>& _nodeArray)
             }
 
             QJsonObject input;
-            input["name"] = pin->input()->getName();
-            input["value"] = pin->input()->getDefaultValue();
-            input["link"] = linkIndex;
+            input[INPUT_NAME] = pin->input()->getName();
+            input[DEFAULT_VALUE] = pin->input()->getDefaultValue();
+            input[LINK_ID] = linkIndex;
 
             inputArray.append(input);
         }
 
         QJsonObject component;
-        component["id"] = i;
-        component["x"] = _nodeArray[i]->x();
-        component["y"] = _nodeArray[i]->y();
-        component["name"] = _nodeArray[i]->component()->getName();
-        component["inputs"] = inputArray;
+        component[COMP_ID] = i;
+        component[POS_X] = _nodeArray[i]->x();
+        component[POS_Y] = _nodeArray[i]->y();
+        component[COMP_NAME] = _nodeArray[i]->component()->getName();
+        component[INPUTS] = inputArray;
 
         jsonArray.append(component);
     }
@@ -367,16 +375,16 @@ QVector<NodeItem*> NodeItem::JsonToNodeArray(
         NodeItem* node = nullptr;
 
         // ============== COMPONENT NAME =============
-        if(Utils::CheckJsonValue(component, "name", QJsonValue::String, 130))
+        if(Utils::CheckJsonValue(component, COMP_NAME, QJsonValue::String, 130))
         {
             QPointF position;
             // ============== COMPONENT COORDINATES =============
-            if(Utils::CheckJsonValue(component, "x", QJsonValue::Double, 140))
-                position.setX(component["x"].toDouble() + _positionOffset.x());
-            if(Utils::CheckJsonValue(component, "y", QJsonValue::Double, 150))
-                position.setY(component["y"].toDouble() + _positionOffset.y());
+            if(Utils::CheckJsonValue(component, POS_X, QJsonValue::Double, 140))
+                position.setX(component[POS_X].toDouble() + _positionOffset.x());
+            if(Utils::CheckJsonValue(component, POS_Y, QJsonValue::Double, 150))
+                position.setY(component[POS_Y].toDouble() + _positionOffset.y());
 
-            QString nodeName = component["name"].toString();
+            QString nodeName = component[COMP_NAME].toString();
             if(nodeName == "Output")
             {
                 node = _scene->getOutput();
@@ -410,21 +418,21 @@ QVector<NodeItem*> NodeItem::JsonToNodeArray(
             nodeArray[i]->setSelected(true);
 
             QJsonObject component = _jsonArray[i].toObject();
-            if(!Utils::CheckJsonValue(component, "inputs", QJsonValue::Array, 160))
+            if(!Utils::CheckJsonValue(component, INPUTS, QJsonValue::Array, 160))
                 continue;
-            QJsonArray inputs = component["inputs"].toArray();
+            QJsonArray inputs = component[INPUTS].toArray();
 
             for(int k = 0; k < inputs.size(); ++k)
             {
                 QJsonObject input = inputs[k].toObject();
-                if(!Utils::CheckJsonValue(input, "value", QJsonValue::Double, 170))
+                if(!Utils::CheckJsonValue(input, DEFAULT_VALUE, QJsonValue::Double, 170))
                     continue;
                 PinInputItem* pin = nodeArray[i]->getInput(k);
-                pin->setDefaultValue(input["value"].toDouble());
+                pin->setDefaultValue(input[DEFAULT_VALUE].toDouble());
 
-                if(!Utils::CheckJsonValue(input, "link", QJsonValue::Double, 180))
+                if(!Utils::CheckJsonValue(input, LINK_ID, QJsonValue::Double, 180))
                     continue;
-                int linkIndex = input["link"].toInt();
+                int linkIndex = input[LINK_ID].toInt();
                 if(linkIndex >= 0 && linkIndex < nodeArray.size())
                 {
                     PinOutputItem* otherPin = nodeArray[linkIndex]->getOutput();
@@ -464,4 +472,20 @@ void NodeItem::rename()
     }
 
     delete dialog;
+}
+
+QJsonObject NodeItem::toJson()
+{
+    QJsonObject json;
+    json["x"] = x();
+    json["y"] = y();
+    json["name"] = component()->getName();
+    json["data"] = component()->toJson();
+
+    return json;
+}
+
+void NodeItem::fromJson(const QJsonObject& _json)
+{
+    Q_UNUSED(_json)
 }

@@ -82,7 +82,10 @@ SOURCES += \
     LoopableBuffer.cpp \
     ActionCycle.cpp \
     SampleConverter.cpp \
-    UI/RenameDialog.cpp
+    UI/RenameDialog.cpp \
+    ProjectFile.cpp \
+    JsonInterface.cpp \
+    FileManager.cpp
 
 HEADERS += \
     Components.h \
@@ -143,7 +146,10 @@ HEADERS += \
     ActionAudioDevice.h \
     SampleConverter.h \
     Exceptions.h \
-    UI/RenameDialog.h
+    UI/RenameDialog.h \
+    ProjectFile.h \
+    JsonInterface.h \
+    FileManager.h
 
 FORMS += \
     UI/mainwindow.ui \

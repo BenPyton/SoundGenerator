@@ -51,6 +51,9 @@ public:
     QString getName() const { return m_name; }
     void setName(QString _name);
 
+    virtual QJsonValue toJson() const;
+    virtual void fromJson(const QJsonValue& _json);
+
 protected:
     // Takes the ownership of the input
     void addInput(ComponentInput* _input);

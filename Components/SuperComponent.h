@@ -40,6 +40,9 @@ public:
 
     void updateInputs();
 
+    virtual QJsonValue toJson() const override;
+    virtual void fromJson(const QJsonValue& _json) override;
+
 private:
     SuperComponentData* m_data;
 };

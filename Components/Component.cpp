@@ -20,6 +20,7 @@
 
 #include "Component.h"
 #include "ComponentInput.h"
+#include <QJsonValue>
 
 Component::Component()
 {
@@ -59,6 +60,16 @@ void Component::setName(QString _name)
 {
     Q_ASSERT(m_renamable);
     m_name = _name;
+}
+
+QJsonValue Component::toJson() const
+{
+    return QJsonValue();
+}
+
+void Component::fromJson(const QJsonValue& _json)
+{
+    Q_UNUSED(_json)
 }
 
 void Component::addInput(ComponentInput* _input)

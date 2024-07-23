@@ -24,6 +24,7 @@
 #include "InputComponent.h"
 #include "NodeItem.h"
 #include "SuperComponentInput.h"
+#include <QJsonValue>
 
 SuperComponent::SuperComponent(SuperComponentData* _data)
     : Component(), m_data(_data)
@@ -101,4 +102,18 @@ void SuperComponent::updateInputs()
 
     // swap back to the input array
     swapInputArrays(newInputs);
+}
+
+QJsonValue SuperComponent::toJson() const
+{
+    return m_data->uuid().toString();
+}
+
+void SuperComponent::fromJson(const QJsonValue& _json)
+{
+    QUuid uuid(_json.toString());
+
+    // get data from uuid
+
+    updateInputs();
 }

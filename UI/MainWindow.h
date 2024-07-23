@@ -22,9 +22,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QWidget>
 #include <QtWidgets>
-#include "Signal.h"
+#include <Signal.h>
 
 class NodeItem;
 class NodalScene;
@@ -32,7 +31,8 @@ class AudioSettingsDialog;
 class ActionAudioDevice;
 class SuperComponentData;
 class SuperComponentButton;
-class SuperComponentDataManager;
+class ProjectFile;
+class FileManager;
 
 namespace Ui {
 class MainWindow;
@@ -55,8 +55,6 @@ public:
     explicit MainWindow(QWidget* _parent = nullptr);
     virtual ~MainWindow() override;
 
-    QString fileName() { return m_fileName; }
-    void setFileName(QString _fileName);
     void readSettings();
     NodalScene* currentScene();
 
@@ -66,20 +64,12 @@ protected:
 
 public slots:
     // actions
-    void newFile();
-    void save();
-    void saveAs();
-    void open();
-    void openRecent();
-    void clearRecentFiles();
     void about();
-    void exportWAV();
     void quit();
     void playPause(int _index);
     void openAudioSettings();
-    void generate();
     // other
-    void setDirty();
+    void setDirty(bool _asPristine);
     void changeVolume(int _value);
     void changeAutoGenerate(QAction* _action);
     void onOutputChanged();
@@ -101,34 +91,23 @@ public slots:
 private:
     void createActions();
     void createMenus();
-    void openFile(QString _fileName);
-    void saveFile(QString _fileName);
-    QMessageBox::StandardButton askSaveChanges(QString _action);
-    void updateWindowTitle();
-    void updateRecentFileActions();
+    void updateWindowTitle(QString _fileName);
+    //void updateRecentFileActions();
 
 private:
-    static const int maxRecentFile = 10;
+    //static const int maxRecentFile = 10;
 
     Ui::MainWindow *ui;
-    NodalScene* m_scene;
-
-    Signal m_signal;
-
-    QString m_fileName;
-    bool m_dirty;
-    bool m_dirtyable;
-
     QString m_windowTitle;
     AutoGenerationMode m_autoGenerateMode;
 
-    QAction* recentFileActs[maxRecentFile];
-    QMenu* menu_openRecentFile;
     QActionGroup* m_act_autoGenerateGroup;
 
     AudioSettingsDialog* m_audioSettingsDialog;
-    SuperComponentDataManager* m_superCompManager;
     QAction* m_act_createInputComponent;
+
+    ProjectFile* m_project;
+    FileManager* m_fileManager;
 };
 
 #endif // MAINWINDOW_H
